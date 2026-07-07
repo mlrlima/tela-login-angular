@@ -1,0 +1,14 @@
+<h2>Criar novo usuário</h2>
+
+<form (ngSubmit)="onSubmit()">
+    <input type="text" [(ngModel)]="nome" name="nome" placeholder="Nome" />
+  
+
+  <input type="text" [(ngModel)]="email" name="email" placeholder="Email" />
+  
+  <input type="password" [(ngModel)]="senha" name="senha" placeholder="Senha" />
+  
+  <button type="submit">Criar</button>
+</form>
+
+<p *ngIf="mensagens" style="color: blue;">{{ mensagens }}</p>

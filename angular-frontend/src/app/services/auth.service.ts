@@ -16,4 +16,8 @@ export class AuthService {
     return this.http.post('/api/auth/login', { email, senha });
   }
   
+  novoUsuario(nome: string, email: string, senha: string): Observable<any> {
+    return this.http.post('/api/usuario', { nome, email, senha });
+  }
+  
 }

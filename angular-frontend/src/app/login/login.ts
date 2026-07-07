@@ -15,7 +15,7 @@ import { AuthService } from '../services/auth.service';
 export class Login {
 	email='';
 	senha='';
-	msgErro='';
+	mensagens='';
 	
 	constructor(private authService: AuthService){}
 	
@@ -23,10 +23,11 @@ export class Login {
 		this.authService.login(this.email, this.senha).subscribe({
 			next: (response)=>{
 				console.log('Login funcionou', response);
+				this.mensagens='Login efetuado com sucesso.';
 			},
 			error: (err)=>{
 				console.error('Login nao funcionou', err);
-				this.msgErro='Login não funcionou.';
+				this.mensagens='Login não funcionou';
 			}
 		});
 	}
