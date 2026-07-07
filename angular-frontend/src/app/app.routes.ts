@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 
+import { Login } from './login/login';
+import { CriarUsuario } from './criar-usuario/criar-usuario';
+
 export const routes: Routes = [
-	{ path:'', pathMatch:'full', redirectTo: 'gestaoUsuarios' },
-	{
-	  path: 'gestaoUsuarios',
-	  loadChildren: () => import('./gestaoUsuarios/gestao-usuarios-module').then(m => m.GestaoUsuariosModule)
-	}
+	{ path: '', redirectTo: 'login', pathMatch: 'full' },
+	{ path: 'login', component: Login },
+    { path: 'criar-usuario', component: CriarUsuario },
 ];

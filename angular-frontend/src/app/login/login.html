@@ -1,9 +1,25 @@
-<h2>Login</h2>
+<div class="auth-card">
+  <h2>Entrar</h2>
 
-<form (ngSubmit)="onSubmit()">
-  <input type="text" [(ngModel)]="email" name="email" placeholder="Email" />
-  <input type="password" [(ngModel)]="senha" name="senha" placeholder="Senha" />
-  <button type="submit">Login</button>
-</form>
+  <form (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" name="email" [(ngModel)]="email" placeholder="Email" required />
+    </div>
 
-<p *ngIf="mensagens" style="color: blue;">{{ mensagens }}</p>
+    <div class="field">
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" name="senha" [(ngModel)]="senha" placeholder="Senha" required />
+    </div>
+
+    <p *ngIf="mensagens" class="mensagem">{{ mensagens }}</p>
+
+    <button type="submit" [disabled]="carregando">
+      {{ carregando ? 'Entrando...' : 'Entrar' }}
+    </button>
+  </form>
+
+  <p class="switch-link">
+   <a routerLink="/criar-usuario">Criar novo usuário</a>
+  </p>
+</div>

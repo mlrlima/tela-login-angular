@@ -2,12 +2,15 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { RouterLink } from '@angular/router';
+
 
 @Component({
   selector: 'app-criar-usuario',
   standalone: true,
   imports: [ FormsModule,
-  			 CommonModule ],
+  			 CommonModule,
+			 RouterLink ],
   templateUrl: './criar-usuario.html',
   styleUrl: './criar-usuario.css',
 })
