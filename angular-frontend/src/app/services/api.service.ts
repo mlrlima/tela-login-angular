@@ -10,10 +10,12 @@ export class ApiService{
 	
 	constructor(){}
 	
+	/*
 	getAboutInfo(): Observable<IAbout>{
 		const aboutURL: string= '${environment.apiUrl}/about.json';
 		return this.http.get<IAbout>(aboutURL);
 	}
 	
-	getExperiencesInfo(): 
+	getExperiencesInfo():
+	*/ 
 }

@@ -1,4 +1,9 @@
-<table mat-table [usuarios]="usuarios" class="mat-shadow-2">
+<mat-toolbar>
+  <span>Gestão de Usuarios</span>
+</mat-toolbar>
+
+
+<table mat-table [dataSource]="usuarios" class="mat-shadow-2">
 
   <!-- Nome Column -->
   <ng-container matColumnDef="nome">
