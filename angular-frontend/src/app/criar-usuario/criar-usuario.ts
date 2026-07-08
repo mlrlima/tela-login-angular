@@ -42,7 +42,7 @@ export class CriarUsuario {
 			},
 			error: (err)=>{
 				console.error('Nao foi possivel criar este usuario', err);
-				this.mensagens='Nao foi possivel criar este usuario. Verifique se as informações são válidas';
+				this.mensagens= err.error?.erro ?? 'Nao foi possivel criar este usuario. Verifique se as informações são válidas';
 				this.cdr.detectChanges();
 			}
 		});

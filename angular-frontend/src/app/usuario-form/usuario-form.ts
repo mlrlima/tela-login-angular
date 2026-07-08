@@ -86,7 +86,7 @@ export class UsuarioForm implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao salvar usuario', err);
-        this.mensagens = err.status === 403
+        this.mensagens = err.error?.erro ?? err.status === 403
           ? 'Sem permissao para essa acao.'
           : 'Nao foi possivel salvar o usuario.';
         this.cdr.detectChanges();

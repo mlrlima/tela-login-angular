@@ -81,7 +81,7 @@ export class PetForm implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao salvar pet', err);
-        this.mensagens = err.status === 403
+        this.mensagens = err.error?.erro ?? err.status === 403
           ? 'Sem permissao para essa acao.'
           : 'Nao foi possivel salvar o pet.';
         this.cdr.detectChanges();

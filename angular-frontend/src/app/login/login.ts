@@ -52,9 +52,9 @@ export class Login{
         if (err.status === 401) {
           this.mensagens = err.error?.erro ?? 'Email ou senha invalidos.';
         } else if (err.status === 0) {
-          this.mensagens = 'Nao foi possivel conectar ao servidor.';
+          this.mensagens = err.error?.erro ?? 'Nao foi possivel conectar ao servidor.';
         } else {
-          this.mensagens = 'Erro inesperado. Tente novamente.';
+          this.mensagens = err.error?.erro ?? 'Erro inesperado. Tente novamente.';
         }
 		this.cdr.detectChanges();
       }

@@ -27,7 +27,7 @@ public class Usuario implements Serializable{
 	@GeneratedValue(strategy=GenerationType.IDENTITY) //gera um valor auto-incremental
 	private Long id;
 	
-	@NotNull
+	@NotEmpty
 	@Email
 	@Column(nullable=false, length=50, unique=true)
 	private String email;
