@@ -92,5 +92,7 @@ export class UsuarioForm implements OnInit {
         this.cdr.detectChanges();
       }
     });
+	
+	this.cdr.detectChanges();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login{
 
   email='';
   senha='';

@@ -17,7 +17,8 @@
 
   <div class="nav-right">
 
-    <span class="nav-user">
+    <span *ngIf="logado"
+    		class="nav-user" >
       <mat-icon>account_circle</mat-icon>
       {{ emailUsuario }}
     </span>

@@ -8,12 +8,13 @@ import { GestaoPets } from './gestao-pets/gestao-pets';
 import { PetForm } from './pet-form/pet-form';
 import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard-guard';
+import { loginGuard } from './guards/login-guard';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 	
-	{ path: 'login', component: Login },
-    { path: 'criar-usuario', component: CriarUsuario },
+	{ path: 'login', component: Login, canActivate: [loginGuard] },
+    { path: 'criar-usuario', component: CriarUsuario, canActivate: [loginGuard] },
 	
 	{ path: 'pets', component: GestaoPets, canActivate: [authGuard] },
 	{ path: 'pets/novo', component: PetForm, canActivate: [authGuard] },

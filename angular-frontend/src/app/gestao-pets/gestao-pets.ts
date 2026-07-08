@@ -54,10 +54,12 @@ export class GestaoPets implements OnInit {
 	    this.petService.remover(id).subscribe({
 	      next: () => {
 	        this.pets = this.pets.filter(p => p.id !== id);
+			this.cdr.detectChanges();
 	      },
 	      error: (err) => {
 	        console.error('Erro ao remover pet', err);
 	        this.mensagens = 'Nao foi possivel remover este pet.';
+			this.cdr.detectChanges();
 	      }
 	    });
 	  }
