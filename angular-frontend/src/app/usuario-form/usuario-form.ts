@@ -1,7 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common'; //*ngIf, *ngFor
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, //Lê parâmetros da URL. ex: /usuarios/5
+		 Router, //navegar entre páginas.
+		 RouterLink } from '@angular/router'; //<button routerLink="/usuarios">
 import { UsuarioService, Usuario } from '../services/usuario';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,7 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-usuario-form',
-  standalone: true,
+  standalone: true, //pode ser definido independente, sem ser declarado em ngmodule
   imports: [CommonModule,
 			FormsModule,
 			RouterLink,
@@ -50,11 +52,12 @@ export class UsuarioForm implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
+    const idParam = this.route.snapshot.paramMap.get('id'); //pega o id que esta na url
 
     if (idParam) {
-      this.usuarioService.porId(Number(idParam)).subscribe({
+      this.usuarioService.porId(Number(idParam)).subscribe({ //para dizer o que fazer quando a resposta http chegar
         next: (data) => {
+						//... (spread) copia todas as propriedades de data para um novo objeto.
           this.usuario = { ...data, senha: '' }; // limpa senha no form, so preenche se quiser trocar
           this.carregando = false;
           this.cdr.detectChanges();
@@ -72,7 +75,7 @@ export class UsuarioForm implements OnInit {
   }
 
   onSubmit(): void {
-    const payload = { ...this.usuario };
+    const payload = { ...this.usuario }; //Cria uma cópia do objeto para nao editar diretamente
     if (!payload.senha) {
       delete payload.senha; // em branco = mantem a senha atual (backend ja trata isso)
     }

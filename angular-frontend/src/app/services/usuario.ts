@@ -15,7 +15,7 @@ export class UsuarioService {
 
   constructor(private http: HttpClient) {}
 
-  todos(): Observable<Usuario[]> {
+  todos(): Observable<Usuario[]> { //retorna um Observable que, quando receber uma resposta do servidor, fornecerá um objeto do tipo Usuario.
     return this.http.get<Usuario[]>('/api/usuario/all');
   }
   
