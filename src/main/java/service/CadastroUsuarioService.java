@@ -2,24 +2,28 @@ package service;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import model.Usuario;
 import repository.Usuarios;
-import util.Transacional;
 
+@Service
 public class CadastroUsuarioService implements Serializable {
-	private final long seriaVersionUID=1L;
+	private static final long serialVersionUID=1L;
 	
-	@Inject
-	private Usuarios usuarios;
+    private final Usuarios usuarios;
+
+    public CadastroUsuarioService(Usuarios usuarios) {
+        this.usuarios = usuarios;
+    }
 	
-	@Transacional
+	@Transactional
 	public void salvar(Usuario usuario) {
 		usuarios.guardar(usuario);
 	}
 	
-	@Transacional
+	@Transactional
 	public void excluir(Usuario usuario) {
 		usuarios.remover(usuario);
 	}

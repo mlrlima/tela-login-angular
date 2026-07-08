@@ -3,18 +3,19 @@ package repository;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import model.Usuario;
 
-//@ApplicationScoped
+@Repository
 public class Usuarios implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	@Inject
+	@Autowired
 	private EntityManager manager;
 	
 	public Usuarios() {

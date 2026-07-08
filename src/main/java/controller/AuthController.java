@@ -12,16 +12,17 @@ import model.Usuario;
 import repository.Usuarios;
 import security.GeradorToken;
 import security.Secured;
-import security.GeradorToken;
-import util.JPAUtil;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-	
-	private Usuarios getRepo() {
-		return new Usuarios(JPAUtil.getEntityManager());
-	}
+
+	private final Usuarios usuarios;
+
+    public AuthController(Usuarios usuarios) {
+        this.usuarios = usuarios;
+    }
+
 	
 	public static class LoginRequest{
 		public String email;
@@ -30,7 +31,7 @@ public class AuthController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest req){
-		Usuario usuario=getRepo().porEmailESenha(req.email, req.senha);
+		Usuario usuario=usuarios.porEmailESenha(req.email, req.senha);
 		
 		if(usuario==null) {
 			return ResponseEntity.status(401).body(Map.of("erro", "Email ou senha invalidos"));

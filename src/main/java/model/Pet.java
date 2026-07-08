@@ -16,9 +16,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Table(name="pet")
@@ -31,7 +31,7 @@ public class Pet implements Serializable {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotEmpty
+	@NotBlank
 	@Column(nullable=false, length=100)
 	private String nome;
 	

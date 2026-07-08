@@ -2,24 +2,28 @@ package service;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import model.Pet;
 import repository.Pets;
-import util.Transacional;
 
+@Service
 public class CadastroPetService implements Serializable {
-	private final long seriaVersionUID=1L;
+	private static final long serialVersionUID=1L;
 	
-	@Inject
-	private Pets pets;
+	private final Pets pets;
 	
-	@Transacional
+    public CadastroPetService(Pets pets) {
+        this.pets = pets;
+    }
+	
+	@Transactional
 	public void salvar(Pet pet) {
 		pets.guardar(pet);
 	}
 	
-	@Transacional
+	@Transactional
 	public void excluir(Pet pet) {
 		pets.remover(pet);
 	}
