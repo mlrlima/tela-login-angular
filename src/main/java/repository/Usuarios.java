@@ -25,10 +25,13 @@ public class Usuarios implements Serializable {
 		this.manager = manager;
 	}
 	
+	
+	//ok
 	public Usuario porId(Long id) {
 		return manager.find(Usuario.class, id);
 	}
 
+	//ok
 	//pesquisar usuario por nome
 	public List<Usuario> pesquisar(String nome) {
 		String jpql = "from Usuario where nome like :nome";
@@ -38,6 +41,7 @@ public class Usuarios implements Serializable {
 		return query.getResultList();
 	}
 	
+	//ok
 	public Usuario porEmail(String email){
 		try {
 			String jpql="from Usuario where email = :email";
@@ -51,6 +55,7 @@ public class Usuarios implements Serializable {
 		
 	}
 	
+
 	public Usuario porEmailESenha(String email, String senha){
 		try {
 			String jpql="from Usuario where email = :email and senha = :senha";
