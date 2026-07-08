@@ -1,7 +1,7 @@
 {
   "/api": {
     "target": "http://localhost:8080",
-    "pathRewrite": { "^/api": "/api-backend/api" },
+    "pathRewrite": { "^/api": "tela-login-angular/api" },
     "secure": false,
     "logLevel": "debug"
   }
