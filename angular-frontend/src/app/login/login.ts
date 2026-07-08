@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -32,7 +32,7 @@ export class Login {
   mensagens='';
   carregando=false;
 
-  constructor(private authService: AuthService, private router: Router){}
+  constructor(private authService: AuthService, private router: Router, private cdr: ChangeDetectorRef){}
 
   onSubmit(){
     this.carregando = true;
@@ -42,6 +42,7 @@ export class Login {
       next: (response) => {
         console.log('Login realizado com sucesso', response);
         this.carregando = false;
+		this.cdr.detectChanges();
         this.router.navigate(['/pets']);
       },
       error: (err) => {
@@ -55,6 +56,7 @@ export class Login {
         } else {
           this.mensagens = 'Erro inesperado. Tente novamente.';
         }
+		this.cdr.detectChanges();
       }
     });
   }

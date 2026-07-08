@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
@@ -31,17 +31,19 @@ export class CriarUsuario {
 	
 	mensagens='';
 	
-	constructor(private authService: AuthService){}
+	constructor(private authService: AuthService, private cdr: ChangeDetectorRef){}
 	
 	onSubmit(){
 		this.authService.novoUsuario(this.nome, this.email, this.senha).subscribe({
 			next: (response)=>{
 				console.log('Usuario criado com sucesso', response);
 				this.mensagens='Usuario criado com sucesso.';
+				this.cdr.detectChanges();
 			},
 			error: (err)=>{
 				console.error('Nao foi possivel criar este usuario', err);
 				this.mensagens='Nao foi possivel criar este usuario.';
+				this.cdr.detectChanges();
 			}
 		});
 	}
