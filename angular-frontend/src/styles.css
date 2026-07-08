@@ -1,89 +1,547 @@
-/* Fundo geral */
-body {
-    background-color: #FFF9C4; /* amarelo pastel */
-    color: #000000;
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 0;
-    padding: 0;
-}
+/* ==========================================================
+   GLOBAL
+========================================================== */
 
-/* Cabeçalho */
-header {
-    background-color: #D3D3D3;
-    color: #000000;
-    text-align: center;
-    font-size: 28px;
-    font-weight: bold;
-    padding: 20px;
-    border-bottom: 2px solid #B0B0B0;
-}
-
-/* Conteúdo principal */
-#conteudo {
-    width: 500px;
-    margin: 30px auto;
-    background-color: #F5F5F5;
-    border: 1px solid #C0C0C0;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-/* Tabela gerada pelo panelGrid */
-table {
-    width: 100%;
-}
-
-/* Labels */
-label {
-    font-weight: bold;
-}
-
-/* Campos */
-input,
-select,
-textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #B5B5B5;
-    border-radius: 4px;
-    background-color: #E0E0E0;
-    color: #000000;
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
-/* Botão */
-input[type="submit"],
-button {
-    background-color: #CFCFCF;
-    color: #000000;
-    border: 1px solid #AFAFAF;
-    border-radius: 4px;
-    padding: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 120px;
+html,
+body {
+    height: 100%;
 }
 
-input[type="submit"]:hover,
-button:hover {
-    background-color: #BDBDBD;
+body {
+    margin: 0;
+
+    background:
+        radial-gradient(circle at top right,
+            rgba(0,188,212,.08),
+            transparent 35%),
+        radial-gradient(circle at bottom left,
+            rgba(255,152,0,.08),
+            transparent 30%),
+        var(--mat-sys-surface);
+
+    color: var(--mat-sys-on-surface);
+
+    font: var(--mat-sys-body-medium);
+
+    transition: background .3s ease;
 }
 
-/* Rodapé */
-footer {
-    margin-top: 40px;
-    background-color: #D3D3D3;
-    text-align: center;
-    padding: 15px;
-    border-top: 2px solid #B0B0B0;
+/* ==========================
+   NAVBAR
+========================== */
+
+.top-nav{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:14px 32px;
+
+    background:white;
+
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
+
+    position:sticky;
+    top:0;
+    z-index:1000;
 }
 
-/* Links */
+.nav-left{
+
+    display:flex;
+    align-items:center;
+}
+
+.logo{
+
+    font-size:1.3rem;
+    font-weight:700;
+
+    color:var(--mat-sys-primary);
+}
+
+.nav-center{
+
+    display:flex;
+    gap:24px;
+}
+
+.nav-center a{
+
+    text-decoration:none;
+    color:#555;
+
+    font-weight:500;
+
+    padding:8px 14px;
+
+    border-radius:10px;
+
+    transition:.2s;
+}
+
+.nav-center a:hover{
+
+    background:rgba(0,188,212,.12);
+}
+
+.nav-center a.active{
+
+    background:var(--mat-sys-primary);
+
+    color:white;
+}
+
+.nav-right{
+
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.nav-user{
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    color:#666;
+
+    font-weight:500;
+}
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.page,
+.content,
+.container,
+.main-content,
+.pets-page {
+
+    max-width: 1100px;
+
+    margin: 40px auto;
+
+    padding: 32px;
+}
+
+/* ==========================================================
+   HEADINGS
+========================================================== */
+
+h1 {
+    font: var(--mat-sys-headline-large);
+    margin-bottom: 24px;
+}
+
+h2 {
+    font: var(--mat-sys-headline-medium);
+    margin-bottom: 20px;
+}
+
+h3 {
+    font: var(--mat-sys-title-large);
+    margin-bottom: 16px;
+}
+
+/* ==========================================================
+   TOOLBAR
+========================================================== */
+
+.mat-toolbar {
+
+    position: sticky;
+    top: 0;
+
+    z-index: 100;
+
+    box-shadow: 0 3px 18px rgba(0,0,0,.08);
+}
+
+/* ==========================================================
+   CARDS
+========================================================== */
+
+.mat-mdc-card {
+
+    border-radius: 22px !important;
+
+    padding: 24px !important;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.08) !important;
+
+    animation: fadeUp .35s ease;
+}
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+
+    border-radius: 14px !important;
+
+    transition:
+        transform .2s,
+        box-shadow .2s !important;
+}
+
+.mat-mdc-raised-button:hover,
+.mat-mdc-unelevated-button:hover,
+.mat-mdc-outlined-button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,.15);
+}
+
+/* ==========================================================
+   ICON BUTTONS
+========================================================== */
+
+button.mat-mdc-icon-button:hover {
+
+    transform: scale(1.08);
+}
+
+/* ==========================================================
+   FORM FIELDS
+========================================================== */
+
+.mat-mdc-form-field {
+
+    width: 100%;
+
+    margin-bottom: 14px;
+}
+
+/* ==========================================================
+   INPUTS
+========================================================== */
+
+input,
+textarea {
+
+    transition: .2s;
+}
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 6px 25px rgba(0,0,0,.08);
+}
+
+thead {
+
+    background: var(--mat-sys-primary);
+
+    color: white;
+}
+
+th {
+
+    padding: 18px;
+
+    text-align: left;
+
+    font-weight: 600;
+}
+
+td {
+
+    padding: 16px;
+
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+tbody tr {
+
+    transition: background .2s;
+}
+
+tbody tr:hover {
+
+    background: rgba(0,188,212,.06);
+}
+
+/* ==========================================================
+   LINKS
+========================================================== */
+
 a {
-    color: #000000;
-    font-weight: bold;
+
+    color: var(--mat-sys-primary);
+
+    text-decoration: none;
+
+    font-weight: 500;
 }
 
 a:hover {
-    text-decoration: none;
+
+    text-decoration: underline;
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 24px;
+}
+
+/* ==========================================================
+   ACTION BUTTONS
+========================================================== */
+
+.actions {
+
+    display: flex;
+
+    gap: 10px;
+}
+
+/* ==========================================================
+   LOGIN PAGE
+========================================================== */
+
+.login-container {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    min-height: 100vh;
+
+    padding: 24px;
+}
+
+.login-card {
+
+    width: 420px;
+
+    padding: 36px;
+
+    border-radius: 24px;
+
+    background: white;
+
+    box-shadow:
+        0 15px 45px rgba(0,0,0,.12);
+}
+
+/* ==========================================================
+   ERROR MESSAGE
+========================================================== */
+
+.error,
+.mensagem-erro {
+
+    padding: 14px;
+
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+
+    background: rgba(244,67,54,.12);
+
+    color: #b71c1c;
+}
+
+/* ==========================================================
+   SUCCESS MESSAGE
+========================================================== */
+
+.success {
+
+    padding: 14px;
+
+    margin-bottom: 18px;
+
+    border-radius: 12px;
+
+    background: rgba(76,175,80,.15);
+
+    color: #2e7d32;
+}
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+.loading {
+
+    display: flex;
+
+    justify-content: center;
+
+    padding: 40px;
+}
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar {
+
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+
+    background: rgba(0,188,212,.45);
+
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+
+    background: rgba(0,188,212,.7);
+}
+
+/* ==========================================================
+   ANIMATION
+========================================================== */
+
+@keyframes fadeUp {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(18px);
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 768px) {
+
+    .page,
+    .container,
+    .content,
+    .main-content,
+    .pets-page {
+
+        padding: 18px;
+
+        margin: 20px auto;
+    }
+
+    .header {
+
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    table {
+
+        font-size: .9rem;
+    }
+
+    th,
+    td {
+
+        padding: 12px;
+    }
+
+    .login-card {
+
+        width: 100%;
+    }
+}
+
+.login-header{
+
+    text-align:center;
+
+    margin-bottom:24px;
+}
+
+.login-header h2{
+
+    margin:12px 0 6px;
+}
+
+.login-header p{
+
+    opacity:.7;
+}
+
+.login-icon{
+
+    font-size:64px !important;
+
+    width:64px !important;
+
+    height:64px !important;
+
+    color:var(--mat-sys-primary);
+}
+
+.full-width{
+
+    width:100%;
+}
+
+.switch-link{
+
+    text-align:center;
+
+    margin-top:20px;
 }

@@ -3,6 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { RouterLink } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 
 @Component({
@@ -10,7 +14,12 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [ FormsModule,
   			 CommonModule,
-			 RouterLink ],
+			 RouterLink,
+			 MatCardModule,
+			 MatFormFieldModule,
+			 MatInputModule,
+			 MatButtonModule,
+			 FormsModule, ],
   templateUrl: './criar-usuario.html',
   styleUrl: './criar-usuario.css',
 })

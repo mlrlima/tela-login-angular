@@ -1,0 +1,11 @@
+.actions{
+
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.actions button{
+
+    min-width:140px;
+}

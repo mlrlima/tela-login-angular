@@ -1,0 +1,12 @@
+.full-width{
+    width:100%;
+}
+
+.switch-link{
+    margin-top:20px;
+    text-align:center;
+}
+
+.switch-link a{
+    font-weight:600;
+}

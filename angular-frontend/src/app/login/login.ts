@@ -3,13 +3,24 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [ FormsModule,
              CommonModule,
-			 RouterLink ],
+			 RouterLink,
+		 	 MatCardModule,
+		 	 MatButtonModule,
+		 	 MatFormFieldModule,
+		 	 MatInputModule,
+		 	 MatIconModule,
+		 	 FormsModule, ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -31,7 +42,7 @@ export class Login {
       next: (response) => {
         console.log('Login realizado com sucesso', response);
         this.carregando = false;
-        this.router.navigate(['/criar-usuario']);
+        this.router.navigate(['/pets']);
       },
       error: (err) => {
         console.error('Falha no login', err);

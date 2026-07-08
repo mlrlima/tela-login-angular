@@ -45,6 +45,21 @@ public class UsuarioController {
 	}
 	
 	@Secured
+	@GetMapping("/{id}")
+	public ResponseEntity<?> porId(@PathVariable Long id, HttpServletRequest request){
+		Usuario usuarioLogado = logado(request);
+		Usuario alvo = getRepo().porId(id);
+
+		if (alvo == null) return ResponseEntity.notFound().build();
+
+		if (usuarioLogado.getRole() != Role.ADMIN && !usuarioLogado.getId().equals(alvo.getId())) {
+			return ResponseEntity.status(403).body(Map.of("erro", "Sem permissao"));
+		}
+
+		return ResponseEntity.ok(alvo);
+	}
+	
+	@Secured
 	@GetMapping
 	public ResponseEntity<?> porEmail(@RequestParam String email, HttpServletRequest request){
 		Usuario usuarioLogado = logado(request);

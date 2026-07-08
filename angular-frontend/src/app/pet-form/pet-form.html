@@ -1,0 +1,92 @@
+<div class="page">
+
+  <mat-card>
+
+    <h2>
+      {{ modoEdicao ? '✏️ Editar Pet' : '🐾 Novo Pet' }}
+    </h2>
+
+    <div *ngIf="carregando" class="loading">
+      <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <form *ngIf="!carregando" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Nome</mat-label>
+
+        <input
+          matInput
+          id="nome"
+          name="nome"
+          [(ngModel)]="pet.nome"
+          required>
+
+        <mat-icon matSuffix>pets</mat-icon>
+
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Espécie</mat-label>
+
+        <mat-select
+          id="especie"
+          name="especie"
+          [(ngModel)]="pet.especie"
+          required>
+
+          <mat-option
+            *ngFor="let e of especies"
+            [value]="e">
+
+            {{ e }}
+
+          </mat-option>
+
+        </mat-select>
+
+        <mat-icon matSuffix>category</mat-icon>
+
+      </mat-form-field>
+
+      <div
+        *ngIf="mensagens"
+        class="error">
+
+        {{ mensagens }}
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit">
+
+          <mat-icon>save</mat-icon>
+
+          Salvar
+
+        </button>
+
+        <button
+          mat-stroked-button
+          routerLink="/pets"
+          type="button">
+
+          <mat-icon>arrow_back</mat-icon>
+
+          Voltar
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </mat-card>
+
+</div>

@@ -1,0 +1,99 @@
+<div class="page">
+
+  <mat-card>
+
+    <div class="header">
+
+      <h2>👥 Gestão de Usuários</h2>
+
+    </div>
+
+    <div *ngIf="mensagens" class="error">
+      {{ mensagens }}
+    </div>
+
+    <div *ngIf="carregando" class="loading">
+      <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <table *ngIf="!carregando && usuarios.length > 0"
+           class="mat-elevation-z2">
+
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th style="width:170px;">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let usuario of usuarios">
+
+          <td>{{ usuario.nome }}</td>
+
+          <td>{{ usuario.email }}</td>
+
+          <td>
+
+            <mat-chip-set>
+
+              <mat-chip
+                [color]="usuario.role === 'ADMIN' ? 'primary' : 'accent'"
+                selected>
+
+                {{ usuario.role }}
+
+              </mat-chip>
+
+            </mat-chip-set>
+
+          </td>
+
+          <td class="actions">
+
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['/usuarios', usuario.id]">
+
+              <mat-icon>edit</mat-icon>
+
+            </button>
+
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="remover(usuario.id)">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <div
+      *ngIf="!carregando && usuarios.length === 0"
+      class="empty-state">
+
+      <mat-icon class="empty-icon">
+        group
+      </mat-icon>
+
+      <h3>Nenhum usuário encontrado</h3>
+
+      <p>Não há usuários cadastrados.</p>
+
+    </div>
+
+  </mat-card>
+
+</div>

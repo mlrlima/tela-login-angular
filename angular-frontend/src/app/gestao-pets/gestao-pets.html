@@ -1,0 +1,95 @@
+<div class="page">
+
+  <mat-card>
+
+    <div class="header">
+
+      <h2>🐾 Meus Pets</h2>
+
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="/pets/novo">
+
+        <mat-icon>add</mat-icon>
+        Novo Pet
+
+      </button>
+
+    </div>
+
+    <div *ngIf="mensagens" class="error">
+      {{ mensagens }}
+    </div>
+
+    <div *ngIf="carregando" class="loading">
+
+      <mat-spinner diameter="45"></mat-spinner>
+
+    </div>
+
+    <table *ngIf="!carregando && pets.length > 0"
+           class="mat-elevation-z2">
+
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Espécie</th>
+          <th>Dono</th>
+          <th style="width:170px;">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let pet of pets">
+
+          <td>{{ pet.nome }}</td>
+
+          <td>{{ pet.especie }}</td>
+
+          <td>{{ pet.dono?.email ?? '-' }}</td>
+
+          <td class="actions">
+
+            <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['/pets', pet.id]">
+
+              <mat-icon>edit</mat-icon>
+
+            </button>
+
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="remover(pet.id)">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <div
+      *ngIf="!carregando && pets.length === 0"
+      class="empty-state">
+
+      <mat-icon class="empty-icon">pets</mat-icon>
+
+      <h3>Nenhum pet cadastrado</h3>
+
+      <p>Clique em <strong>Novo Pet</strong> para começar.</p>
+
+    </div>
+
+  </mat-card>
+
+</div>

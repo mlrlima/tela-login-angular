@@ -1,0 +1,124 @@
+<div class="page">
+
+  <mat-card>
+
+    <h2>👤 Editar Usuário</h2>
+
+    <div *ngIf="carregando" class="loading">
+      <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <form *ngIf="!carregando" (ngSubmit)="onSubmit()">
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Nome</mat-label>
+
+        <input
+          matInput
+          id="nome"
+          name="nome"
+          [(ngModel)]="usuario.nome"
+          required>
+
+        <mat-icon matSuffix>person</mat-icon>
+
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Email</mat-label>
+
+        <input
+          matInput
+          type="email"
+          id="email"
+          name="email"
+          [(ngModel)]="usuario.email"
+          required>
+
+        <mat-icon matSuffix>email</mat-icon>
+
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Nova senha</mat-label>
+
+        <input
+          matInput
+          type="password"
+          id="senha"
+          name="senha"
+          [(ngModel)]="usuario.senha">
+
+        <mat-icon matSuffix>lock</mat-icon>
+
+        <mat-hint>
+          Deixe em branco para manter a senha atual.
+        </mat-hint>
+
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Perfil</mat-label>
+
+        <mat-select
+          id="role"
+          name="role"
+          [(ngModel)]="usuario.role">
+
+          <mat-option
+            *ngFor="let r of roles"
+            [value]="r">
+
+            {{ r }}
+
+          </mat-option>
+
+        </mat-select>
+
+        <mat-icon matSuffix>admin_panel_settings</mat-icon>
+
+      </mat-form-field>
+
+      <div
+        *ngIf="mensagens"
+        class="success">
+
+        {{ mensagens }}
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit">
+
+          <mat-icon>save</mat-icon>
+
+          Salvar
+
+        </button>
+
+        <button
+          mat-stroked-button
+          routerLink="/usuarios"
+          type="button">
+
+          <mat-icon>arrow_back</mat-icon>
+
+          Voltar
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </mat-card>
+
+</div>

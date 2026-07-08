@@ -1,1 +1,39 @@
+<nav *ngIf="logado" class="top-nav">
+
+  <div class="nav-left">
+    <span class="logo">🐾 PetManager</span>
+  </div>
+
+  <div class="nav-center">
+    <a routerLink="/pets" routerLinkActive="active">Pets</a>
+
+    <a
+      *ngIf="isAdmin"
+      routerLink="/usuarios"
+      routerLinkActive="active">
+      Usuários
+    </a>
+  </div>
+
+  <div class="nav-right">
+
+    <span class="nav-user">
+      <mat-icon>account_circle</mat-icon>
+      {{ emailUsuario }}
+    </span>
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="sair()">
+
+      <mat-icon>logout</mat-icon>
+      Sair
+
+    </button>
+
+  </div>
+
+</nav>
+
 <router-outlet></router-outlet>
