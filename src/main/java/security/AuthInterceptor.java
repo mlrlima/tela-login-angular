@@ -11,15 +11,15 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import model.Role;
 import model.Usuario;
-import repository.Usuarios;
+import repository.UsuarioRepository;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final Usuarios usuarios;
+    private final UsuarioRepository usuarioRepository;
 
-    public AuthInterceptor(Usuarios usuarios) {
-        this.usuarios = usuarios;
+    public AuthInterceptor(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Override
@@ -61,14 +61,10 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        Usuario usuario = usuarios.porId(usuarioId);
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+        		.orElseThrow(() -> new RuntimeException("Pet não encontrado"));
 
-        if (usuario == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                    "Usuário não encontrado");
-            return false;
-        }
-
+        
         Role[] rolesPermitidas = secured.value();
 
         if (rolesPermitidas.length > 0) {

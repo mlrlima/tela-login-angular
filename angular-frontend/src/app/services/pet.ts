@@ -23,7 +23,7 @@ export class PetService {
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Pet[]> {
-    return this.http.get<Pet[]>('/api/pet');
+    return this.http.get<Pet[]>('/api/pet/all');
   }
 
   porId(id: number): Observable<Pet> {

@@ -9,18 +9,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import model.Usuario;
-import repository.Usuarios;
 import security.GeradorToken;
 import security.Secured;
+import service.UsuarioService;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-	private final Usuarios usuarios;
+	private final UsuarioService usuarioService;
 
-    public AuthController(Usuarios usuarios) {
-        this.usuarios = usuarios;
+    public AuthController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
 	
@@ -31,7 +31,7 @@ public class AuthController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest req){
-		Usuario usuario=usuarios.porEmailESenha(req.email, req.senha);
+		Usuario usuario=usuarioService.getUsuarioByEmailAndSenha(req.email, req.senha);
 		
 		if(usuario==null) {
 			return ResponseEntity.status(401).body(Map.of("erro", "Email ou senha invalidos"));

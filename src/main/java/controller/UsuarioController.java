@@ -1,153 +1,60 @@
 package controller;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import model.Role;
 import model.Usuario;
-import repository.Usuarios;
 import security.Secured;
-import service.CadastroUsuarioService;
+import service.UsuarioService;
 
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
 
-    private final Usuarios usuarios;
-    private final CadastroUsuarioService cadastroUsuarioService;
-
-    public UsuarioController(Usuarios usuarios,
-                             CadastroUsuarioService cadastroUsuarioService) {
-        this.usuarios = usuarios;
-        this.cadastroUsuarioService = cadastroUsuarioService;
-    }
-
-    private Usuario logado(HttpServletRequest request) {
-        return (Usuario) request.getAttribute("usuarioLogado");
-    }
-
-    @PostMapping
-    public ResponseEntity<Usuario> guardarUsuario(@RequestBody Usuario usuario) {
-
-        usuario.setId(null);
-        usuario.setRole(Role.USER);
-
-        cadastroUsuarioService.salvar(usuario);
-
-        return ResponseEntity.ok(usuario);
-    }
-
-    @Secured
-    @GetMapping("/{id}")
-    public ResponseEntity<?> porId(@PathVariable Long id,
-                                   HttpServletRequest request) {
-
-        Usuario usuarioLogado = logado(request);
-        Usuario alvo = usuarios.porId(id);
-
-        if (alvo == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (usuarioLogado.getRole() != Role.ADMIN &&
-            !usuarioLogado.getId().equals(alvo.getId())) {
-
-            return ResponseEntity.status(403)
-                    .body(Map.of("erro", "Sem permissao"));
-        }
-
-        return ResponseEntity.ok(alvo);
-    }
-
-    @Secured
-    @GetMapping
-    public ResponseEntity<?> porEmail(@RequestParam String email,
-                                      HttpServletRequest request) {
-
-        Usuario usuarioLogado = logado(request);
-        Usuario alvo = usuarios.porEmail(email);
-
-        if (alvo == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (usuarioLogado.getRole() != Role.ADMIN &&
-            !usuarioLogado.getId().equals(alvo.getId())) {
-
-            return ResponseEntity.status(403)
-                    .body(Map.of("erro", "Sem permissao"));
-        }
-
-        return ResponseEntity.ok(alvo);
-    }
+	@Autowired
+	private UsuarioService service;
 
     @Secured(Role.ADMIN)
-    @GetMapping("/all")
-    public ResponseEntity<List<Usuario>> todos() {
-        return ResponseEntity.ok(usuarios.todos());
-    }
-
+	@GetMapping("/all")
+	public ResponseEntity<List<Usuario>> getAll(){
+		return ResponseEntity.ok(service.getAllUsuarios());
+	}
+	
+	@PostMapping
+	public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
+		return ResponseEntity.ok(service.createUsuario(usuario));
+	}
+	
+    @Secured
+	@GetMapping("/{id}")
+	public ResponseEntity<Usuario> getById(@PathVariable Long id, HttpServletRequest request) {
+    	return ResponseEntity.ok(service.getUsuarioById(id, request));
+	}
+    
+    @Secured
+	@GetMapping
+	public ResponseEntity<Usuario> getByEmail(@RequestParam String email, HttpServletRequest request) {
+    	return ResponseEntity.ok(service.getUsuarioByEmail(email, request));  
+	}
+	
+    @Secured
+	@PutMapping
+	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario,
+									HttpServletRequest request) {
+    	return ResponseEntity.ok(service.updateUsuario(usuario, request));  
+	}
+	
     @Secured
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> remover(@PathVariable Long id,
-                                     HttpServletRequest request) {
-
-        Usuario usuarioLogado = logado(request);
-
-        if (usuarioLogado.getRole() != Role.ADMIN &&
-            !usuarioLogado.getId().equals(id)) {
-
-            return ResponseEntity.status(403)
-                    .body(Map.of("erro", "Sem permissao"));
-        }
-
-        Usuario usuario = usuarios.porId(id);
-
-        if (usuario == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        cadastroUsuarioService.excluir(usuario);
-
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
+    	service.deleteUsuario(id, request);
+        return ResponseEntity.noContent().build();
     }
-
-    @Secured
-    @PutMapping
-    public ResponseEntity<?> atualizar(@RequestBody Usuario usuario,
-                                       HttpServletRequest request) {
-
-        Usuario usuarioLogado = logado(request);
-
-        if (usuarioLogado.getRole() != Role.ADMIN &&
-            !usuarioLogado.getId().equals(usuario.getId())) {
-
-            return ResponseEntity.status(403)
-                    .body(Map.of("erro", "Sem permissao"));
-        }
-
-        if (usuarioLogado.getRole() != Role.ADMIN) {
-            usuario.setRole(Role.USER);
-        }
-
-        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
-            Usuario existente = usuarios.porId(usuario.getId());
-
-            if (existente == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            usuario.setSenha(existente.getSenha());
-        }
-
-        cadastroUsuarioService.salvar(usuario);
-
-        return ResponseEntity.ok(usuario);
-    }
-
+	
 }

@@ -4,19 +4,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import security.AuthInterceptor;
 
 @SpringBootApplication(scanBasePackages = {
-        "controller",
-        "config",
-        "repository",
-        "service",
+		"config",
+		"controller",
         "security",
+        "service",
 })
 @EntityScan("model")
+@EnableJpaRepositories(basePackages = "repository")
 public class Application {
 
     private final AuthInterceptor authInterceptor;
