@@ -1,0 +1,449 @@
+{
+  "info": {
+    "name": "Petshop API - Testes",
+    "description": "Casos de teste para UsuarioController e PetController. Ajuste as variáveis de coleção (base_url, token, admin_token, etc.) antes de rodar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080/api" },
+    { "key": "token", "value": "COLOQUE_UM_TOKEN_DE_USUARIO_COMUM_AQUI" },
+    { "key": "admin_token", "value": "COLOQUE_UM_TOKEN_DE_ADMIN_AQUI" },
+    { "key": "user_id", "value": "1" },
+    { "key": "other_user_id", "value": "2" },
+    { "key": "pet_id", "value": "1" },
+    { "key": "other_user_pet_id", "value": "2" },
+    { "key": "invalid_id", "value": "99999" },
+    { "key": "user_email", "value": "maria@email.com" }
+  ],
+  "item": [
+    {
+      "name": "Usuario",
+      "item": [
+        {
+          "name": "Criar usuário - sucesso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Silva\",\n  \"email\": \"{{user_email}}\",\n  \"senha\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/usuario", "host": ["{{base_url}}"], "path": ["usuario"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200 (criado)', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retornou id do usuario', function () { pm.expect(pm.response.json()).to.have.property('id'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Criar usuário - campos inválidos (email vazio)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Sem Email\",\n  \"email\": \"\",\n  \"senha\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/usuario", "host": ["{{base_url}}"], "path": ["usuario"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Não deveria aceitar email vazio (400 ou 500 dependendo da validação atual)', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([400, 422, 500]);",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "Listar todos (ADMIN) - sucesso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/all", "host": ["{{base_url}}"], "path": ["usuario", "all"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Listar todos - usuário comum (esperado 403)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/all", "host": ["{{base_url}}"], "path": ["usuario", "all"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403 (sem permissão)', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Listar todos - sem token (esperado 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/usuario/all", "host": ["{{base_url}}"], "path": ["usuario", "all"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 401 (não autenticado)', function () { pm.response.to.have.status(401); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar por id - próprio usuário - sucesso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/{{user_id}}", "host": ["{{base_url}}"], "path": ["usuario", "{{user_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Id retornado bate com o esperado', function () {",
+              "  pm.expect(pm.response.json().id).to.eql(parseInt(pm.variables.get('user_id')));",
+              "});"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar por id - de outro usuário (esperado 403)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/{{other_user_id}}", "host": ["{{base_url}}"], "path": ["usuario", "{{other_user_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403 (sem permissão para ver outro usuário)', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar por id - inexistente (esperado 404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/{{invalid_id}}", "host": ["{{base_url}}"], "path": ["usuario", "{{invalid_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 404 (usuário não encontrado)', function () { pm.response.to.have.status(404); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar por email - sucesso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/usuario?email={{user_email}}",
+              "host": ["{{base_url}}"],
+              "path": ["usuario"],
+              "query": [{ "key": "email", "value": "{{user_email}}" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Email retornado bate', function () { pm.expect(pm.response.json().email).to.eql(pm.variables.get('user_email')); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar por email - inexistente (esperado 404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{base_url}}/usuario?email=naoexiste@email.com",
+              "host": ["{{base_url}}"],
+              "path": ["usuario"],
+              "query": [{ "key": "email", "value": "naoexiste@email.com" }]
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 404', function () { pm.response.to.have.status(404); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Atualizar usuário - sucesso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{user_id}},\n  \"nome\": \"Maria Silva Atualizada\",\n  \"email\": \"{{user_email}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/usuario", "host": ["{{base_url}}"], "path": ["usuario"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Nome foi atualizado', function () { pm.expect(pm.response.json().nome).to.eql('Maria Silva Atualizada'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Atualizar usuário - de outro usuário (esperado 403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{other_user_id}},\n  \"nome\": \"Tentando editar outro\",\n  \"email\": \"outro@email.com\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/usuario", "host": ["{{base_url}}"], "path": ["usuario"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Deletar usuário - sem token (esperado 401)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/usuario/{{user_id}}", "host": ["{{base_url}}"], "path": ["usuario", "{{user_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Deletar usuário - próprio - sucesso",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/usuario/{{user_id}}", "host": ["{{base_url}}"], "path": ["usuario", "{{user_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 204 (sem conteúdo)', function () { pm.response.to.have.status(204); });"
+            ]}
+          }]
+        }
+      ]
+    },
+    {
+      "name": "Pet",
+      "item": [
+        {
+          "name": "Criar pet - sucesso",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Rex\",\n  \"especie\": \"Cachorro\",\n  \"raca\": \"Vira-lata\",\n  \"dono\": { \"id\": {{user_id}} }\n}"
+            },
+            "url": { "raw": "{{base_url}}/pet", "host": ["{{base_url}}"], "path": ["pet"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retornou id do pet', function () { pm.expect(pm.response.json()).to.have.property('id'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Criar pet - sem token (esperado 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Rex\",\n  \"especie\": \"Cachorro\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/pet", "host": ["{{base_url}}"], "path": ["pet"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Listar todos os pets - sucesso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pet/all", "host": ["{{base_url}}"], "path": ["pet", "all"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar pet por id - dono - sucesso",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pet/{{pet_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{pet_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar pet por id - de outro usuário (esperado 403)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pet/{{other_user_pet_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{other_user_pet_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Buscar pet por id - inexistente (esperado 404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{base_url}}/pet/{{invalid_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{invalid_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 404', function () { pm.response.to.have.status(404); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Atualizar pet - sucesso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{pet_id}},\n  \"nome\": \"Rex Atualizado\",\n  \"especie\": \"Cachorro\",\n  \"dono\": { \"id\": {{user_id}} }\n}"
+            },
+            "url": { "raw": "{{base_url}}/pet", "host": ["{{base_url}}"], "path": ["pet"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Nome foi atualizado', function () { pm.expect(pm.response.json().nome).to.eql('Rex Atualizado'); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Atualizar pet de outro usuário (esperado 403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{other_user_pet_id}},\n  \"nome\": \"Tentando editar\",\n  \"dono\": { \"id\": {{other_user_id}} }\n}"
+            },
+            "url": { "raw": "{{base_url}}/pet", "host": ["{{base_url}}"], "path": ["pet"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Deletar pet - dono - sucesso",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pet/{{pet_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{pet_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Deletar pet - de outro usuário (esperado 403)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/pet/{{other_user_pet_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{other_user_pet_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+            ]}
+          }]
+        },
+        {
+          "name": "Deletar pet - sem token (esperado 401)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/pet/{{pet_id}}", "host": ["{{base_url}}"], "path": ["pet", "{{pet_id}}"] }
+          },
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
+            ]}
+          }]
+        }
+      ]
+    }
+  ]
+}

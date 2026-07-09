@@ -6,6 +6,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-gestao-pets',
@@ -15,7 +17,9 @@ import { MatButtonModule } from '@angular/material/button';
 			MatCardModule,
 			MatButtonModule,
 			MatIconModule,
-			MatProgressSpinnerModule,],
+			MatProgressSpinnerModule,
+			MatFormFieldModule,
+			FormsModule],
   templateUrl: './gestao-pets.html',
   styleUrl: './gestao-pets.css',
 })
@@ -24,6 +28,8 @@ export class GestaoPets implements OnInit {
   pets: Pet[] = [];
   carregando = true;
   mensagens = '';
+  termoBusca= '';
+  petsBuscados: Pet[] = [];
 
   constructor(private petService: PetService, private cdr: ChangeDetectorRef) {}
 
@@ -31,11 +37,27 @@ export class GestaoPets implements OnInit {
       this.carregar();
     }
 
+	buscarPets(): void {
+	  const termo = this.termoBusca.trim().toLowerCase();
+
+	  if (!termo) {
+	    this.petsBuscados = this.pets;
+	    return;
+	  }
+
+	  this.petsBuscados = this.pets.filter(pet =>
+	    pet.nome?.toLowerCase().includes(termo) ||
+	    pet.especie?.toLowerCase().includes(termo) ||
+	    pet.dono?.email?.toLowerCase().includes(termo)
+	  );
+	}
+
 	carregar(): void {
 	    this.carregando = true;
 	    this.petService.listar().subscribe({
 	      next: (data) => {
 	        this.pets = data;
+			this.buscarPets();
 	        this.carregando = false;
 	        this.cdr.detectChanges();
 	      },
@@ -54,6 +76,7 @@ export class GestaoPets implements OnInit {
 	    this.petService.remover(id).subscribe({
 	      next: () => {
 	        this.pets = this.pets.filter(p => p.id !== id);
+			this.buscarPets();
 			this.cdr.detectChanges();
 	      },
 	      error: (err) => {

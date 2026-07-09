@@ -2,22 +2,30 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UsuarioService, Usuario } from '../services/usuario';
-import { MatChipsModule } from '@angular/material/chips';
+
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
+
 
 @Component({
   selector: 'app-gestao-usuarios',
   standalone: true,
-  imports: [CommonModule,
-			RouterLink,
-			MatCardModule,
-			MatButtonModule,
-			MatIconModule,
-			MatProgressSpinnerModule,
-			MatChipsModule,],
+  imports: [  CommonModule,
+      FormsModule,
+      RouterLink,
+      MatCardModule,
+      MatButtonModule,
+      MatIconModule,
+      MatProgressSpinnerModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatChipsModule],
   templateUrl: './gestao-usuarios.html',
   styleUrl: './gestao-usuarios.css',
 })
@@ -26,6 +34,8 @@ export class GestaoUsuarios implements OnInit {
   usuarios: Usuario[] = [];
   carregando = true;
   mensagens = '';
+  usuariosFiltrados: Usuario[] = [];
+   termoBusca: string = '';
 
   constructor(private usuarioService: UsuarioService, private cdr: ChangeDetectorRef) {}
 
@@ -34,22 +44,37 @@ export class GestaoUsuarios implements OnInit {
   }
 
   carregar(): void {
-    this.carregando = true;
+	this.carregando = true;
     this.usuarioService.todos().subscribe({
-      next: (data) => {
-        this.usuarios = data;
+      next: (usuarios) => {
+        this.usuarios = usuarios;
+        this.filtrarUsuarios();
         this.carregando = false;
-        this.cdr.detectChanges();
+		this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erro ao carregar usuarios', err);
-        this.mensagens = 'Nao foi possivel carregar os usuarios.';
+        this.mensagens = 'Erro ao carregar usuários.';
         this.carregando = false;
-        this.cdr.detectChanges();
+		this.cdr.detectChanges();
       }
     });
   }
 
+  filtrarUsuarios(): void {
+     const termo = this.termoBusca.trim().toLowerCase();
+
+     if (!termo) {
+       this.usuariosFiltrados = this.usuarios;
+       return;
+     }
+
+     this.usuariosFiltrados = this.usuarios.filter(usuario =>
+       usuario.nome?.toLowerCase().includes(termo) ||
+       usuario.email?.toLowerCase().includes(termo) ||
+       usuario.role?.toLowerCase().includes(termo)
+     );
+   }
+  
   remover(id: number | undefined): void {
     if (id == null) return;
     if (!confirm('Confirmaçao para remover este usuario')) return;
@@ -57,6 +82,7 @@ export class GestaoUsuarios implements OnInit {
     this.usuarioService.remover(id).subscribe({
       next: () => {
         this.usuarios = this.usuarios.filter(u => u.id !== id);
+		this.filtrarUsuarios();
         this.cdr.detectChanges();
       },
       error: (err) => {
