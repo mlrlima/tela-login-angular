@@ -20,10 +20,10 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService service;
 
-    @Secured(Role.ADMIN)
+    @Secured
 	@GetMapping("/all")
-	public ResponseEntity<List<Usuario>> getAll(){
-		return ResponseEntity.ok(service.getAllUsuarios());
+	public ResponseEntity<List<Usuario>> getAll(HttpServletRequest request){
+		return ResponseEntity.ok(service.getAllUsuarios(request));
 	}
 	
 	@PostMapping

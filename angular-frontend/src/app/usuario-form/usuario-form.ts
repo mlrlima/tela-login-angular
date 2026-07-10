@@ -5,6 +5,7 @@ import { ActivatedRoute, //Lê parâmetros da URL. ex: /usuarios/5
 		 Router, //navegar entre páginas.
 		 RouterLink } from '@angular/router'; //<button routerLink="/usuarios">
 import { UsuarioService, Usuario } from '../services/usuario';
+import { AuthService } from '../services/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -44,8 +45,13 @@ export class UsuarioForm implements OnInit {
   carregando = true;
   mensagens = '';
 
+  // true quando o usuario logado esta editando o proprio cadastro
+  // (seja pela rota /perfil, seja um admin abrindo o proprio registro em /usuarios/:id)
+  autoEdicao = false;
+
   constructor(
     private usuarioService: UsuarioService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -53,12 +59,26 @@ export class UsuarioForm implements OnInit {
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id'); //pega o id que esta na url
+    const idLogado = localStorage.getItem('id');
+	
+	console.log('idParam:', idParam);
+	console.log('idLogado:', idLogado);
 
-    if (idParam) {
-      this.usuarioService.porId(Number(idParam)).subscribe({ //para dizer o que fazer quando a resposta http chegar
+	//se o user logado tentar acessar outro id, ele só edita ele mesmo
+	// ou se nao houver id na url
+	const idAlvo =
+	  localStorage.getItem('role') === 'USER' || !idParam
+	    ? idLogado
+	    : idParam;
+		
+	console.log('id alvo:', idAlvo);
+
+    if (idAlvo) {
+      this.usuarioService.porId(Number(idAlvo)).subscribe({ //para dizer o que fazer quando a resposta http chegar
         next: (data) => {
 						//... (spread) copia todas as propriedades de data para um novo objeto.
           this.usuario = { ...data, senha: '' }; // limpa senha no form, so preenche se quiser trocar
+          this.autoEdicao = idLogado != null && String(data.id) === idLogado;
           this.carregando = false;
           this.cdr.detectChanges();
         },
@@ -82,6 +102,12 @@ export class UsuarioForm implements OnInit {
 
     this.usuarioService.atualizar(payload).subscribe({
       next: () => {
+        if (this.autoEdicao) {
+          // dados/token do usuario logado mudaram: desloga para ele entrar de novo com as novas infos
+          this.authService.logout();
+          this.router.navigate(['/login']);
+          return;
+        }
         this.router.navigate(['/usuarios']);
       },
       error: (err) => {

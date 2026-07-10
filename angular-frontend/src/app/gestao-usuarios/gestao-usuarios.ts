@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { UsuarioService, Usuario } from '../services/usuario';
+import { AuthService } from '../services/auth.service';
 
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -37,7 +38,10 @@ export class GestaoUsuarios implements OnInit {
   usuariosFiltrados: Usuario[] = [];
    termoBusca: string = '';
 
-  constructor(private usuarioService: UsuarioService, private cdr: ChangeDetectorRef) {}
+  constructor(private usuarioService: UsuarioService,
+			  private authService: AuthService,
+			  private cdr: ChangeDetectorRef,
+		  	  private router: Router,) {}
 
   ngOnInit(): void {
     this.carregar();
@@ -79,10 +83,21 @@ export class GestaoUsuarios implements OnInit {
     if (id == null) return;
     if (!confirm('Confirmaçao para remover este usuario')) return;
 
+	const autoDelete = Number(localStorage.getItem('id')) === id;
+	
     this.usuarioService.remover(id).subscribe({
       next: () => {
+		if(autoDelete){
+			this.authService.logout();
+			this.router.navigate(['/login']);
+			this.cdr.detectChanges();
+			return;
+		}
+		
         this.usuarios = this.usuarios.filter(u => u.id !== id);
 		this.filtrarUsuarios();
+		
+		
         this.cdr.detectChanges();
       },
       error: (err) => {

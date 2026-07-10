@@ -1,6 +1,7 @@
 package service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +28,18 @@ public class UsuarioService implements Serializable {
         return (Usuario) request.getAttribute("usuarioLogado");
     }
 	
-	public List<Usuario> getAllUsuarios(){
-		return usuarioRepository.findAll();
+	public List<Usuario> getAllUsuarios(HttpServletRequest request){
+		Usuario usuarioLogado = logado(request);
+		
+		if(usuarioLogado.getRole() == Role.ADMIN) {
+			return usuarioRepository.findAll();
+		}
+		
+		//se for user, so pode ver ele mesmo
+		List<Usuario> lista =new ArrayList<>();
+		lista.add(usuarioLogado);
+		return lista;
+	
 	}
 	
 	@Transactional

@@ -22,6 +22,7 @@ export class AuthService {
 		.pipe(
 			tap((res: any) => {
 			          localStorage.setItem('token', res.token);
+					  localStorage.setItem('id', res.id);
 			          localStorage.setItem('nome', res.nome);
 			          localStorage.setItem('email', res.email);
 			          localStorage.setItem('role', res.role);

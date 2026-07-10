@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -19,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 			MatIconModule,
 			MatProgressSpinnerModule,
 			MatFormFieldModule,
+			MatInputModule,
 			FormsModule],
   templateUrl: './gestao-pets.html',
   styleUrl: './gestao-pets.css',

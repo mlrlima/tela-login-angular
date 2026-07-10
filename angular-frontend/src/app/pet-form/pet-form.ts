@@ -30,7 +30,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class PetForm implements OnInit {
 
-  especies = ['CACHORRO', 'GATO', 'PASSARO', 'OUTRO']; // ajuste pro seu enum real
+  especies = ['CACHORRO', 'GATO', 'PASSARO', 'OUTRO'];
 
   pet: Pet = {
     nome: '',

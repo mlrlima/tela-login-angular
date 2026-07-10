@@ -20,6 +20,6 @@ export const routes: Routes = [
 	{ path: 'pets/novo', component: PetForm, canActivate: [authGuard] },
     { path: 'pets/:id', component: PetForm, canActivate: [authGuard] },
 	
-	{ path: 'usuarios', component: GestaoUsuarios, canActivate: [authGuard, adminGuard] },
-	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard, adminGuard] }
+	{ path: 'usuarios', component: GestaoUsuarios, canActivate: [authGuard] },
+	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard] }
 ];
