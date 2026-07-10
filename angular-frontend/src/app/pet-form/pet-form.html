@@ -10,7 +10,8 @@
       <mat-spinner diameter="45"></mat-spinner>
     </div>
 
-    <form *ngIf="!carregando" (ngSubmit)="onSubmit()">
+    <form *ngIf="!carregando" (ngSubmit)="onSubmit()"
+    		(keydown.enter)="$event.preventDefault(); onSubmit()">
 
       <mat-form-field appearance="outline">
 

@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 	// qualquer outra excecao nao tratada -- evita expor stack trace pro cliente
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleGeneric(Exception ex) {
-		ex.printStackTrace(); // continua logando no catalina.out pra voce debugar
+		ex.printStackTrace(); 
 
 		Map<String, Object> corpo = new HashMap<>();
 		corpo.put("erro", "Erro interno no servidor.");
