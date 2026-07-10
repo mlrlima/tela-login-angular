@@ -1,4 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
@@ -31,13 +32,14 @@ export class CriarUsuario {
 	
 	mensagens='';
 	
-	constructor(private authService: AuthService, private cdr: ChangeDetectorRef){}
+	constructor(private authService: AuthService,private router: Router, private cdr: ChangeDetectorRef){}
 	
 	onSubmit(){
 		this.authService.novoUsuario(this.nome, this.email, this.senha).subscribe({
 			next: (response)=>{
 				console.log('Usuario criado com sucesso', response);
 				this.mensagens='Usuario criado com sucesso.';
+				this.router.navigate(['/login']);
 				this.cdr.detectChanges();
 			},
 			error: (err)=>{

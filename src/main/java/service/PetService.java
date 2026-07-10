@@ -39,9 +39,7 @@ public class PetService implements Serializable {
 	public Pet createPet(Pet pet, HttpServletRequest request) {
 		
 		Usuario usuarioLogado = logado(request);
-        if (usuarioLogado.getRole() != Role.ADMIN) {
-            pet.setDono(usuarioLogado);
-        }
+        pet.setDono(usuarioLogado);
 		
 		pet.setId(null);
 		return petRepository.save(pet);

@@ -44,8 +44,11 @@ public class UsuarioService implements Serializable {
 	
 	@Transactional
 	public Usuario createUsuario(Usuario usuario) {
+		System.out.println("aqui1");
 		usuario.setId(null);
+		System.out.println("aqui2");
 		usuario.setRole(Role.USER);
+		System.out.println("aqui3");
 		return usuarioRepository.save(usuario);
 	}
 	
