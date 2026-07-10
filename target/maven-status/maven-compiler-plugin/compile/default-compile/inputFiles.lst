@@ -7,9 +7,9 @@
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/security/GeradorToken.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/config/Application.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/controller/UsuarioController.java
+/Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/config/GlobalExceptionHandler.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/controller/PetController.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/model/Especie.java
-/Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/controller/GlobalExceptionHandler.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/security/AuthInterceptor.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/service/UsuarioService.java
 /Users/malo/estagio/gh-tela-login-angular/tela-login-angular/src/main/java/security/Secured.java

@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  },
+
+  "scripts": {
+    "dev": "concurrently \"mvn spring-boot:run\" \"cd angular-frontend && ng serve\""
+  }
+}

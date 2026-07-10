@@ -5,6 +5,8 @@ Projeto com finalidade de estudo.
 <br> Back-end em Spring MVC expondo uma API REST, consumida por um front-end em Angular (standalone components).
 </p>
 
+**Para iniciar: ** ``npm dev run``
+
 <h2>Tecnologias utilizadas:</h2>
 
 - Java
