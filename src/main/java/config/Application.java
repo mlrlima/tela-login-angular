@@ -27,22 +27,28 @@ public class Application extends SpringBootServletInitializer {
     private AuthInterceptor authInterceptor;
 
     public Application() {
+        System.out.println(">>> [Application] Construtor chamado - instanciando aplicação...");
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        System.out.println(">>> [Application] configure() chamado - inicializando via Tomcat externo (WAR)...");
         return application.sources(Application.class);
     }
 
     public static void main(String[] args) {
+        System.out.println(">>> [Application] main() chamado - inicializando via Tomcat embutido (JAR)...");
         SpringApplication.run(Application.class, args);
+        System.out.println(">>> [Application] Aplicação iniciada com sucesso!");
     }
 
     @Bean
     public WebMvcConfigurer webMvcConfigurer() {
+        System.out.println(">>> [Application] Registrando AuthInterceptor no WebMvcConfigurer...");
         return new WebMvcConfigurer() {
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
+                System.out.println(">>> [Application] AuthInterceptor adicionado ao registry de interceptors.");
                 registry.addInterceptor(authInterceptor);
             }
         };

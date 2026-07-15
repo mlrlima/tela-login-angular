@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface LoginResponse {
   token: string;
@@ -18,7 +19,7 @@ export class AuthService {
 	  constructor(private http: HttpClient) {}
 
   login(email: string, senha: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>('/api/auth/login', { email, senha })
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, senha })
 		.pipe(
 			tap((res: any) => {
 			          localStorage.setItem('token', res.token);
@@ -36,7 +37,7 @@ export class AuthService {
 	localStorage.clear();
 	
 	if(token){
-      this.http.post('/api/auth/logout', {}, {
+      this.http.post(`${environment.apiUrl}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe();
     }
@@ -51,7 +52,7 @@ export class AuthService {
     }
   
   novoUsuario(nome: string, email: string, senha: string): Observable<any> {
-    return this.http.post('/api/usuario', { nome, email, senha });
+    return this.http.post(`${environment.apiUrl}/usuario`, { nome, email, senha });
   }
   
 }

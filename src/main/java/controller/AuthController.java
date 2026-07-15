@@ -3,7 +3,7 @@ package controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +21,7 @@ public class AuthController {
 
     public AuthController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+        System.out.println(">>> AuthController carregado!");
     }
 
 	

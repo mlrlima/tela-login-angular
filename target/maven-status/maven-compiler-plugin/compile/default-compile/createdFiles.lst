@@ -1,3 +1,4 @@
+controller\SpaFallbackController.class
 repository\UsuarioRepository.class
 model\Usuario.class
 controller\AuthController$LoginRequest.class
