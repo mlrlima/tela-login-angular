@@ -1,7 +1,6 @@
 package model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -14,43 +13,39 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 
-@Entity
-@Table(name="pet")
+@Entity // Indica que esta classe eh uma entidade JPA
+@Table(name="pet") // Nome da tabela no banco de dados
 public class Pet implements Serializable {
-	//It ensures that during deserialization, the object being read matches 
-	//the exact same class version that was originally serialized
+	//transforma a informacao em streams de bytes
+	//garante compatibilidade na desserializacao
 	private static final long serialVersionUID=1L;
 	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+    // CAMPOS DA ENTIDADE
+	
+	@Id //Chave primaria PK
+	@GeneratedValue(strategy=GenerationType.IDENTITY) //gera um valor auto-incremental
 	private Long id;
 	
-	@NotBlank
+	@NotBlank // Nao pode ser nulo, vazio ou conter apenas espacos
 	@Column(nullable=false, length=100)
 	private String nome;
 	
 	@NotNull
-	@ManyToOne //pet <n---1> dono
-	@JoinColumn(name="user_id", nullable=false)
+	@ManyToOne //pet N:1 dono ; RELACIONAMENTO: Muitos pets para um usuario
+	@JoinColumn(name="user_id", nullable=false) // Chave estrangeira FK
 	private Usuario dono;
 	
 	@NotNull
-	@Enumerated(EnumType.STRING)
+	@Enumerated(EnumType.STRING) // Salva o nome do enum (ex: "CACHORRO") no banco
 	@Column(nullable=false)
 	private Especie especie;
-	
-	@Temporal(TemporalType.DATE )
-	@Column(name="data_nascimento", nullable=true)
-	private Date dataNascimento;
 
 	
-	//getters e setters e outros
+    // GETTERS E SETTERS
 	
 	public Long getId() {
 		return id;
@@ -79,18 +74,12 @@ public class Pet implements Serializable {
 	public void setEspecie(Especie especie) {
 		this.especie = especie;
 	}
-
-	public Date getDataNascimento() {
-		return dataNascimento;
-	}
-	public void setDataNascimento(Date dataNascimento) {
-		this.dataNascimento = dataNascimento;
-	}
 	
+    // METODOS UTILITARIOS
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(id); // Baseado apenas no ID
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -101,7 +90,7 @@ public class Pet implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Pet other = (Pet) obj;
-		return Objects.equals(id, other.id);
+		return Objects.equals(id, other.id); // Compara pelo ID
 	}
 	@Override
 	public String toString() {

@@ -13,42 +13,56 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import security.AuthInterceptor;
 
-@SpringBootApplication(scanBasePackages = {
-        "config",
-        "controller",
+//DESCRICAO: Classe principal do Spring Boot
+//FUNCAO: Inicializa a aplicacao e configura o contexto
+
+@SpringBootApplication(scanBasePackages = { // Define os pacotes que serao escaneados pelo Spring
+        "config", 
+        "controller", // Endpoints REST
         "security",
         "service"
 })
-@EntityScan("model")
-@EnableJpaRepositories(basePackages = "repository")
+@EntityScan("model") // Escaneia as entidades JPA no pacote model
+@EnableJpaRepositories(basePackages = "repository") // Habilita e escaneia os repositorios JPA
 public class Application extends SpringBootServletInitializer {
+	// Extende SpringBootServletInitializer para permitir deploy em WAR (Tomcat externo)
 
-    @Autowired
+    @Autowired //injeta
     private AuthInterceptor authInterceptor;
 
     public Application() {
-        System.out.println(">>> [Application] Construtor chamado - instanciando aplicação...");
+        //System.out.println(">>> [Application] Construtor chamado - instanciando aplicação...");
     }
 
+    
+    // METODO: configure()
+    // FUNCAO: Configura a aplicacao para deploy em WAR (Tomcat externo)
+    // CHAMADO QUANDO: A aplicacao eh implantada em um container externo
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        System.out.println(">>> [Application] configure() chamado - inicializando via Tomcat externo (WAR)...");
+        //System.out.println(">>> [Application] configure() chamado - inicializando via Tomcat externo (WAR)...");
         return application.sources(Application.class);
     }
 
+    
+    // METODO: main()
+    // FUNCAO: Ponto de entrada da aplicacao (execucao via JAR)
+    // CHAMADO QUANDO: A aplicacao roda com 'java -jar' ou 'mvn spring-boot:run'
     public static void main(String[] args) {
-        System.out.println(">>> [Application] main() chamado - inicializando via Tomcat embutido (JAR)...");
+        //System.out.println(">>> [Application] main() chamado - inicializando via Tomcat embutido (JAR)...");
         SpringApplication.run(Application.class, args);
-        System.out.println(">>> [Application] Aplicação iniciada com sucesso!");
+        //System.out.println(">>> [Application] Aplicação iniciada com sucesso!");
     }
 
-    @Bean
+    // METODO: webMvcConfigurer()
+    // FUNCAO: Registra o AuthInterceptor para interceptar todas as requisicoes HTTP
+    @Bean // Declara este metodo como um Bean gerenciado pelo Spring
     public WebMvcConfigurer webMvcConfigurer() {
-        System.out.println(">>> [Application] Registrando AuthInterceptor no WebMvcConfigurer...");
+        //System.out.println(">>> [Application] Registrando AuthInterceptor no WebMvcConfigurer...");
         return new WebMvcConfigurer() {
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
-                System.out.println(">>> [Application] AuthInterceptor adicionado ao registry de interceptors.");
+                //System.out.println(">>> [Application] AuthInterceptor adicionado ao registry de interceptors.");
                 registry.addInterceptor(authInterceptor);
             }
         };

@@ -7,9 +7,24 @@ import java.lang.annotation.Target;
 
 import model.Role;
 
+//ANOTACAO: Secured
+//DESCRICAO: Anotacao personalizada para controle de acesso
+//FUNCAO: Marca endpoints que requerem autenticacao/autorizacao
+
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+//- A anotacao estara disponivel em tempo de execucao
+//- Permite que o AuthInterceptor a leia via reflexao
+
+@Target({ElementType.METHOD, ElementType.TYPE}) //pode ser usada em metodos ou classes
 public @interface Secured {
-	// vazio = qualquer usuario logado, independente do role
-    Role[] value() default {};
+    
+	// ATRIBUTO: value()
+    // TIPO: Array de Role (enum)
+    // DEFAULT: {} (vazio) = qualquer usuario logado
+    // ============================================================
+    // Exemplos de uso:
+    // @Secured                 -> qualquer usuario autenticado
+    // @Secured(Role.ADMIN)     -> apenas usuarios com role ADMIN
+    // @Secured({Role.ADMIN, Role.USER}) -> ADMIN ou USER
+    Role[] value() default {}; // vazio = qualquer usuario logado, independente do role
 }

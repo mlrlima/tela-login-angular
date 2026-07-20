@@ -16,19 +16,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-
-@Entity
-@Table(name="usuario")
+@Entity // Indica que esta classe eh uma entidade JPA (mapeada para o banco)
+@Table(name="usuario") // Nome da tabela no banco de dados
 public class Usuario implements Serializable{
 	//transforma a informacao em streams de bytes
+	//garante compatibilidade na desserializacao
 	private static final long serialVersionUID=1L;
 	
-	@Id
+	// CAMPOS DA ENTIDADE
+	
+	@Id //Chave primaria PK
 	@GeneratedValue(strategy=GenerationType.IDENTITY) //gera um valor auto-incremental
 	private Long id;
 	
-	@NotBlank
-	@Email
+	@NotBlank // Nao pode ser nulo, vazio ou conter apenas espacos
+	@Email // Deve ser um email valido (ex: usuario@email.com)
 	@Column(nullable = false, length = 50, unique = true)
 	private String email;
 
@@ -41,15 +43,14 @@ public class Usuario implements Serializable{
 	@Column(nullable = false, length = 100)
 	private String nome;
 	
-	@NotNull
-	@Enumerated(EnumType.STRING)
+	@NotNull 
+	@Enumerated(EnumType.STRING) // Salva o nome do enum (ex: "ADMIN") no banco
 	@Column(nullable=false)
-	private Role role;
+	private Role role; //ADMIN, USER
 
 	
+    // GETTERS E SETTERS
 	
-	
-	//getters e setters e outros utils
 	public Role getRole() {
 		return role;
 	}
@@ -86,7 +87,9 @@ public class Usuario implements Serializable{
 	}
 	
 	
-	@Override //pra substituir por essa funcao a q ja existe
+    // METODOS UTILITARIOS
+	
+	@Override //pra substituir por essa funcao a que ja existe
 	public String toString() {
 		return "Usuario [id=" + id + "]";
 	}
@@ -94,7 +97,7 @@ public class Usuario implements Serializable{
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(id); // Baseado apenas no ID
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -105,6 +108,6 @@ public class Usuario implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Usuario other = (Usuario) obj;
-		return Objects.equals(id, other.id);
+		return Objects.equals(id, other.id); // Compara pelo ID
 	}
 }

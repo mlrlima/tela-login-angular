@@ -14,7 +14,11 @@ import model.Role;
 import model.Usuario;
 import repository.UsuarioRepository;
 
-@Service
+//CLASSE: UsuarioService
+//DESCRICAO: Camada de servico para gerenciamento de usuarios
+//FUNCAO: Regras de negocio, validacoes e controle de permissao
+
+@Service //servico gerenciado pelo Spring
 public class UsuarioService implements Serializable {
 	private static final long serialVersionUID=1L;
 	
@@ -24,10 +28,16 @@ public class UsuarioService implements Serializable {
 	@Autowired
 	private PetService petService;
 	
+    // METODO: logado()
+    // FUNCAO: Obtem o usuario logado a partir do request
+    // RETORNO: Usuario (ou null se nao estiver autenticado)
     private Usuario logado(HttpServletRequest request) {
         return (Usuario) request.getAttribute("usuarioLogado");
     }
 	
+    // METODO: getAllUsuarios()
+    // FUNCAO: Lista usuarios baseado na role do usuario logado
+    // REGRA: ADMIN ve todos | USER ve apenas a si mesmo
 	public List<Usuario> getAllUsuarios(HttpServletRequest request){
 		Usuario usuarioLogado = logado(request);
 		
@@ -42,21 +52,25 @@ public class UsuarioService implements Serializable {
 	
 	}
 	
-	@Transactional
+    // METODO: createUsuario()
+    // FUNCAO: Cria um novo usuario (cadastro)
+    // REGRA: Sempre define role como USER (nao permite criar ADMIN)
+	@Transactional // Garante atomicidade (commit ou rollback)
 	public Usuario createUsuario(Usuario usuario) {
-		System.out.println("aqui1");
-		usuario.setId(null);
-		System.out.println("aqui2");
-		usuario.setRole(Role.USER);
-		System.out.println("aqui3");
+		usuario.setId(null); // Garante que o ID seja gerado pelo banco
+		usuario.setRole(Role.USER); // Forca role USER (seguranca)
 		return usuarioRepository.save(usuario);
 	}
 	
+    // METODO: getUsuarioById()
+    // FUNCAO: Busca usuario por ID com verificacao de permissao
+    // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
 	public Usuario getUsuarioById(Long id, HttpServletRequest request) {
     	Usuario usuarioLogado = logado(request);
         Usuario alvo = usuarioRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         
+     // Verifica permissao: ADMIN ou o proprio usuario
         if(usuarioLogado.getRole() != Role.ADMIN &&
                 !usuarioLogado.getId().equals(alvo.getId())) {
 
@@ -66,6 +80,10 @@ public class UsuarioService implements Serializable {
         return alvo;  
 	}
     
+	
+    // METODO: getUsuarioByEmail()
+    // FUNCAO: Busca usuario por email com verificacao de permissao
+    // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
 	public Usuario getUsuarioByEmail(String email, HttpServletRequest request) {
     	Usuario usuarioLogado = logado(request);
         Usuario alvo = usuarioRepository.findByEmail(email)
@@ -80,15 +98,21 @@ public class UsuarioService implements Serializable {
         return alvo;  
 	}
 	
+	// METODO: getUsuarioByEmailAndSenha()
+    // FUNCAO: Autenticacao - busca usuario por email e senha
 	public Usuario getUsuarioByEmailAndSenha(String email, String senha){
 		Usuario usuario=usuarioRepository.findByEmail(email)
-				.orElse(null);
+				.orElse(null); // Retorna null se nao encontrar
 		
 		if(usuario==null || !usuario.getSenha().equals(senha)) return null;
 		
 		return usuario;
 	}
 	
+    // METODO: updateUsuario()
+    // FUNCAO: Atualiza um usuario existente
+    // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
+    //       Se senha vier em branco, mantem a senha atual
 	@Transactional
 	public Usuario updateUsuario(Usuario usuario,
 									HttpServletRequest request) {
@@ -113,6 +137,9 @@ public class UsuarioService implements Serializable {
 	
 	}
 	
+    // METODO: deleteUsuario()
+    // FUNCAO: Remove um usuario (e seus pets)
+    // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
     public void deleteUsuario(Long id, HttpServletRequest request) {
 		 Usuario alvo = usuarioRepository.findById(id)
