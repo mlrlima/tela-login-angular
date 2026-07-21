@@ -49,6 +49,33 @@ O **PetManager** é uma aplicação web full-stack para gerenciamento de usuári
 - 🔐 **Segurança**: autenticação por **token opaco (UUID)** tipo `Bearer`, com controle de acesso por **role**.
 
 ---
+## 📸 Imagens
+ 
+<details>
+<summary>Clique para expandir as capturas de tela do sistema</summary>
+<br>
+
+**Tela de login**
+<img src="imagens/tela-de-login.png" alt="Tela de login" width="700"/>
+
+**Criar usuário** 
+<img src="imagens/criar-usuario.png" alt="Tela de criação de novo usuário" width="700"/>
+
+**Gestão de Pets**
+<img src="imagens/gestao-de-pets.png" alt="Tela de gestão de pets" width="700"/>
+
+**Tela de edição de pet**
+<img src="imagens/editar-pet.png" alt="Tela de edição de pet" width="700"/>
+
+**Gestão de Usuários**
+<img src="imagens/gestao-de-usuarios.png" alt="Tela de gestão de usuarios" width="700"/>
+
+**Tela de edição de usuário**
+<img src="imagens/editar-usuario.png" alt="Tela de edição de usuário" width="700"/>
+
+</details>
+
+---
 
 ## 🏗 Arquitetura
 
@@ -169,29 +196,8 @@ tela-login-angular/
 
 ## 🗃 Modelo de dados
 
-```
-┌─────────────────────────┐          ┌─────────────────────────┐
-│ Usuario                 │          │ Pet                     │
-├─────────────────────────┤          ├─────────────────────────┤
-│ +Long id                │  1    N  │ +Long id                │
-│ +String email  (unique, │─────────▶│ +String nome (@NotBlank)│
-│   @Email)               │  dono    │ +Usuario dono (@ManyToOne│
-│ +String senha (@Size    │          │   FK user_id)           │
-│   min 4)                │          │ +Especie especie        │
-│ +String nome            │          └─────────────────────────┘
-│ +Role role               │                     │
-└─────────────────────────┘                      ▼
-            │                              ┌─────────────┐
-            ▼                              │  Especie    │
-     ┌─────────────┐                       │  «enum»     │
-     │    Role     │                       │  CACHORRO   │
-     │   «enum»    │                       │  GATO       │
-     │   ADMIN     │                       │  PEIXE      │
-     │   USER      │                       │  ROEDOR     │
-     └─────────────┘                       │  PASSARO    │
-                                            │  OUTRA      │
-                                            └─────────────┘
-```
+<img src="imagens/diagrama-de-classes.png" alt="Diagrama de classes" width="700"/>
+
 
 - **`Usuario`** — tabela `usuario`; `email` é único; validações Bean Validation (`@NotBlank`, `@Email`, `@Size`).
 - **`Pet`** — tabela `pet`; relacionamento **N:1** com `Usuario` via FK `user_id`; `especie` persistida como `String` (`@Enumerated(EnumType.STRING)`).
@@ -201,24 +207,8 @@ tela-login-angular/
 
 ## 🔐 Autenticação e autorização
 
-```
-Angular          AuthInterceptor(front)     DispatcherServlet      AuthInterceptor(@Secured)      Controller
-  │                       │                        │                        │                     │
-  │──POST /api/auth/login {email, senha}──────────▶│                        │                     │
-  │                       │                        │───────────────────────────────────────────▶ │
-  │                       │                        │                        │        AuthController.login()
-  │◀─────────────────────────── 200 { token, id, nome, email, role } ────────────────────────────│
-  │  (guarda o token no localStorage)               │                        │                     │
-  │                       │                        │                        │                     │
-  │──chamada a rota protegida──────────────────────▶│                        │                     │
-  │                       │──Authorization: Bearer <token>──────────────────▶│                     │
-  │                       │                        │─────preHandle()───────▶│                     │
-  │                       │                        │       método/classe tem @Secured?             │
-  │                       │                        │       GeradorToken.validar(token) → usuarioId │
-  │                       │                        │       checa role exigida (401/403)            │
-  │                       │                        │──request.setAttribute("usuarioLogado", ...)──▶│
-  │◀──────────────────────────────────── resposta ─────────────────────────────────────────────────│
-```
+<img src="imagens/diagrama-de-sequencia.png" alt="Diagrama de sequência" width="700"/>
+
 
 - **`GeradorToken`** — gera um `UUID` no login e guarda `token → idUsuário` em memória (`ConcurrentHashMap`); `validar()` e `invalidar()` (logout).
 - **`@Secured`** — anotação própria: `@Secured` = qualquer usuário logado; `@Secured(Role.ADMIN)` = só ADMIN.
