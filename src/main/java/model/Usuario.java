@@ -1,8 +1,11 @@
 package model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,6 +51,9 @@ public class Usuario implements Serializable{
 	@Enumerated(EnumType.STRING) // Salva o nome do enum (ex: "ADMIN") no banco
 	@Column(nullable=false)
 	private Role role; //ADMIN, USER
+	
+	@ManyToMany(mappedBy = "usuarios", cascade = {CascadeType.PERSIST, CascadeType.MERGE}) // Nome do atributo na classe Empresa
+    private Set<Empresa> empresas = new HashSet<>();
 
 	
     // GETTERS E SETTERS
@@ -84,6 +91,13 @@ public class Usuario implements Serializable{
 	}
 	public void setNome(String nome){
 		this.nome = nome;
+	}
+	
+	public Set<Empresa> getEmpresas() {
+		return empresas;
+	}
+	public void setEmpresas(Set<Empresa> empresas) {
+		this.empresas = empresas;
 	}
 	
 	

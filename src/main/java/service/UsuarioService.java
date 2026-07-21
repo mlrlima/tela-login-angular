@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import model.Empresa;
 import model.Role;
 import model.Usuario;
 import repository.UsuarioRepository;
@@ -155,6 +156,11 @@ public class UsuarioService implements Serializable {
 
         //deletar pets desse usuario
         petService.deletePetsUsuario(alvo);
+        
+		//desvinculando esse usuario das empresas
+	    for (Empresa empresa : alvo.getEmpresas()) {
+	        empresa.getUsuarios().remove(alvo);
+	    }
         
         usuarioRepository.delete(alvo);
     }
