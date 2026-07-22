@@ -1,0 +1,67 @@
+<div class="page">
+
+  <mat-card>
+
+    <h2>
+      {{ modoEdicao ? '✏️ Editar Empresa' : 'Nova Empresa' }}
+    </h2>
+
+    <div *ngIf="carregando" class="loading">
+      <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <form *ngIf="!carregando" (ngSubmit)="onSubmit()"
+    		(keydown.enter)="$event.preventDefault(); onSubmit()">
+
+      <mat-form-field appearance="outline">
+
+        <mat-label>Nome</mat-label>
+
+        <input
+          matInput
+          id="nome"
+          name="nome"
+          [(ngModel)]="empresa.nome"
+          required>
+
+      </mat-form-field>
+
+      <div
+        *ngIf="mensagens"
+        class="error">
+
+        {{ mensagens }}
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit">
+
+          <mat-icon>save</mat-icon>
+
+          Salvar
+
+        </button>
+
+        <button
+          mat-stroked-button
+          routerLink="/empresas"
+          type="button">
+
+          <mat-icon>arrow_back</mat-icon>
+
+          Voltar
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </mat-card>
+
+</div>

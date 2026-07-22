@@ -31,6 +31,10 @@ export class EmpresaService {
 	porNome(nome: string): Observable<Empresa> {
 	  return this.http.get<Empresa>(`${environment.apiUrl}/empresa`, { params: { nome } });
 	}
+	
+	criar(empresa: Empresa): Observable<Empresa> {
+	  return this.http.post<Empresa>(`${environment.apiUrl}/empresa`, empresa);
+	}
 
 	atualizar(empresa: Empresa): Observable<Empresa> {
 	  return this.http.put<Empresa>(`${environment.apiUrl}/empresa`, empresa);

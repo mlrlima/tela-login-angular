@@ -11,11 +11,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-gestao-empresas',
   standalone: true,
   imports:   [  FormsModule,
+	RouterLink,
 	CommonModule,
         MatCardModule,
         MatButtonModule,
@@ -38,6 +40,10 @@ export class GestaoEmpresas implements OnInit{
 	constructor(private empresaService: EmpresaService,
 			  private cdr: ChangeDetectorRef,) {}
 	
+	  get isAdmin(): boolean {
+	    return localStorage.getItem('role') === 'ADMIN';
+	  }
+			  
 	ngOnInit(): void {
 	  this.carregar();
 	}

@@ -10,6 +10,7 @@ import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard-guard';
 import { loginGuard } from './guards/login-guard';
 import { GestaoEmpresas } from './gestao-empresas/gestao-empresas';
+import { EmpresaForm } from './empresa-form/empresa-form';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -25,4 +26,6 @@ export const routes: Routes = [
 	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard] },
 	
 	{ path: 'empresas', component: GestaoEmpresas, canActivate: [authGuard] },
+	{ path: 'empresas/novo', component: EmpresaForm, canActivate: [adminGuard] },
+	{ path: 'empresas/:id', component: EmpresaForm, canActivate: [adminGuard] },
 ];

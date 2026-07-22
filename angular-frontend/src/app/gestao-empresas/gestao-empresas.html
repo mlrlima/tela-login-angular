@@ -4,7 +4,18 @@
 
     <div class="header">
 
-      <h2>👥 Gestão de Empresas</h2>
+      <h2>Gestão de Empresas</h2>
+      
+      <button
+        *ngIf="isAdmin"
+        mat-raised-button
+        color="primary"
+        routerLink="/empresas/nova">
+
+        <mat-icon>add</mat-icon>
+        Nova Empresa
+
+      </button>
 
     </div>
 
@@ -51,14 +62,14 @@
 
           <td class="actions">
 
- <!--      <button
+          <button
               mat-icon-button
               color="primary"
-              [routerLink]="['empresas', empresa.id]">
+              [routerLink]="['/empresas', empresa.id]">
 
               <mat-icon>edit</mat-icon>
 
-            </button>  -->  
+            </button>  
 
             <button
               mat-icon-button
@@ -87,7 +98,7 @@
 
       <h3>{{ termoBusca ? 'Nenhuma empresa encontrada' : 'Nenhuma empresa encontrada' }}</h3>
 
-      <p *ngIf="!termoBusca">Não há empresas cadastradas.</p>
+      <p *ngIf="!termoBusca">Clique em <strong>Nova Empresa</strong> para começar.</p>
       <p *ngIf="termoBusca">Tente outro termo de busca.</p>
 
     </div>
