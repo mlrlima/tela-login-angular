@@ -3,6 +3,7 @@ package service;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dto.EmpresaRelacionadaDTO;
 import dto.UsuarioRelacionadoDTO;
+import dto.UsuarioResponseDTO;
 import model.Empresa;
 import model.Role;
 import model.Usuario;
@@ -40,46 +43,48 @@ public class UsuarioService implements Serializable {
     // METODO: getAllUsuarios()
     // FUNCAO: Lista usuarios baseado na role do usuario logado
     // REGRA: ADMIN ve todos | USER ve apenas a si mesmo
-	public List<Usuario> getAllUsuarios(HttpServletRequest request){
+	public List<UsuarioResponseDTO> getAllUsuarios(HttpServletRequest request){
 		Usuario usuarioLogado = logado(request);
 		
+		List<Usuario> usuarios;
+		
 		if(usuarioLogado.getRole() == Role.ADMIN) {
-			return usuarioRepository.findAll();
+			usuarios = usuarioRepository.findAll();
+		} else {
+			usuarios = new ArrayList<>();
+			usuarios.add(usuarioLogado);
 		}
 		
-		//se for user, so pode ver ele mesmo
-		List<Usuario> lista =new ArrayList<>();
-		lista.add(usuarioLogado);
-		return lista;
-	
+		return usuarios.stream().map(this::toDTO)
+				.collect(Collectors.toList());
 	}
 	
     // METODO: createUsuario()
     // FUNCAO: Cria um novo usuario (cadastro)
     // REGRA: Sempre define role como USER (nao permite criar ADMIN)
 	@Transactional // Garante atomicidade (commit ou rollback)
-	public Usuario createUsuario(Usuario usuario) {
-		usuario.setId(null); // Garante que o ID seja gerado pelo banco
-		usuario.setRole(Role.USER); // Forca role USER (seguranca)
-		return usuarioRepository.save(usuario);
+	public UsuarioResponseDTO createUsuario(Usuario usuario) {
+		usuario.setId(null);
+		usuario.setRole(Role.USER);
+		Usuario salvo = usuarioRepository.save(usuario);
+		return toDTO(salvo);
 	}
 	
     // METODO: getUsuarioById()
     // FUNCAO: Busca usuario por ID com verificacao de permissao
     // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
-	public Usuario getUsuarioById(Long id, HttpServletRequest request) {
+	public UsuarioResponseDTO getUsuarioById(Long id, HttpServletRequest request) {
     	Usuario usuarioLogado = logado(request);
         Usuario alvo = usuarioRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         
-     // Verifica permissao: ADMIN ou o proprio usuario
+        //verifica se eh ADMIN ou o proprio usuario
         if(usuarioLogado.getRole() != Role.ADMIN &&
                 !usuarioLogado.getId().equals(alvo.getId())) {
-
                 throw new RuntimeException("Sem permissão");
         }
         
-        return alvo;  
+        return toDTO(alvo);
 	}
     
 	
@@ -106,27 +111,26 @@ public class UsuarioService implements Serializable {
     // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
     //       Se senha vier em branco, mantem a senha atual
 	@Transactional
-	public Usuario updateUsuario(Usuario usuario,
-									HttpServletRequest request) {
-    	
-    	Usuario usuarioLogado = logado(request);
-    	
-        if(usuarioLogado.getRole() != Role.ADMIN &&
-                !usuarioLogado.getId().equals(usuario.getId())) {
-        	
-                throw new RuntimeException("Sem permissão");
-        }
-        
-        //caso a senha venha em branco (nao alterar senha)
-        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
-            Usuario existente = usuarioRepository.findById(usuario.getId())
-            		.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));;
-
-            usuario.setSenha(existente.getSenha());
-        }
-        
-        return usuarioRepository.save(usuario);
-	
+	public UsuarioResponseDTO updateUsuario(Usuario usuario, HttpServletRequest request) {
+		Usuario usuarioLogado = logado(request);
+		
+		//verifica se eh ADMIN ou o proprio usuario
+		if(usuarioLogado.getRole() != Role.ADMIN &&
+		!usuarioLogado.getId().equals(usuario.getId())) {
+			throw new RuntimeException("Sem permissão");
+		}
+		
+		//deixar a senha antiga
+		if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
+			
+			Usuario existente = usuarioRepository.findById(usuario.getId())
+			.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+			
+			usuario.setSenha(existente.getSenha());
+		}
+		
+		Usuario salvo = usuarioRepository.save(usuario);
+		return toDTO(salvo);
 	}
 	
     // METODO: deleteUsuario()
@@ -155,4 +159,19 @@ public class UsuarioService implements Serializable {
         
         usuarioRepository.delete(alvo);
     }
+	
+	// Converte a entidade em DTO, sem senha e sem risco de loop
+	private UsuarioResponseDTO toDTO(Usuario usuario) {
+		List<EmpresaRelacionadaDTO> empresas = usuario.getEmpresas().stream()
+				.map(e -> new EmpresaRelacionadaDTO(e.getId(), e.getNome()))
+				.collect(Collectors.toList());
+		
+		return new UsuarioResponseDTO(
+				usuario.getId(),
+				usuario.getEmail(),
+				usuario.getNome(),
+				usuario.getRole(),
+				empresas
+		);
+	}
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import dto.UsuarioRelacionadoDTO;
+import dto.UsuarioResponseDTO;
 import model.Usuario;
 import security.Secured;
 import service.UsuarioService;
@@ -30,7 +31,7 @@ public class UsuarioController {
     // RETORNO: HTTP 200 com lista de usuarios
     @Secured
 	@GetMapping("/all")
-	public ResponseEntity<List<Usuario>> getAll(HttpServletRequest request){
+	public ResponseEntity<List<UsuarioResponseDTO>> getAll(HttpServletRequest request){
 		return ResponseEntity.ok(service.getAllUsuarios(request));
 	}
 	
@@ -38,7 +39,7 @@ public class UsuarioController {
     // FUNCAO: Cria um novo usuario (cadastro)
     // RETORNO: HTTP 200 com o usuario criado
 	@PostMapping
-	public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) { // Recebe JSON
+	public ResponseEntity<UsuarioResponseDTO> create(@RequestBody Usuario usuario) { //recebe JSON
 		return ResponseEntity.ok(service.createUsuario(usuario));
 	}
 	
@@ -49,7 +50,7 @@ public class UsuarioController {
     // RETORNO: HTTP 200 com os dados do usuario
     @Secured
 	@GetMapping("/{id}")
-	public ResponseEntity<Usuario> getById(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id, HttpServletRequest request) {
     	return ResponseEntity.ok(service.getUsuarioById(id, request));
 	}
     
@@ -67,8 +68,7 @@ public class UsuarioController {
     // RETORNO: HTTP 200 com o usuario atualizado
     @Secured
 	@PutMapping
-	public ResponseEntity<Usuario> update(@RequestBody Usuario usuario,
-									HttpServletRequest request) {
+	public ResponseEntity<UsuarioResponseDTO> update(@RequestBody Usuario usuario, HttpServletRequest request) {
     	return ResponseEntity.ok(service.updateUsuario(usuario, request));  
 	}
 	

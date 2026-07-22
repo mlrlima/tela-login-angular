@@ -10,6 +10,7 @@ export interface Usuario {
   email: string;
   senha?: string;
   role: string;
+  empresas?: EmpresaRelacionada[];
 }
 
 export interface EmpresaRelacionada {
