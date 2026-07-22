@@ -9,6 +9,7 @@ import { PetForm } from './pet-form/pet-form';
 import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard-guard';
 import { loginGuard } from './guards/login-guard';
+import { GestaoEmpresas } from './gestao-empresas/gestao-empresas';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,5 +22,7 @@ export const routes: Routes = [
     { path: 'pets/:id', component: PetForm, canActivate: [authGuard] },
 	
 	{ path: 'usuarios', component: GestaoUsuarios, canActivate: [authGuard] },
-	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard] }
+	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard] },
+	
+	{ path: 'empresas', component: GestaoEmpresas, canActivate: [authGuard] },
 ];

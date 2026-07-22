@@ -11,6 +11,11 @@ export interface Usuario {
   role: string;
 }
 
+export interface EmpresaResumo {
+    id: number;
+    nome: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
 

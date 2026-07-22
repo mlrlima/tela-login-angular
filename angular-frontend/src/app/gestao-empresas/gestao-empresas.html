@@ -1,0 +1,97 @@
+<div class="page">
+
+  <mat-card>
+
+    <div class="header">
+
+      <h2>👥 Gestão de Empresas</h2>
+
+    </div>
+
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Pesquisar</mat-label>
+      <input
+        matInput
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="filtrarEmpresas()"
+        placeholder="Nome da empresa...">
+      <mat-icon matPrefix>search</mat-icon>
+      <button
+        *ngIf="termoBusca"
+        mat-icon-button
+        matSuffix
+        (click)="termoBusca=''; filtrarEmpresas()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <div *ngIf="mensagens" class="error">
+      {{ mensagens }}
+    </div>
+
+    <div *ngIf="carregando" class="loading">
+      <mat-spinner diameter="45"></mat-spinner>
+    </div>
+
+    <table *ngIf="!carregando && empresasFiltradas.length > 0"
+           class="mat-elevation-z2">
+
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th style="width:170px;">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let empresa of empresasFiltradas">
+
+          <td>{{ empresa.nome }}</td>
+
+          <td class="actions">
+
+ <!--      <button
+              mat-icon-button
+              color="primary"
+              [routerLink]="['empresas', empresa.id]">
+
+              <mat-icon>edit</mat-icon>
+
+            </button>  -->  
+
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="remover(empresa.id)">
+
+              <mat-icon>delete</mat-icon>
+
+            </button>
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <div
+      *ngIf="!carregando && empresasFiltradas.length === 0"
+      class="empty-state">
+
+      <mat-icon class="empty-icon">
+        group
+      </mat-icon>
+
+      <h3>{{ termoBusca ? 'Nenhuma empresa encontrada' : 'Nenhuma empresa encontrada' }}</h3>
+
+      <p *ngIf="!termoBusca">Não há empresas cadastradas.</p>
+      <p *ngIf="termoBusca">Tente outro termo de busca.</p>
+
+    </div>
+
+  </mat-card>
+
+</div>

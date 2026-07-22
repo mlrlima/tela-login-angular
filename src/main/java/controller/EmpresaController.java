@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,6 +42,13 @@ public class EmpresaController {
 	public ResponseEntity<Empresa> getById(@PathVariable Long id, HttpServletRequest request) {
     	return ResponseEntity.ok(service.getEmpresaById(id, request));
 	}
+    
+    @Secured
+	@GetMapping
+	public ResponseEntity<Empresa> getByNome(@RequestParam String nome, HttpServletRequest request) {
+    	return ResponseEntity.ok(service.getEmpresaByNome(nome, request));  
+	}
+	
     
     @Secured
 	@PutMapping

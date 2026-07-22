@@ -57,6 +57,17 @@ public class EmpresaService implements Serializable {
 		throw new RuntimeException("Sem permissão");
 	}
 	
+	//apenas admin pode acessar
+	public Empresa getEmpresaByNome(String nome, HttpServletRequest request) {
+		Empresa alvo=empresaRepository.findByNome(nome)
+				.orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+		
+		Usuario usuarioLogado =logado(request);
+		if(usuarioLogado.getRole()==Role.ADMIN) return alvo;
+		
+		throw new RuntimeException("Sem permissão");
+	}
+	
 	//apenas admin pode alterar empresas
 	@Transactional
 	public Empresa updateEmpresa(Empresa empresa, HttpServletRequest request) {
