@@ -9,7 +9,8 @@
 
     <a routerLink="/usuarios" routerLinkActive="active">Usuários</a>
     
-    <a routerLink="/empresas" routerLinkActive="active">Empresas</a>
+    <a *ngIf="isAdmin"
+    routerLink="/empresas" routerLinkActive="active">Empresas</a>
   </div>
 
   <div class="nav-right">
