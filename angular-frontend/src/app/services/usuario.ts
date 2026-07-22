@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { UsuarioRelacionado } from './empresa';
 
 export interface Usuario {
   id?: number;
@@ -11,7 +12,7 @@ export interface Usuario {
   role: string;
 }
 
-export interface EmpresaResumo {
+export interface EmpresaRelacionada {
     id: number;
     nome: string;
 }
@@ -29,8 +30,8 @@ export class UsuarioService {
     return this.http.get<Usuario>(`${environment.apiUrl}/usuario/${id}`);
   }
 
-  porEmail(email: string): Observable<Usuario> {
-    return this.http.get<Usuario>(`${environment.apiUrl}/usuario`, { params: { email } });
+  porEmail(email: string): Observable<UsuarioRelacionado> {
+    return this.http.get<UsuarioRelacionado>(`${environment.apiUrl}/usuario`, { params: { email } });
   }
 
   atualizar(usuario: Usuario): Observable<Usuario> {

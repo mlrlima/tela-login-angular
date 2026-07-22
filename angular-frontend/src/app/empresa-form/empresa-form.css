@@ -1,0 +1,19 @@
+.usuarios-section {
+  margin: 16px 0;
+}
+
+.add-usuario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email-field {
+  flex: 1;
+}
+
+.empty-usuarios {
+  color: rgba(0,0,0,0.4);
+  font-style: italic;
+  font-size: 14px;
+}

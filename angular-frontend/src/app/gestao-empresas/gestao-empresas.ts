@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-gestao-empresas',
@@ -25,6 +26,7 @@ import { RouterLink } from '@angular/router';
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
+		MatMenuModule,
         MatChipsModule],
   templateUrl: './gestao-empresas.html',
   styleUrl: './gestao-empresas.css',

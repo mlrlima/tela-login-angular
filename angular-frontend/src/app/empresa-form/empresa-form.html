@@ -13,18 +13,65 @@
     <form *ngIf="!carregando" (ngSubmit)="onSubmit()"
     		(keydown.enter)="$event.preventDefault(); onSubmit()">
 
-      <mat-form-field appearance="outline">
+<mat-form-field appearance="outline">
 
-        <mat-label>Nome</mat-label>
+  <mat-label>Nome</mat-label>
 
-        <input
-          matInput
-          id="nome"
-          name="nome"
-          [(ngModel)]="empresa.nome"
-          required>
+  <input
+    matInput
+    id="nome"
+    name="nome"
+    [(ngModel)]="empresa.nome"
+    required>
 
-      </mat-form-field>
+</mat-form-field>
+
+<div class="usuarios-section">
+
+  <h3>Usuários relacionados</h3>
+
+  <div class="add-usuario">
+
+    <mat-form-field appearance="outline" class="email-field">
+      <mat-label>E-mail do usuário</mat-label>
+      <input
+        matInput
+        [(ngModel)]="novoEmail"
+        name="novoEmail"
+        (keydown.enter)="$event.preventDefault(); adicionarUsuario()"
+        placeholder="usuario@email.com">
+    </mat-form-field>
+
+    <button
+      mat-icon-button
+      color="primary"
+      type="button"
+      (click)="adicionarUsuario()">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+
+  </div>
+
+  <div *ngIf="erroUsuario" class="error">
+    {{ erroUsuario }}
+  </div>
+
+  <mat-chip-set aria-label="Usuários relacionados">
+    <mat-chip
+      *ngFor="let usuario of empresa.usuarios"
+      (removed)="removerUsuario(usuario.id)">
+      {{ usuario.email }}
+      <button matChipRemove>
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+  </mat-chip-set>
+
+  <p *ngIf="!empresa.usuarios?.length" class="empty-usuarios">
+    Nenhum usuário vinculado ainda.
+  </p>
+
+</div>
 
       <div
         *ngIf="mensagens"

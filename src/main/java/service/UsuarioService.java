@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dto.UsuarioRelacionadoDTO;
 import model.Empresa;
 import model.Role;
 import model.Usuario;
@@ -82,21 +83,11 @@ public class UsuarioService implements Serializable {
 	}
     
 	
-    // METODO: getUsuarioByEmail()
-    // FUNCAO: Busca usuario por email com verificacao de permissao
-    // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
-	public Usuario getUsuarioByEmail(String email, HttpServletRequest request) {
-    	Usuario usuarioLogado = logado(request);
-        Usuario alvo = usuarioRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
-        if(usuarioLogado.getRole() != Role.ADMIN &&
-                !usuarioLogado.getId().equals(alvo.getId())) {
-        	
-                throw new RuntimeException("Sem permissão");
-        }
-        
-        return alvo;  
+	public UsuarioRelacionadoDTO getUsuarioByEmail(String email, HttpServletRequest request) {
+	    Usuario alvo = usuarioRepository.findByEmail(email)
+	            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+	    return new UsuarioRelacionadoDTO(alvo.getId(), alvo.getEmail());
 	}
 	
 	// METODO: getUsuarioByEmailAndSenha()

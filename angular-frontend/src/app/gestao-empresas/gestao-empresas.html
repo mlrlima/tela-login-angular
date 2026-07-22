@@ -7,7 +7,6 @@
       <h2>Gestão de Empresas</h2>
       
       <button
-        *ngIf="isAdmin"
         mat-raised-button
         color="primary"
         routerLink="/empresas/nova">
@@ -61,6 +60,29 @@
           <td>{{ empresa.nome }}</td>
 
           <td class="actions">
+          
+			 <button
+			   mat-icon-button
+			   color="accent"
+			   [matMenuTriggerFor]="menuUsuariosRelacionados"
+			   matTooltip="Usuários relacionados">
+			   <mat-icon>group</mat-icon>
+			 </button>
+			
+			 <mat-menu #menuUsuariosRelacionados="matMenu">
+			   <div class="menu-header" *ngIf="empresa.usuarios?.length">
+			     Usuários relacionados
+			   </div>
+			
+			   <button mat-menu-item *ngFor="let usuario of empresa.usuarios">
+			     <mat-icon>email</mat-icon>
+			     <span>{{ usuario.email }}</span>
+			   </button>
+			
+			   <div class="menu-empty" *ngIf="!empresa.usuarios?.length">
+			     Nenhum usuário vinculado
+			   </div>
+			 </mat-menu>
 
           <button
               mat-icon-button

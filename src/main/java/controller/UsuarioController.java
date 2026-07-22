@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import dto.UsuarioRelacionadoDTO;
 import model.Usuario;
 import security.Secured;
 import service.UsuarioService;
@@ -53,15 +54,11 @@ public class UsuarioController {
 	}
     
     
-    // ENDPOINT: GET /usuario?email=xxx
-    // FUNCAO: Busca um usuario pelo email
-    // SEGURANCA: Requer autenticacao (@Secured)
-    // RETORNO: HTTP 200 com os dados do usuario
     @Secured
-	@GetMapping
-	public ResponseEntity<Usuario> getByEmail(@RequestParam String email, HttpServletRequest request) {
-    	return ResponseEntity.ok(service.getUsuarioByEmail(email, request));  
-	}
+    @GetMapping
+    public UsuarioRelacionadoDTO porEmail(@RequestParam String email, HttpServletRequest request) {
+        return service.getUsuarioByEmail(email, request);
+    }
 	
     
     // ENDPOINT: PUT /usuario

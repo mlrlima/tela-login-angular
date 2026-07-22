@@ -7,10 +7,10 @@ import { environment } from '../../environments/environment';
 export interface Empresa {
   id?: number;
   nome: string;
-  usuarios?: UsuarioResumo[];
+  usuarios?: UsuarioRelacionado[];
 }
 
-export interface UsuarioResumo {
+export interface UsuarioRelacionado {
     id: number;
     email: string;
 }

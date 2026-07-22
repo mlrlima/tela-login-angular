@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dto.EmpresaResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import model.Empresa;
 import security.Secured;
@@ -28,34 +29,33 @@ public class EmpresaController {
 	
     @Secured
 	@GetMapping("/all")
-	public ResponseEntity<List<Empresa>> getAll(HttpServletRequest request){
+	public ResponseEntity<List<EmpresaResponseDTO>> getAll(HttpServletRequest request){
 		return ResponseEntity.ok(service.getAllEmpresas(request));
 	}
     
-	@PostMapping
-	public ResponseEntity<Empresa> create(@RequestBody Empresa empresa, HttpServletRequest request) { // Recebe JSON
-		return ResponseEntity.ok(service.createEmpresa(empresa, request));
-	}
+    @PostMapping
+    public EmpresaResponseDTO create(@RequestBody Empresa empresa, HttpServletRequest request) {
+        return service.createEmpresa(empresa, request);
+    }
 	
     @Secured
 	@GetMapping("/{id}")
-	public ResponseEntity<Empresa> getById(@PathVariable Long id, HttpServletRequest request) {
-    	return ResponseEntity.ok(service.getEmpresaById(id, request));
+	public EmpresaResponseDTO getById(@PathVariable Long id, HttpServletRequest request) {
+    	return service.getEmpresaById(id, request);
 	}
     
     @Secured
 	@GetMapping
-	public ResponseEntity<Empresa> getByNome(@RequestParam String nome, HttpServletRequest request) {
-    	return ResponseEntity.ok(service.getEmpresaByNome(nome, request));  
+	public EmpresaResponseDTO getByNome(@RequestParam String nome, HttpServletRequest request) {
+    	return service.getEmpresaByNome(nome, request);  
 	}
 	
     
     @Secured
-	@PutMapping
-	public ResponseEntity<Empresa> update(@RequestBody Empresa empresa,
-									HttpServletRequest request) {
-    	return ResponseEntity.ok(service.updateEmpresa(empresa, request));  
-	}
+    @PutMapping
+    public EmpresaResponseDTO update(@RequestBody Empresa empresa, HttpServletRequest request) {
+        return service.updateEmpresa(empresa, request);
+    }
     
     @Secured
     @DeleteMapping("/{id}")

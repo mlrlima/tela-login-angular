@@ -25,7 +25,7 @@ export const routes: Routes = [
 	{ path: 'usuarios', component: GestaoUsuarios, canActivate: [authGuard] },
 	{ path: 'usuarios/:id', component: UsuarioForm, canActivate: [authGuard] },
 	
-	{ path: 'empresas', component: GestaoEmpresas, canActivate: [authGuard] },
+	{ path: 'empresas', component: GestaoEmpresas, canActivate: [adminGuard] },
 	{ path: 'empresas/novo', component: EmpresaForm, canActivate: [adminGuard] },
 	{ path: 'empresas/:id', component: EmpresaForm, canActivate: [adminGuard] },
 ];
