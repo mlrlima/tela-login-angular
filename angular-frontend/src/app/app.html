@@ -5,12 +5,21 @@
   </div>
 
   <div class="nav-center">
-    <a routerLink="/pets" routerLinkActive="active">Pets</a>
+    <a routerLink="/pets" routerLinkActive="active">
+	    <mat-icon>pets</mat-icon>
+	    Pets
+	</a>
 
-    <a routerLink="/usuarios" routerLinkActive="active">Usuários</a>
+    <a routerLink="/usuarios" routerLinkActive="active">
+    	<mat-icon>group</mat-icon>
+    	Usuários
+    </a>
     
-    <a *ngIf="isAdmin"
-    routerLink="/empresas" routerLinkActive="active">Empresas</a>
+    <a *ngIf="isAdmin" routerLink="/empresas" routerLinkActive="active">
+    	<mat-icon>work</mat-icon>
+    	Empresas
+    </a>
+    
   </div>
 
   <div class="nav-right">

@@ -2,6 +2,7 @@ package service;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dto.DonoDTO;
+import dto.PetResponseDTO;
 import model.Pet;
 import model.Role;
 import model.Usuario;
@@ -33,27 +36,34 @@ public class PetService implements Serializable {
     // METODO: getAllPets()
     // FUNCAO: Lista pets baseado na role do usuario logado
     // REGRA: ADMIN ve todos | USER ve apenas seus proprios pets
-	public List<Pet> getAllPets(HttpServletRequest request){
+	public List<PetResponseDTO> getAllPets(HttpServletRequest request){
 		Usuario usuarioLogado = logado(request);
 		
+		List<Pet> pets;
+		
+		//se for ADMIN, retorna todos os pets
 		if(usuarioLogado.getRole() == Role.ADMIN) {
-			return petRepository.findAll();
+			pets = petRepository.findAll();
+		} else { //se for user, retorna apenas os dele
+			pets = petRepository.findByDono_Id(usuarioLogado.getId());
 		}
 		
-		return petRepository.findByDono_Id(usuarioLogado.getId());
+		return pets.stream()
+				.map(this::toDTO)
+				.collect(Collectors.toList());
 	}
 
     // METODO: createPet()
     // FUNCAO: Cria um novo pet associado ao usuario logado
     // REGRA: O dono do pet eh sempre o usuario logado
 	@Transactional
-	public Pet createPet(Pet pet, HttpServletRequest request) {
-		
+	public PetResponseDTO createPet(Pet pet, HttpServletRequest request) {
 		Usuario usuarioLogado = logado(request);
-        pet.setDono(usuarioLogado); // Forca o dono ser o usuario logado
+        pet.setDono(usuarioLogado);
 		
-		pet.setId(null); // Garante que o ID seja gerado pelo banco
-		return petRepository.save(pet);
+		pet.setId(null);
+		Pet salvo = petRepository.save(pet);
+		return toDTO(salvo);
 	}
 	
     // METODO: ehDonoOuAdmin()
@@ -67,12 +77,12 @@ public class PetService implements Serializable {
     // METODO: getPetById()
     // FUNCAO: Busca pet por ID com verificacao de permissao
     // REGRA: ADMIN ou dono do pet podem acessar
-	public Pet getPetById(Long id, HttpServletRequest request) {
+	public PetResponseDTO getPetById(Long id, HttpServletRequest request) {
 		Pet alvo=petRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Pet não encontrado"));
 		
 		Usuario usuarioLogado = logado(request);
-		if(ehDonoOuAdmin(usuarioLogado, alvo)) return alvo;
+		if(ehDonoOuAdmin(usuarioLogado, alvo)) return toDTO(alvo);
 		
 		throw new RuntimeException("Sem permissão");
 	}
@@ -81,11 +91,12 @@ public class PetService implements Serializable {
     // FUNCAO: Atualiza um pet existente
     // REGRA: ADMIN ou dono do pet podem atualizar
 	@Transactional
-	public Pet updatePet(Pet pet,HttpServletRequest request) {
+	public PetResponseDTO updatePet(Pet pet, HttpServletRequest request) {
 		Usuario usuarioLogado = logado(request);
 		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new RuntimeException("Sem permissão");
 		
-		return petRepository.save(pet);
+		Pet salvo = petRepository.save(pet);
+		return toDTO(salvo);
 	}
 	
     // METODO: deletePet()
@@ -114,5 +125,20 @@ public class PetService implements Serializable {
 			petRepository.delete(pet);
 		}
 	}
+	
+	// Converte a entidade em DTO, sem loop e sem expor o Usuario completo
+		private PetResponseDTO toDTO(Pet pet) {
+			DonoDTO dono = new DonoDTO(
+					pet.getDono().getId(),
+					pet.getDono().getEmail()
+			);
+			
+			return new PetResponseDTO(
+					pet.getId(),
+					pet.getNome(),
+					pet.getEspecie(),
+					dono
+			);
+		}
 }
 	

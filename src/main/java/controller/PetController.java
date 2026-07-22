@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import dto.PetResponseDTO;
 import model.Pet;
 import security.Secured;
 import service.PetService;
@@ -29,7 +30,7 @@ public class PetController {
     // FUNCAO: Lista todos os pets do usuario logado
     // RETORNO: HTTP 200 com lista de pets
 	@GetMapping("/all")
-	public ResponseEntity<List<Pet>> getAll(HttpServletRequest request){
+	public ResponseEntity<List<PetResponseDTO>> getAll(HttpServletRequest request){
 		return ResponseEntity.ok(service.getAllPets(request));
 	}
 	
@@ -37,7 +38,7 @@ public class PetController {
     // FUNCAO: Cria um novo pet (associado ao usuario logado)
     // RETORNO: HTTP 200 com o pet criado
 	@PostMapping
-	public ResponseEntity<Pet> create(@RequestBody Pet pet, HttpServletRequest request) {
+	public ResponseEntity<PetResponseDTO> create(@RequestBody Pet pet, HttpServletRequest request) {
 		return ResponseEntity.ok(service.createPet(pet, request));
 	}
 	
@@ -45,7 +46,7 @@ public class PetController {
     // FUNCAO: Busca um pet pelo ID (verifica se pertence ao usuario)
     // RETORNO: HTTP 200 com os dados do pet
 	@GetMapping("/{id}")
-	public ResponseEntity<Pet> getById(@PathVariable Long id, HttpServletRequest request) {
+	public ResponseEntity<PetResponseDTO> getById(@PathVariable Long id, HttpServletRequest request) {
 		return ResponseEntity.ok(service.getPetById(id, request));
 	}
 
@@ -53,7 +54,7 @@ public class PetController {
     // FUNCAO: Atualiza um pet existente
     // RETORNO: HTTP 200 com o pet atualizado
 	@PutMapping
-	public ResponseEntity<Pet> update(@RequestBody Pet pet,HttpServletRequest request) {
+	public ResponseEntity<PetResponseDTO> update(@RequestBody Pet pet,HttpServletRequest request) {
 		return ResponseEntity.ok(service.updatePet(pet, request));
 	}
 	
