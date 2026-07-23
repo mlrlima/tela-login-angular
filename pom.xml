@@ -84,6 +84,13 @@
     							<!-- Tomcat externo do Eclipse/container já fornece a API   -->
     							<!-- Mantido conforme solicitado (uso de Tomcat externo)    -->
 	</dependency>
+	
+	<!-- para testes unitarios -->
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-test</artifactId>
+	    <scope>test</scope>
+	</dependency>
     
   </dependencies>
 
