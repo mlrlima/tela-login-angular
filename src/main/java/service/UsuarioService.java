@@ -2,7 +2,9 @@ package service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import dto.UsuarioResponseDTO;
 import model.Empresa;
 import model.Role;
 import model.Usuario;
+import repository.EmpresaRepository;
 import repository.UsuarioRepository;
 
 //CLASSE: UsuarioService
@@ -29,6 +32,9 @@ public class UsuarioService implements Serializable {
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	
+	@Autowired
+	private EmpresaRepository empresaRepository;
 	
 	@Autowired
 	private PetService petService;
@@ -50,9 +56,9 @@ public class UsuarioService implements Serializable {
 		
 		if(usuarioLogado.getRole() == Role.ADMIN) {
 			usuarios = usuarioRepository.findAll();
-		} else {
+		} else { 
 			usuarios = new ArrayList<>();
-			usuarios.add(usuarioLogado);
+			usuarios.add(usuarioRepository.findById(usuarioLogado.getId()).orElseThrow());
 		}
 		
 		return usuarios.stream().map(this::toDTO)
@@ -66,6 +72,7 @@ public class UsuarioService implements Serializable {
 	public UsuarioResponseDTO createUsuario(Usuario usuario) {
 		usuario.setId(null);
 		usuario.setRole(Role.USER);
+		vincularEmpresasExistentes(usuario);
 		Usuario salvo = usuarioRepository.save(usuario);
 		return toDTO(salvo);
 	}
@@ -129,6 +136,7 @@ public class UsuarioService implements Serializable {
 			usuario.setSenha(existente.getSenha());
 		}
 		
+		vincularEmpresasExistentes(usuario);
 		Usuario salvo = usuarioRepository.save(usuario);
 		return toDTO(salvo);
 	}
@@ -174,4 +182,23 @@ public class UsuarioService implements Serializable {
 				empresas
 		);
 	}
+	
+	// Substitui as Empresas vindos do JSON
+	// pelas entidades gerenciadas de verdade, buscadas do banco por id.
+	private void vincularEmpresasExistentes(Usuario usuario) {
+		//caso a lista do frontend venha vazia
+		if (usuario.getEmpresas() == null || usuario.getEmpresas().isEmpty()) {
+			usuario.setEmpresas(new HashSet<>());
+			return;
+		}
+
+		Set<Long> ids = usuario.getEmpresas().stream()
+				.map(Empresa::getId)
+				.collect(Collectors.toSet());
+
+		List<Empresa> empresasGerenciadas = empresaRepository.findAllById(ids);
+
+		usuario.setEmpresas(new HashSet<>(empresasGerenciadas));
+	}
+
 }

@@ -4,7 +4,10 @@
 
     <div class="header">
 
-      <h2>👥 Gestão de Usuários</h2>
+     <h2>
+      <mat-icon>group</mat-icon>
+		 Gestão de Usuários
+	 </h2>
 
     </div>
 
@@ -50,26 +53,43 @@
         <tr *ngFor="let usuario of usuariosFiltrados">
 
           <td>{{ usuario.nome }}</td>
-
           <td>{{ usuario.email }}</td>
-
           <td>
 
             <mat-chip-set>
-
               <mat-chip
                 [color]="usuario.role === 'ADMIN' ? 'primary' : 'accent'"
                 selected>
-
                 {{ usuario.role }}
-
               </mat-chip>
-
             </mat-chip-set>
 
           </td>
 
           <td class="actions">
+          
+          	<button
+			   mat-icon-button
+			   color="accent"
+			   [matMenuTriggerFor]="menuEmpresasRelacionadas"
+			   matTooltip="Empresas relacionadas">
+			   <mat-icon>work</mat-icon>
+			 </button>
+			
+			 <mat-menu #menuEmpresasRelacionadas="matMenu">
+			   <div class="menu-header" *ngIf="usuario.empresas?.length">
+			     Empresas relacionadas
+			   </div>
+			
+			   <button mat-menu-item *ngFor="let empresa of usuario.empresas">
+			     <mat-icon>work_outline</mat-icon>
+			     <span>{{ empresa.nome }}</span>
+			   </button>
+			
+			   <div class="menu-empty" *ngIf="!usuario.empresas?.length">
+			     Nenhuma empresa vinculada
+			   </div>
+			 </mat-menu>
 
             <button
               mat-icon-button
@@ -77,7 +97,6 @@
               [routerLink]="['/usuarios', usuario.id]">
 
               <mat-icon>edit</mat-icon>
-
             </button>
 
             <button
@@ -86,7 +105,6 @@
               (click)="remover(usuario.id)">
 
               <mat-icon>delete</mat-icon>
-
             </button>
 
           </td>

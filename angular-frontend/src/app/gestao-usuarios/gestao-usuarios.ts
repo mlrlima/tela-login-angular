@@ -12,12 +12,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 @Component({
   selector: 'app-gestao-usuarios',
   standalone: true,
   imports: [  CommonModule,
+	  MatMenuModule,
       FormsModule,
       RouterLink,
       MatCardModule,
