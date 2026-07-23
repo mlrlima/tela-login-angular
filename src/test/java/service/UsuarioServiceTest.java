@@ -93,6 +93,7 @@ class UsuarioServiceTest{
 		
 		//userComum esta logado
 		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
+		when(usuarioRepository.findById(userComum.getId())).thenReturn(Optional.of(userComum));
 		
 		//ACT
 		
@@ -105,6 +106,7 @@ class UsuarioServiceTest{
 		assertEquals(1, resultado.size());
 		//verifica se o usuario retornado eh ele mesmo
 		assertEquals(userComum.getId(), resultado.get(0).getId());
+		verify(usuarioRepository).findById(userComum.getId());
 		//verifica se a funcao NAO foi chamada, pois
 		//ela so eh chamada se o logado for ADMIN
 		verify(usuarioRepository, never()).findAll();
