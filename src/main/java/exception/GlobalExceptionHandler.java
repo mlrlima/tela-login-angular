@@ -1,4 +1,4 @@
-package config;
+package exception;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,39 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice // Intercepta excecoes de TODOS os controllers
 public class GlobalExceptionHandler {
+	
+	// usuario, empresa, pet nao encontrado etc
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex){
+		ErrorResponse erro=new ErrorResponse(
+				HttpStatus.NOT_FOUND.value(),
+	            ex.getMessage()
+	    );
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+	}
+	public static class ResourceNotFoundException extends RuntimeException{
+		public ResourceNotFoundException(String mensagem) {
+	        super(mensagem);
+	    }
+	}
+	
+	
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex){
+		ErrorResponse erro=new ErrorResponse(
+				HttpStatus.UNAUTHORIZED.value(),
+	            ex.getMessage()
+	    );
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(erro);
+	}
+	public static class UnauthorizedException extends RuntimeException{
+		public UnauthorizedException(String mensagem) {
+	        super(mensagem);
+	    }
+	}
 
+	
+	
     // METODO: handleValidation()
     // FUNCAO: Trata erros de validacao de beans (@NotNull, @Size, @Email, etc.)
     // RETORNO: HTTP 400 (BAD_REQUEST) com mensagem de erro

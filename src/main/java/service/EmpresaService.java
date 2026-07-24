@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import dto.EmpresaResponseDTO;
 import dto.UsuarioRelacionadoDTO;
+import exception.GlobalExceptionHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import model.Empresa;
@@ -61,23 +62,23 @@ public class EmpresaService implements Serializable {
 	//apenas admin pode acessar
 	public EmpresaResponseDTO getEmpresaById(Long id, HttpServletRequest request) {
 	    Empresa alvo=empresaRepository.findById(id)
-	            .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 
 	    Usuario usuarioLogado =logado(request);
 	    if(usuarioLogado.getRole()==Role.ADMIN) return toDTO(alvo);
 
-	    throw new RuntimeException("Sem permissão");
+	    throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 	}
 	
 	//apenas admin pode acessar
 	public EmpresaResponseDTO getEmpresaByNome(String nome, HttpServletRequest request) {
 	    Empresa alvo=empresaRepository.findByNome(nome)
-	            .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 
 	    Usuario usuarioLogado =logado(request);
 	    if(usuarioLogado.getRole()==Role.ADMIN) return toDTO(alvo);
 
-	    throw new RuntimeException("Sem permissão");
+	    throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 	}
 	
 	//apenas admin pode alterar empresas
@@ -85,7 +86,8 @@ public class EmpresaService implements Serializable {
 	public EmpresaResponseDTO updateEmpresa(Empresa empresa, HttpServletRequest request) {
 
 	    Usuario usuarioLogado = logado(request);
-	    if(usuarioLogado.getRole()!=Role.ADMIN) throw new RuntimeException("Sem permissão");
+	    if(usuarioLogado.getRole()!=Role.ADMIN)
+	    	throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 
 	    vincularUsuariosExistentes(empresa);
 	    Empresa salva = empresaRepository.save(empresa);
@@ -96,10 +98,11 @@ public class EmpresaService implements Serializable {
 	@Transactional
 	public void deleteEmpresa(Long id, HttpServletRequest request) {
 		Empresa alvo=empresaRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 		
 		Usuario usuarioLogado = logado(request);
-		if(usuarioLogado.getRole()!=Role.ADMIN) throw new RuntimeException("Sem permissão");
+		if(usuarioLogado.getRole()!=Role.ADMIN)
+			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		
 		//desvinculando essa empresa dos usuarios
 	    for (Usuario usuario : alvo.getUsuarios()) {
@@ -125,7 +128,7 @@ public class EmpresaService implements Serializable {
 		List<Usuario> usuariosGerenciados = usuarioRepository.findAllById(ids);
 
 		if (usuariosGerenciados.size() != ids.size()) {
-			throw new RuntimeException("Um ou mais usuários informados não foram encontrados");
+			throw new GlobalExceptionHandler.ResourceNotFoundException("Um ou mais usuários informados não foram encontrados");
 		}
 
 		empresa.setUsuarios(new HashSet<>(usuariosGerenciados));

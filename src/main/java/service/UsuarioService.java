@@ -1,3 +1,4 @@
+
 package service;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dto.EmpresaRelacionadaDTO;
 import dto.UsuarioRelacionadoDTO;
 import dto.UsuarioResponseDTO;
+import exception.GlobalExceptionHandler;
 import model.Empresa;
 import model.Role;
 import model.Usuario;
@@ -58,7 +60,8 @@ public class UsuarioService implements Serializable {
 			usuarios = usuarioRepository.findAll();
 		} else { 
 			usuarios = new ArrayList<>();
-			usuarios.add(usuarioRepository.findById(usuarioLogado.getId()).orElseThrow());
+			usuarios.add(usuarioRepository.findById(usuarioLogado.getId())
+					.orElseThrow(()-> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado")));
 		}
 		
 		return usuarios.stream().map(this::toDTO)
@@ -83,12 +86,12 @@ public class UsuarioService implements Serializable {
 	public UsuarioResponseDTO getUsuarioById(Long id, HttpServletRequest request) {
     	Usuario usuarioLogado = logado(request);
         Usuario alvo = usuarioRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
         
         //verifica se eh ADMIN ou o proprio usuario
         if(usuarioLogado.getRole() != Role.ADMIN &&
                 !usuarioLogado.getId().equals(alvo.getId())) {
-                throw new RuntimeException("Sem permissão");
+                throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
         }
         
         return toDTO(alvo);
@@ -97,7 +100,7 @@ public class UsuarioService implements Serializable {
 	
 	public UsuarioRelacionadoDTO getUsuarioByEmail(String email, HttpServletRequest request) {
 	    Usuario alvo = usuarioRepository.findByEmail(email)
-	            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 
 	    return new UsuarioRelacionadoDTO(alvo.getId(), alvo.getEmail());
 	}
@@ -124,14 +127,14 @@ public class UsuarioService implements Serializable {
 		//verifica se eh ADMIN ou o proprio usuario
 		if(usuarioLogado.getRole() != Role.ADMIN &&
 		!usuarioLogado.getId().equals(usuario.getId())) {
-			throw new RuntimeException("Sem permissão");
+			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		}
 		
 		//deixar a senha antiga
 		if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
 			
 			Usuario existente = usuarioRepository.findById(usuario.getId())
-			.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+			.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 			
 			usuario.setSenha(existente.getSenha());
 		}
@@ -147,14 +150,14 @@ public class UsuarioService implements Serializable {
 	@Transactional
     public void deleteUsuario(Long id, HttpServletRequest request) {
 		 Usuario alvo = usuarioRepository.findById(id)
-	        		.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+	        		.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 		
 		Usuario usuarioLogado = logado(request);
 
         if (usuarioLogado.getRole() != Role.ADMIN &&
             !usuarioLogado.getId().equals(id)) {
 
-        	throw new RuntimeException("Sem permissão");
+        	throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
         }
 
         //deletar pets desse usuario

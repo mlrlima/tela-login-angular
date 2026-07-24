@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dto.DonoDTO;
 import dto.PetResponseDTO;
+import exception.GlobalExceptionHandler;
 import model.Pet;
 import model.Role;
 import model.Usuario;
@@ -79,12 +80,12 @@ public class PetService implements Serializable {
     // REGRA: ADMIN ou dono do pet podem acessar
 	public PetResponseDTO getPetById(Long id, HttpServletRequest request) {
 		Pet alvo=petRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
 		
 		Usuario usuarioLogado = logado(request);
 		if(ehDonoOuAdmin(usuarioLogado, alvo)) return toDTO(alvo);
 		
-		throw new RuntimeException("Sem permissão");
+		throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 	}
 
     // METODO: updatePet()
@@ -93,7 +94,7 @@ public class PetService implements Serializable {
 	@Transactional
 	public PetResponseDTO updatePet(Pet pet, HttpServletRequest request) {
 		Usuario usuarioLogado = logado(request);
-		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new RuntimeException("Sem permissão");
+		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		
 		Pet salvo = petRepository.save(pet);
 		return toDTO(salvo);
@@ -105,10 +106,10 @@ public class PetService implements Serializable {
 	@Transactional
 	public void deletePet(Long id, HttpServletRequest request) {
 		Pet alvo=petRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Pet não encontrado"));
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
 		
 		Usuario usuarioLogado = logado(request);
-		if(!ehDonoOuAdmin(usuarioLogado, alvo)) throw new RuntimeException("Sem permissão");
+		if(!ehDonoOuAdmin(usuarioLogado, alvo)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 
 		petRepository.delete(alvo);
 	}
@@ -127,18 +128,18 @@ public class PetService implements Serializable {
 	}
 	
 	// Converte a entidade em DTO, sem loop e sem expor o Usuario completo
-		private PetResponseDTO toDTO(Pet pet) {
-			DonoDTO dono = new DonoDTO(
-					pet.getDono().getId(),
-					pet.getDono().getEmail()
-			);
-			
-			return new PetResponseDTO(
-					pet.getId(),
-					pet.getNome(),
-					pet.getEspecie(),
-					dono
-			);
-		}
+	private PetResponseDTO toDTO(Pet pet) {
+		DonoDTO dono = new DonoDTO(
+				pet.getDono().getId(),
+				pet.getDono().getEmail()
+		);
+		
+		return new PetResponseDTO(
+				pet.getId(),
+				pet.getNome(),
+				pet.getEspecie(),
+				dono
+		);
+	}
 }
 	
