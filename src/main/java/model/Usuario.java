@@ -1,9 +1,15 @@
 package model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,7 +28,7 @@ import jakarta.validation.constraints.Size;
 
 @Entity // Indica que esta classe eh uma entidade JPA (mapeada para o banco)
 @Table(name="usuario") // Nome da tabela no banco de dados
-public class Usuario implements Serializable{
+public class Usuario implements Serializable, UserDetails{ //para o Security
 	//transforma a informacao em streams de bytes
 	//garante compatibilidade na desserializacao
 	private static final long serialVersionUID=1L;
@@ -123,5 +129,49 @@ public class Usuario implements Serializable{
 			return false;
 		Usuario other = (Usuario) obj;
 		return Objects.equals(id, other.id); // Compara pelo ID
+	}
+	
+	
+	// METODOS DO USERDETAILS
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if(this.role == Role.ADMIN)
+			return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+		
+		// user comum
+		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+	}
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return senha;
+	}
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return email;
+	}
+	
+	
+	@Override
+	public boolean isAccountNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isAccountNonLocked() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isCredentialsNonExpired() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 }

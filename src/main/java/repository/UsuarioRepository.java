@@ -1,8 +1,7 @@
 package repository;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import model.Usuario;
 
@@ -30,5 +29,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // CONVENCAO DE NOMES:
     // - findBy + NomeDoCampo (email) + Parametro (String email)
     // - Retorna Optional para evitar NullPointerException
-	Optional<Usuario> findByEmail(String email);
+	
+	
+	
+	
+	UserDetails findByEmail(String email);
+	//para o Security
 }
