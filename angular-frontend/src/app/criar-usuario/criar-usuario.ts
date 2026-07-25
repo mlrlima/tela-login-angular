@@ -35,6 +35,12 @@ export class CriarUsuario {
 	constructor(private authService: AuthService,private router: Router, private cdr: ChangeDetectorRef){}
 	
 	onSubmit(){
+		if(this.senha.length < 4){
+			this.mensagens='A senha deve ter no minimo 4 caracteres';
+			this.cdr.detectChanges();
+			return;
+		}
+		
 		this.authService.novoUsuario(this.nome, this.email, this.senha).subscribe({
 			next: (response)=>{
 				console.log('Usuario criado com sucesso', response);

@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "tela-login-angular - API Tests",
+    "description": "Collection para testar EmpresaController, PetController, UsuarioController e a segurança (JWT + RBAC) definida em SecurityConfig.\n\nFluxo recomendado:\n1. Rode 'Registrar novo usuário' (opcional, cria um usuário comum)\n2. Rode 'Login (Usuário comum)' -> salva {{token}}\n3. Rode 'Login (Admin)' com um usuário ADMIN existente -> salva {{adminToken}}\n4. Rode as pastas Usuario / Pet livremente (usam {{token}})\n5. Rode a pasta Empresa (usa {{adminToken}}) e os testes negativos (usam {{token}} de usuário comum, esperando 403)\n6. Rode a pasta Testes de Segurança para validar rotas públicas e não autenticadas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/tela-login-angular", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "usuarioId", "value": "", "type": "string" },
+    { "key": "petId", "value": "", "type": "string" },
+    { "key": "empresaId", "value": "", "type": "string" },
+    { "key": "usuarioEmail", "value": "usuario.teste@teste.com", "type": "string" },
+    { "key": "usuarioSenha", "value": "senha123", "type": "string" },
+    { "key": "adminEmail", "value": "admin@email.com", "type": "senha" },
+    { "key": "adminSenha", "value": "admin", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ]
+  },
+  "item": [
+    {
+      "name": "🔐 Autenticação",
+      "item": [
+        {
+          "name": "Registrar novo usuário (público)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"email\": \"{{usuarioEmail}}\",\n  \"senha\": \"{{usuarioSenha}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/usuario", "host": [ "{{baseUrl}}" ], "path": [ "auth", "usuario" ] },
+            "description": "Rota liberada em SecurityConfig: POST /auth/usuario -> permitAll(). Cria um usuário comum (role padrão, ex.: USER)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 ou 201 (criado)', function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Usuário comum)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{usuarioEmail}}\",\n  \"senha\": \"{{usuarioSenha}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "auth", "login" ] },
+            "description": "Rota liberada em SecurityConfig: POST /auth/login -> permitAll(). Retorna o JWT do usuário comum e salva em {{token}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "var tokenValue = json.token || json.accessToken || json.jwt;",
+                  "if (tokenValue) {",
+                  "    pm.collectionVariables.set('token', tokenValue);",
+                  "    pm.test('Token JWT capturado', function () {",
+                  "        pm.expect(tokenValue).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "} else {",
+                  "    console.warn('Ajuste o path do token no corpo da resposta (ex: json.data.token)');",
+                  "}",
+                  "if (json.id) { pm.collectionVariables.set('usuarioId', json.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"senha\": \"{{adminSenha}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "auth", "login" ] },
+            "description": "Login com um usuário que tenha role ADMIN cadastrado no banco. Necessário para testar /empresa/**. Salva em {{adminToken}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "var tokenValue = json.token || json.accessToken || json.jwt;",
+                  "if (tokenValue) {",
+                  "    pm.collectionVariables.set('adminToken', tokenValue);",
+                  "    pm.test('Token JWT do admin capturado', function () {",
+                  "        pm.expect(tokenValue).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👤 Usuario",
+      "item": [
+        {
+          "name": "Listar todos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usuario/all", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "all" ] },
+            "description": "Requer autenticação (qualquer usuário logado)."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Retorna uma lista', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usuario/{{usuarioId}}", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "{{usuarioId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Buscar por email",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuario?email={{usuarioEmail}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "usuario" ],
+              "query": [ { "key": "email", "value": "{{usuarioEmail}}" } ]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Atualizar usuário",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{usuarioId}},\n  \"nome\": \"Usuario Teste Atualizado\",\n  \"email\": \"{{usuarioEmail}}\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/usuario", "host": [ "{{baseUrl}}" ], "path": [ "usuario" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Deletar usuário",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/usuario/{{usuarioId}}", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "{{usuarioId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Sem token -> deve dar 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usuario/all", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 401 (não autenticado)', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🐾 Pet",
+      "item": [
+        {
+          "name": "Listar todos (do usuário logado)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/pet/all", "host": [ "{{baseUrl}}" ], "path": [ "pet", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "if (Array.isArray(json) && json.length > 0 && json[0].id) {",
+              "    pm.collectionVariables.set('petId', json[0].id);",
+              "}"
+            ] } }
+          ]
+        },
+        {
+          "name": "Criar pet",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Rex\",\n  \"especie\": \"CACHORRO\",\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/pet", "host": [ "{{baseUrl}}" ], "path": [ "pet" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "if (json.id) { pm.collectionVariables.set('petId', json.id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Buscar por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/pet/{{petId}}", "host": [ "{{baseUrl}}" ], "path": [ "pet", "{{petId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Atualizar pet",
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{petId}},\n  \"nome\": \"Rex Atualizado\",\n  \"especie\": \"CACHORRO\",\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/pet", "host": [ "{{baseUrl}}" ], "path": [ "pet" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Deletar pet",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/pet/{{petId}}", "host": [ "{{baseUrl}}" ], "path": [ "pet", "{{petId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Sem token -> deve dar 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/pet/all", "host": [ "{{baseUrl}}" ], "path": [ "pet", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 401 (não autenticado)', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🏢 Empresa (somente ADMIN)",
+      "item": [
+        {
+          "name": "✅ Listar todas (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/empresa/all", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200 (ADMIN pode acessar)', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ Criar empresa (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Petshop Teste\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/empresa", "host": [ "{{baseUrl}}" ], "path": [ "empresa" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "if (json.id) { pm.collectionVariables.set('empresaId', json.id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ Buscar por ID (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/empresa/{{empresaId}}", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "{{empresaId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ Buscar por nome (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/empresa?nome=Petshop Teste",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "empresa" ],
+              "query": [ { "key": "nome", "value": "Petshop Teste" } ]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ Atualizar (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{empresaId}},\n  \"nome\": \"Petshop Teste Atualizado\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/empresa", "host": [ "{{baseUrl}}" ], "path": [ "empresa" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ Deletar (com ADMIN)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{adminToken}}", "type": "string" } ] },
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/empresa/{{empresaId}}", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "{{empresaId}}" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Listar com usuário comum -> deve dar 403",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/empresa/all", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "all" ] },
+            "description": "hasRole(\"ADMIN\") em /empresa e /empresa/** deve barrar usuário comum autenticado com 403 Forbidden."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 403 (usuário comum não pode acessar /empresa)', function () { pm.response.to.have.status(403); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Criar empresa com usuário comum -> deve dar 403",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Tentativa Nao Admin\"\n}" },
+            "url": { "raw": "{{baseUrl}}/empresa", "host": [ "{{baseUrl}}" ], "path": [ "empresa" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 403 (usuário comum não pode criar empresa)', function () { pm.response.to.have.status(403); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Sem token -> deve dar 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/empresa/all", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 401 (não autenticado)', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔒 Testes de Segurança (SecurityConfig)",
+      "item": [
+        {
+          "name": "✅ POST /auth/login sem token -> 200 (permitAll)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{usuarioEmail}}\",\n  \"senha\": \"{{usuarioSenha}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "auth", "login" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200 (rota pública)', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ POST /auth/usuario sem token -> 200/201 (permitAll)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Outro Teste\",\n  \"email\": \"outro.teste@teste.com\",\n  \"senha\": \"senha123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/auth/usuario", "host": [ "{{baseUrl}}" ], "path": [ "auth", "usuario" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200 ou 201 (rota pública)', function () { pm.expect([200,201]).to.include(pm.response.code); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "✅ GET /index.html sem token -> 200 (permitAll, estático)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/index.html", "host": [ "{{baseUrl}}" ], "path": [ "index.html" ] },
+            "description": "Ajuste a URL se o contexto raiz do frontend não estiver sob /api."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200 (recurso estático liberado)', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Endpoint protegido sem token -> 401",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usuario/all", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 401 (sem token)', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ Endpoint protegido com token inválido/expirado -> 401",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "token.jwt.invalido", "type": "string" } ] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usuario/all", "host": [ "{{baseUrl}}" ], "path": [ "usuario", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 401 (token inválido)', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "❌ /empresa com usuário comum -> 403 (RBAC)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [ { "key": "token", "value": "{{token}}", "type": "string" } ] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/empresa/all", "host": [ "{{baseUrl}}" ], "path": [ "empresa", "all" ] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 403 (role errada)', function () { pm.response.to.have.status(403); });"
+            ] } }
+          ]
+        }
+      ]
+    }
+  ]
+}
