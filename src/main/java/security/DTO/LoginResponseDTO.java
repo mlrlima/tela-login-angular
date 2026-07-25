@@ -1,5 +1,13 @@
 package security.DTO;
 
-public record LoginResponseDTO(String token) {
+import model.Role;
+
+public record LoginResponseDTO(
+		String token,
+        Long id,
+        String nome,
+        String email,
+        Role role
+        ) {
 
 }

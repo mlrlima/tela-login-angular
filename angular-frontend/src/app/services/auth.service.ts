@@ -33,14 +33,7 @@ export class AuthService {
   }
   
   logout(): void{
-	const token=localStorage.getItem('token');
 	localStorage.clear();
-	
-	if(token){
-      this.http.post(`${environment.apiUrl}/auth/logout`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).subscribe();
-    }
   }
   
   getToken(): string | null {
