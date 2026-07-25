@@ -33,12 +33,16 @@ public class SecurityConfig {
 	                        .requestMatchers(HttpMethod.POST, "/auth/usuario").permitAll() //criar novo usuario
 	                        .requestMatchers("/empresa").hasRole("ADMIN") //apenas ADMIN pode CRUD empresas
 	                        .requestMatchers("/empresa/**").hasRole("ADMIN")
-	                        .requestMatchers(
+	                        .requestMatchers( //para telas do frontend
 	                                "/",
 	                                "/index.html",
 	                                "/*.js",
 	                                "/*.css",
 	                                "/*.ico"
+	                            ).permitAll()
+	                        .requestMatchers(HttpMethod.GET, //para fallback
+	                                "/{path:^(?!api|assets|.*\\.).*$}",
+	                                "/{path:^(?!api|assets|.*\\.).*$}/**"
 	                            ).permitAll()
 	                        .anyRequest().authenticated() //para o resyo 
 	            )
