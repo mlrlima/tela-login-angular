@@ -2,8 +2,6 @@ package controller;
 
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,31 +27,22 @@ public class UsuarioController {
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com lista de usuarios
 	@GetMapping("/all")
-	public ResponseEntity<List<UsuarioResponseDTO>> getAll(HttpServletRequest request){
-		return ResponseEntity.ok(service.getAllUsuarios(request));
+	public ResponseEntity<List<UsuarioResponseDTO>> getAll(){
+		return ResponseEntity.ok(service.getAllUsuarios());
 	}
-	
-    // ENDPOINT: POST /usuario
-    // FUNCAO: Cria um novo usuario (cadastro)
-    // RETORNO: HTTP 200 com o usuario criado
-	@PostMapping
-	public ResponseEntity<UsuarioResponseDTO> create(@RequestBody Usuario usuario) { //recebe JSON
-		return ResponseEntity.ok(service.createUsuario(usuario));
-	}
-	
 	
     // ENDPOINT: GET /usuario/{id}
     // FUNCAO: Busca um usuario pelo ID
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com os dados do usuario
 	@GetMapping("/{id}")
-	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id, HttpServletRequest request) {
-    	return ResponseEntity.ok(service.getUsuarioById(id, request));
+	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
+    	return ResponseEntity.ok(service.getUsuarioById(id));
 	}
     
     @GetMapping
-    public UsuarioRelacionadoDTO porEmail(@RequestParam String email, HttpServletRequest request) {
-        return service.getUsuarioByEmail(email, request);
+    public UsuarioRelacionadoDTO porEmail(@RequestParam String email) {
+        return service.getUsuarioByEmail(email);
     }
 	
     
@@ -62,8 +51,8 @@ public class UsuarioController {
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com o usuario atualizado
 	@PutMapping
-	public ResponseEntity<UsuarioResponseDTO> update(@RequestBody Usuario usuario, HttpServletRequest request) {
-    	return ResponseEntity.ok(service.updateUsuario(usuario, request));  
+	public ResponseEntity<UsuarioResponseDTO> update(@RequestBody Usuario usuario) {
+    	return ResponseEntity.ok(service.updateUsuario(usuario));  
 	}
 	
     // ENDPOINT: DELETE /usuario/{id}
@@ -71,8 +60,8 @@ public class UsuarioController {
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 204 (No Content)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
-    	service.deleteUsuario(id, request);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    	service.deleteUsuario(id);
         return ResponseEntity.noContent().build();
     }
 	

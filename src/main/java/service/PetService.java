@@ -4,9 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +27,17 @@ public class PetService implements Serializable {
 	@Autowired
 	private PetRepository petRepository;
 
-    // METODO: logado()
-    // FUNCAO: Obtem o usuario logado a partir do request
-    private Usuario logado(HttpServletRequest request) {
-        return (Usuario) request.getAttribute("usuarioLogado");
-    }
+	private Usuario logado() {
+	    var auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated()) return null;
+	    return (Usuario) auth.getPrincipal();
+	}
 
     // METODO: getAllPets()
     // FUNCAO: Lista pets baseado na role do usuario logado
     // REGRA: ADMIN ve todos | USER ve apenas seus proprios pets
-	public List<PetResponseDTO> getAllPets(HttpServletRequest request){
-		Usuario usuarioLogado = logado(request);
+	public List<PetResponseDTO> getAllPets(){
+		Usuario usuarioLogado = logado();
 		
 		List<Pet> pets;
 		
@@ -58,8 +57,8 @@ public class PetService implements Serializable {
     // FUNCAO: Cria um novo pet associado ao usuario logado
     // REGRA: O dono do pet eh sempre o usuario logado
 	@Transactional
-	public PetResponseDTO createPet(Pet pet, HttpServletRequest request) {
-		Usuario usuarioLogado = logado(request);
+	public PetResponseDTO createPet(Pet pet) {
+		Usuario usuarioLogado = logado();
         pet.setDono(usuarioLogado);
 		
 		pet.setId(null);
@@ -78,11 +77,11 @@ public class PetService implements Serializable {
     // METODO: getPetById()
     // FUNCAO: Busca pet por ID com verificacao de permissao
     // REGRA: ADMIN ou dono do pet podem acessar
-	public PetResponseDTO getPetById(Long id, HttpServletRequest request) {
+	public PetResponseDTO getPetById(Long id) {
 		Pet alvo=petRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
 		
-		Usuario usuarioLogado = logado(request);
+		Usuario usuarioLogado = logado();
 		if(ehDonoOuAdmin(usuarioLogado, alvo)) return toDTO(alvo);
 		
 		throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
@@ -92,8 +91,8 @@ public class PetService implements Serializable {
     // FUNCAO: Atualiza um pet existente
     // REGRA: ADMIN ou dono do pet podem atualizar
 	@Transactional
-	public PetResponseDTO updatePet(Pet pet, HttpServletRequest request) {
-		Usuario usuarioLogado = logado(request);
+	public PetResponseDTO updatePet(Pet pet) {
+		Usuario usuarioLogado = logado();
 		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		
 		Pet salvo = petRepository.save(pet);
@@ -104,11 +103,11 @@ public class PetService implements Serializable {
     // FUNCAO: Remove um pet pelo ID
     // REGRA: ADMIN ou dono do pet podem deletar
 	@Transactional
-	public void deletePet(Long id, HttpServletRequest request) {
+	public void deletePet(Long id) {
 		Pet alvo=petRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
 		
-		Usuario usuarioLogado = logado(request);
+		Usuario usuarioLogado = logado();
 		if(!ehDonoOuAdmin(usuarioLogado, alvo)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 
 		petRepository.delete(alvo);

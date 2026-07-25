@@ -2,8 +2,6 @@ package controller;
 
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,40 +26,40 @@ public class PetController {
     // FUNCAO: Lista todos os pets do usuario logado
     // RETORNO: HTTP 200 com lista de pets
 	@GetMapping("/all")
-	public ResponseEntity<List<PetResponseDTO>> getAll(HttpServletRequest request){
-		return ResponseEntity.ok(service.getAllPets(request));
+	public ResponseEntity<List<PetResponseDTO>> getAll(){
+		return ResponseEntity.ok(service.getAllPets());
 	}
 	
 	// ENDPOINT: POST /pet
     // FUNCAO: Cria um novo pet (associado ao usuario logado)
     // RETORNO: HTTP 200 com o pet criado
 	@PostMapping
-	public ResponseEntity<PetResponseDTO> create(@RequestBody Pet pet, HttpServletRequest request) {
-		return ResponseEntity.ok(service.createPet(pet, request));
+	public ResponseEntity<PetResponseDTO> create(@RequestBody Pet pet) {
+		return ResponseEntity.ok(service.createPet(pet));
 	}
 	
     // ENDPOINT: GET /pet/{id}
     // FUNCAO: Busca um pet pelo ID (verifica se pertence ao usuario)
     // RETORNO: HTTP 200 com os dados do pet
 	@GetMapping("/{id}")
-	public ResponseEntity<PetResponseDTO> getById(@PathVariable Long id, HttpServletRequest request) {
-		return ResponseEntity.ok(service.getPetById(id, request));
+	public ResponseEntity<PetResponseDTO> getById(@PathVariable Long id) {
+		return ResponseEntity.ok(service.getPetById(id));
 	}
 
     // ENDPOINT: PUT /pet
     // FUNCAO: Atualiza um pet existente
     // RETORNO: HTTP 200 com o pet atualizado
 	@PutMapping
-	public ResponseEntity<PetResponseDTO> update(@RequestBody Pet pet,HttpServletRequest request) {
-		return ResponseEntity.ok(service.updatePet(pet, request));
+	public ResponseEntity<PetResponseDTO> update(@RequestBody Pet pet) {
+		return ResponseEntity.ok(service.updatePet(pet));
 	}
 	
     // ENDPOINT: DELETE /pet/{id}
     // FUNCAO: Remove um pet pelo ID
     // RETORNO: HTTP 204 (No Content)
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deletePet(@PathVariable Long id, HttpServletRequest request) {
-		service.deletePet(id, request);
+	public ResponseEntity<Void> deletePet(@PathVariable Long id) {
+		service.deletePet(id);
         return ResponseEntity.noContent().build();
 	}
 }

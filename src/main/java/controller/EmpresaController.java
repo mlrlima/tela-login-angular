@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import dto.EmpresaResponseDTO;
-import jakarta.servlet.http.HttpServletRequest;
 import model.Empresa;
 import service.EmpresaService;
 
@@ -27,33 +26,33 @@ public class EmpresaController {
 	private EmpresaService service;
 	
 	@GetMapping("/all")
-	public ResponseEntity<List<EmpresaResponseDTO>> getAll(HttpServletRequest request){
-		return ResponseEntity.ok(service.getAllEmpresas(request));
+	public ResponseEntity<List<EmpresaResponseDTO>> getAll(){
+		return ResponseEntity.ok(service.getAllEmpresas());
 	}
     
     @PostMapping
-    public EmpresaResponseDTO create(@RequestBody Empresa empresa, HttpServletRequest request) {
-        return service.createEmpresa(empresa, request);
+    public EmpresaResponseDTO create(@RequestBody Empresa empresa) {
+        return service.createEmpresa(empresa);
     }
 
 	@GetMapping("/{id}")
-	public EmpresaResponseDTO getById(@PathVariable Long id, HttpServletRequest request) {
-    	return service.getEmpresaById(id, request);
+	public EmpresaResponseDTO getById(@PathVariable Long id) {
+    	return service.getEmpresaById(id);
 	}
 
 	@GetMapping
-	public EmpresaResponseDTO getByNome(@RequestParam String nome, HttpServletRequest request) {
-    	return service.getEmpresaByNome(nome, request);  
+	public EmpresaResponseDTO getByNome(@RequestParam String nome) {
+    	return service.getEmpresaByNome(nome);  
 	}
 
     @PutMapping
-    public EmpresaResponseDTO update(@RequestBody Empresa empresa, HttpServletRequest request) {
-        return service.updateEmpresa(empresa, request);
+    public EmpresaResponseDTO update(@RequestBody Empresa empresa) {
+        return service.updateEmpresa(empresa);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
-    	service.deleteEmpresa(id, request);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    	service.deleteEmpresa(id);
         return ResponseEntity.noContent().build();
     }
 

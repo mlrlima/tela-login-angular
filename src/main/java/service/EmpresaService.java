@@ -7,12 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import dto.EmpresaResponseDTO;
 import dto.UsuarioRelacionadoDTO;
 import exception.GlobalExceptionHandler;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import model.Empresa;
 import model.Role;
@@ -30,11 +30,11 @@ public class EmpresaService implements Serializable {
 	@Autowired
 	private UsuarioRepository usuarioRepository;
 	
-    // METODO: logado()
-    // FUNCAO: Obtem o usuario logado a partir do request
-    private Usuario logado(HttpServletRequest request) {
-        return (Usuario) request.getAttribute("usuarioLogado");
-    }
+	private Usuario logado() {
+	    var auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated()) return null;
+	    return (Usuario) auth.getPrincipal();
+	}
 	
     private EmpresaResponseDTO toDTO(Empresa empresa) {
         List<UsuarioRelacionadoDTO> usuarios = empresa.getUsuarios().stream()
@@ -44,14 +44,14 @@ public class EmpresaService implements Serializable {
         return new EmpresaResponseDTO(empresa.getId(), empresa.getNome(), usuarios);
     }
     
-	public List<EmpresaResponseDTO> getAllEmpresas(HttpServletRequest request){
+	public List<EmpresaResponseDTO> getAllEmpresas(){
 		return empresaRepository.findAll()
 				.stream().map(this::toDTO).collect(Collectors.toList());
 	}
 	
 	
 	@Transactional
-	public EmpresaResponseDTO createEmpresa(Empresa empresa, HttpServletRequest request){
+	public EmpresaResponseDTO createEmpresa(Empresa empresa){
 	    empresa.setId(null);
 	    vincularUsuariosExistentes(empresa);
 	    Empresa salva = empresaRepository.save(empresa);
@@ -60,22 +60,22 @@ public class EmpresaService implements Serializable {
 	
 	
 	//apenas admin pode acessar
-	public EmpresaResponseDTO getEmpresaById(Long id, HttpServletRequest request) {
+	public EmpresaResponseDTO getEmpresaById(Long id) {
 	    Empresa alvo=empresaRepository.findById(id)
 	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 
-	    Usuario usuarioLogado =logado(request);
+	    Usuario usuarioLogado =logado();
 	    if(usuarioLogado.getRole()==Role.ADMIN) return toDTO(alvo);
 
 	    throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 	}
 	
 	//apenas admin pode acessar
-	public EmpresaResponseDTO getEmpresaByNome(String nome, HttpServletRequest request) {
+	public EmpresaResponseDTO getEmpresaByNome(String nome) {
 	    Empresa alvo=empresaRepository.findByNome(nome)
 	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 
-	    Usuario usuarioLogado =logado(request);
+	    Usuario usuarioLogado =logado();
 	    if(usuarioLogado.getRole()==Role.ADMIN) return toDTO(alvo);
 
 	    throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
@@ -83,9 +83,9 @@ public class EmpresaService implements Serializable {
 	
 	//apenas admin pode alterar empresas
 	@Transactional
-	public EmpresaResponseDTO updateEmpresa(Empresa empresa, HttpServletRequest request) {
+	public EmpresaResponseDTO updateEmpresa(Empresa empresa) {
 
-	    Usuario usuarioLogado = logado(request);
+	    Usuario usuarioLogado = logado();
 	    if(usuarioLogado.getRole()!=Role.ADMIN)
 	    	throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 
@@ -96,11 +96,11 @@ public class EmpresaService implements Serializable {
 	
 	//apenas admin pode deletar empresas
 	@Transactional
-	public void deleteEmpresa(Long id, HttpServletRequest request) {
+	public void deleteEmpresa(Long id) {
 		Empresa alvo=empresaRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
 		
-		Usuario usuarioLogado = logado(request);
+		Usuario usuarioLogado = logado();
 		if(usuarioLogado.getRole()!=Role.ADMIN)
 			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		

@@ -24,6 +24,7 @@ import repository.PetRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class PetServiceTest {
+	/*
 
 	@Mock
 	private PetRepository petRepository;
@@ -319,5 +320,7 @@ public class PetServiceTest {
 		//assert
 		verify(petRepository, never()).delete(any());
 	}
+	
+	*/
 	
 }

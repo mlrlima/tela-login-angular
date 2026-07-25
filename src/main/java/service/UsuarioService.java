@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +40,18 @@ public class UsuarioService implements Serializable {
 	@Autowired
 	private PetService petService;
 	
-    // METODO: logado()
-    // FUNCAO: Obtem o usuario logado a partir do request
-    // RETORNO: Usuario (ou null se nao estiver autenticado)
-    private Usuario logado(HttpServletRequest request) {
-        return (Usuario) request.getAttribute("usuarioLogado");
-    }
+	
+	private Usuario logado() {
+	    var auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated()) return null;
+	    return (Usuario) auth.getPrincipal();
+	}
 	
     // METODO: getAllUsuarios()
     // FUNCAO: Lista usuarios baseado na role do usuario logado
     // REGRA: ADMIN ve todos | USER ve apenas a si mesmo
-	public List<UsuarioResponseDTO> getAllUsuarios(HttpServletRequest request){
-		Usuario usuarioLogado = logado(request);
+	public List<UsuarioResponseDTO> getAllUsuarios(){
+		Usuario usuarioLogado = logado();
 		
 		List<Usuario> usuarios;
 		
@@ -83,8 +82,8 @@ public class UsuarioService implements Serializable {
     // METODO: getUsuarioById()
     // FUNCAO: Busca usuario por ID com verificacao de permissao
     // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
-	public UsuarioResponseDTO getUsuarioById(Long id, HttpServletRequest request) {
-    	Usuario usuarioLogado = logado(request);
+	public UsuarioResponseDTO getUsuarioById(Long id) {
+    	Usuario usuarioLogado = logado();
         Usuario alvo = usuarioRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
         
@@ -98,7 +97,7 @@ public class UsuarioService implements Serializable {
 	}
     
 	
-	public UsuarioRelacionadoDTO getUsuarioByEmail(String email, HttpServletRequest request) {
+	public UsuarioRelacionadoDTO getUsuarioByEmail(String email) {
 	    Usuario alvo = usuarioRepository.findByEmail(email);
 	    
 	    if(alvo==null)
@@ -122,8 +121,8 @@ public class UsuarioService implements Serializable {
     // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
     //       Se senha vier em branco, mantem a senha atual
 	@Transactional
-	public UsuarioResponseDTO updateUsuario(Usuario usuario, HttpServletRequest request) {
-		Usuario usuarioLogado = logado(request);
+	public UsuarioResponseDTO updateUsuario(Usuario usuario) {
+		Usuario usuarioLogado = logado();
 		
 		//verifica se eh ADMIN ou o proprio usuario
 		if(usuarioLogado.getRole() != Role.ADMIN &&
@@ -149,11 +148,11 @@ public class UsuarioService implements Serializable {
     // FUNCAO: Remove um usuario (e seus pets)
     // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
-    public void deleteUsuario(Long id, HttpServletRequest request) {
+    public void deleteUsuario(Long id) {
 		 Usuario alvo = usuarioRepository.findById(id)
 	        		.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 		
-		Usuario usuarioLogado = logado(request);
+		Usuario usuarioLogado = logado();
 
         if (usuarioLogado.getRole() != Role.ADMIN &&
             !usuarioLogado.getId().equals(id)) {
