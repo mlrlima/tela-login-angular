@@ -46,7 +46,7 @@ public class Usuario implements Serializable, UserDetails{ //para o Security
 
 	@NotBlank
 	@Size(min = 4, message = "A senha deve ter no minimo 4 caracteres")
-	@Column(nullable = false, length = 50)
+	@Column(nullable = false)
 	private String senha;
 
 	@NotBlank

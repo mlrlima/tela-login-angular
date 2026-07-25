@@ -1,4 +1,4 @@
-package security;
+package security.DTO;
 
 public record NovoUsuarioDTO(
 		String nome, 

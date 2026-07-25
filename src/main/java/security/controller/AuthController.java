@@ -1,4 +1,4 @@
-package security;
+package security.controller;
 
 import java.util.HashSet;
 
@@ -17,6 +17,10 @@ import model.Empresa;
 import model.Role;
 import model.Usuario;
 import repository.UsuarioRepository;
+import security.DTO.AuthDTO;
+import security.DTO.LoginResponseDTO;
+import security.DTO.NovoUsuarioDTO;
+import security.service.TokenService;
 
 @RestController // Indica que esta classe eh um controller REST (retorna JSON)
 @RequestMapping("/auth")
@@ -32,11 +36,11 @@ public class AuthController {
     private TokenService tokenService;
 
 	@PostMapping("/login")
-	public ResponseEntity(@RequestBody @Valid AuthDTO dados) {
+	public ResponseEntity login(@RequestBody @Valid AuthDTO dados) {
 		var emailSenha =new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
 		var auth =this.authenticationManager.authenticate(emailSenha);
 		
-        var token = tokenService.generateToken((User) auth.getPrincipal());
+        var token = tokenService.gerarToken((Usuario) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
 	}

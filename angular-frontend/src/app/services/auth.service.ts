@@ -52,7 +52,7 @@ export class AuthService {
     }
   
   novoUsuario(nome: string, email: string, senha: string): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/usuario`, { nome, email, senha });
+    return this.http.post(`${environment.apiUrl}/auth/usuario`, { nome, email, senha });
   }
   
 }

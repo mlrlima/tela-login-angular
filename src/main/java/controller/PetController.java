@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import dto.PetResponseDTO;
 import model.Pet;
-import security.Secured;
 import service.PetService;
 
 //CLASSE: PetController
@@ -20,7 +19,6 @@ import service.PetService;
 
 @RestController
 @RequestMapping("/pet")// Define a rota base para todos os endpoints
-@Secured // Aplica autenticacao a TODOS os endpoints desta classe
 public class PetController {
 	
 	@Autowired //injeta

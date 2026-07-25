@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import dto.UsuarioRelacionadoDTO;
 import dto.UsuarioResponseDTO;
 import model.Usuario;
-import security.Secured;
 import service.UsuarioService;
 
 //CLASSE: UsuarioController
@@ -29,7 +28,6 @@ public class UsuarioController {
     // FUNCAO: Lista todos os usuarios (com base no papel/role)
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com lista de usuarios
-    @Secured
 	@GetMapping("/all")
 	public ResponseEntity<List<UsuarioResponseDTO>> getAll(HttpServletRequest request){
 		return ResponseEntity.ok(service.getAllUsuarios(request));
@@ -48,14 +46,11 @@ public class UsuarioController {
     // FUNCAO: Busca um usuario pelo ID
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com os dados do usuario
-    @Secured
 	@GetMapping("/{id}")
 	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id, HttpServletRequest request) {
     	return ResponseEntity.ok(service.getUsuarioById(id, request));
 	}
     
-    
-    @Secured
     @GetMapping
     public UsuarioRelacionadoDTO porEmail(@RequestParam String email, HttpServletRequest request) {
         return service.getUsuarioByEmail(email, request);
@@ -66,7 +61,6 @@ public class UsuarioController {
     // FUNCAO: Atualiza um usuario existente
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 200 com o usuario atualizado
-    @Secured
 	@PutMapping
 	public ResponseEntity<UsuarioResponseDTO> update(@RequestBody Usuario usuario, HttpServletRequest request) {
     	return ResponseEntity.ok(service.updateUsuario(usuario, request));  
@@ -76,7 +70,6 @@ public class UsuarioController {
     // FUNCAO: Remove um usuario pelo ID
     // SEGURANCA: Requer autenticacao (@Secured)
     // RETORNO: HTTP 204 (No Content)
-    @Secured
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
     	service.deleteUsuario(id, request);

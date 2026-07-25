@@ -99,8 +99,10 @@ public class UsuarioService implements Serializable {
     
 	
 	public UsuarioRelacionadoDTO getUsuarioByEmail(String email, HttpServletRequest request) {
-	    Usuario alvo = usuarioRepository.findByEmail(email)
-	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
+	    Usuario alvo = usuarioRepository.findByEmail(email);
+	    
+	    if(alvo==null)
+	    	throw new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado");
 
 	    return new UsuarioRelacionadoDTO(alvo.getId(), alvo.getEmail());
 	}
@@ -108,8 +110,7 @@ public class UsuarioService implements Serializable {
 	// METODO: getUsuarioByEmailAndSenha()
     // FUNCAO: Autenticacao - busca usuario por email e senha
 	public Usuario getUsuarioByEmailAndSenha(String email, String senha){
-		Usuario usuario=usuarioRepository.findByEmail(email)
-				.orElse(null); // Retorna null se nao encontrar
+		Usuario usuario=usuarioRepository.findByEmail(email);
 		
 		if(usuario==null || !usuario.getSenha().equals(senha)) return null;
 		

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import dto.EmpresaResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import model.Empresa;
-import security.Secured;
 import service.EmpresaService;
 
 @RestController
@@ -27,7 +26,6 @@ public class EmpresaController {
 	@Autowired
 	private EmpresaService service;
 	
-    @Secured
 	@GetMapping("/all")
 	public ResponseEntity<List<EmpresaResponseDTO>> getAll(HttpServletRequest request){
 		return ResponseEntity.ok(service.getAllEmpresas(request));
@@ -37,27 +35,22 @@ public class EmpresaController {
     public EmpresaResponseDTO create(@RequestBody Empresa empresa, HttpServletRequest request) {
         return service.createEmpresa(empresa, request);
     }
-	
-    @Secured
+
 	@GetMapping("/{id}")
 	public EmpresaResponseDTO getById(@PathVariable Long id, HttpServletRequest request) {
     	return service.getEmpresaById(id, request);
 	}
-    
-    @Secured
+
 	@GetMapping
 	public EmpresaResponseDTO getByNome(@RequestParam String nome, HttpServletRequest request) {
     	return service.getEmpresaByNome(nome, request);  
 	}
-	
-    
-    @Secured
+
     @PutMapping
     public EmpresaResponseDTO update(@RequestBody Empresa empresa, HttpServletRequest request) {
         return service.updateEmpresa(empresa, request);
     }
-    
-    @Secured
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
     	service.deleteEmpresa(id, request);

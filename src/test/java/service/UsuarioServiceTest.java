@@ -205,7 +205,7 @@ class UsuarioServiceTest{
 	@Test
 	void retorna_usuario(){
 		//arrangr
-		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(Optional.of(admin));
+		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(admin);
 		 
 		//act
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("admin@teste.com", "1234");
@@ -217,7 +217,7 @@ class UsuarioServiceTest{
 	
 	@Test
 	void senha_incorreta_retorna_null() {
-		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(Optional.of(admin));
+		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(admin);
 		 
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("admin@teste.com", "senhaErrada");
  
@@ -226,7 +226,7 @@ class UsuarioServiceTest{
 	
 	@Test
 	void email_inexistente_retorna_null() {
-		when(usuarioRepository.findByEmail("naoexiste@teste.com")).thenReturn(Optional.empty());
+		when(usuarioRepository.findByEmail("naoexiste@teste.com")).thenReturn(null);
  
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("naoexiste@teste.com", "1234");
  
