@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import security.filter.SecurityFilter;
 
+//intercepta requisicoes http
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,6 +29,9 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity
 				.csrf(csrf -> csrf.disable()) //Cross Site Request Forgery
+				//garante que o Security nunca vai criar uma sessao HTTP e
+				// nunca vai usar essa para obter contexto de seguranca
+				// todos os requests precisam ser autenticados
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authorize -> authorize
 	                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()

@@ -32,7 +32,10 @@ export class CriarUsuario {
 	
 	mensagens='';
 	
-	constructor(private authService: AuthService,private router: Router, private cdr: ChangeDetectorRef){}
+	constructor(private authService: AuthService,
+				private router: Router,
+				private cdr: ChangeDetectorRef
+			){}
 	
 	onSubmit(){
 		if(this.senha.length < 4){

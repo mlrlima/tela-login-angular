@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { LocalStorageService } from '../services/local-storage-service';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class GestaoUsuarios implements OnInit {
 
   constructor(private usuarioService: UsuarioService,
 			  private authService: AuthService,
+			  private localStorageService: LocalStorageService,
 			  private cdr: ChangeDetectorRef,
 		  	  private router: Router,) {}
 
@@ -85,7 +87,7 @@ export class GestaoUsuarios implements OnInit {
     if (id == null) return;
     if (!confirm('Confirmaçao para remover este usuario')) return;
 
-	const autoDelete = Number(localStorage.getItem('id')) === id;
+	const autoDelete = Number(this.localStorageService.get('id')) === id;
 	
     this.usuarioService.remover(id).subscribe({
       next: () => {

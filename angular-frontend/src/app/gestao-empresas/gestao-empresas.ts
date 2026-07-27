@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
+import { LocalStorageService } from '../services/local-storage-service';
 
 @Component({
   selector: 'app-gestao-empresas',
@@ -40,10 +41,11 @@ export class GestaoEmpresas implements OnInit{
 	termoBusca: string = '';
 
 	constructor(private empresaService: EmpresaService,
+			  private localStorageService: LocalStorageService,
 			  private cdr: ChangeDetectorRef,) {}
 	
 	  get isAdmin(): boolean {
-	    return localStorage.getItem('role') === 'ADMIN';
+	    return this.localStorageService.get('role') === 'ADMIN';
 	  }
 			  
 	ngOnInit(): void {

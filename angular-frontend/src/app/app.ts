@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { LocalStorageService } from './services/local-storage-service';
 
 @Component({
   selector: 'app-root',
@@ -17,14 +18,17 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './app.css'
 })
 export class App {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService,
+			private router: Router,
+			private localStorageService: LocalStorageService
+			) {}
 
   get logado(): boolean {
     return this.authService.isLoggedIn();
   }
 
   get emailUsuario(): string | null {
-    return localStorage.getItem('email');
+    return this.localStorageService.get('email');
   }
 
   sair(): void {
@@ -33,6 +37,6 @@ export class App {
   }
   
   get isAdmin(): boolean {
-    return localStorage.getItem('role') === 'ADMIN';
+    return this.localStorageService.get('role') === 'ADMIN';
   }
 }

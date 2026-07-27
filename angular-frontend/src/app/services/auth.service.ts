@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { LocalStorageService } from './local-storage-service';
 
 export interface LoginResponse {
   token: string;
@@ -16,17 +17,17 @@ export interface LoginResponse {
 	})
 export class AuthService {
 
-	  constructor(private http: HttpClient) {}
+	  constructor(private http: HttpClient, private localStorageService: LocalStorageService) {}
 
   login(email: string, senha: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, senha })
 		.pipe(
 			tap((res: any) => {
-			          localStorage.setItem('token', res.token);
-					  localStorage.setItem('id', res.id);
-			          localStorage.setItem('nome', res.nome);
-			          localStorage.setItem('email', res.email);
-			          localStorage.setItem('role', res.role);
+			          this.localStorageService.set('token', res.token);
+					  this.localStorageService.set('id', res.id);
+			          this.localStorageService.set('nome', res.nome);
+			          this.localStorageService.set('email', res.email);
+			          this.localStorageService.set('role', res.role);
 			})
 
 		);
@@ -37,7 +38,7 @@ export class AuthService {
   }
   
   getToken(): string | null {
-      return localStorage.getItem('token');
+      return this.localStorageService.get('token');
     }
 
     isLoggedIn(): boolean {

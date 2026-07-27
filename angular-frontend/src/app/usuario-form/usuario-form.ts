@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { LocalStorageService } from '../services/local-storage-service';
 
 @Component({
   selector: 'app-usuario-form',
@@ -52,6 +53,7 @@ export class UsuarioForm implements OnInit {
   constructor(
     private usuarioService: UsuarioService,
     private authService: AuthService,
+	private localStorageService: LocalStorageService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
@@ -59,7 +61,7 @@ export class UsuarioForm implements OnInit {
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id'); //pega o id que esta na url
-    const idLogado = localStorage.getItem('id');
+    const idLogado = this.localStorageService.get('id');
 	
 	console.log('idParam:', idParam);
 	console.log('idLogado:', idLogado);
