@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import security.filter.RateLimitingFilter;
 import security.filter.SecurityFilter;
 
 //intercepta requisicoes http
@@ -24,6 +25,9 @@ public class SecurityConfig {
 
 	@Autowired
 	SecurityFilter securityFilter;
+	
+	@Autowired
+	RateLimitingFilter rateLimitingFilter;
 	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -51,6 +55,8 @@ public class SecurityConfig {
 	                            ).permitAll()
 	                        .anyRequest().authenticated() //para o resyo 
 	            )
+				// rateLimitingFilter -> securityFilter -> UsernamePasswordAuthenticationFilter
+				.addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
