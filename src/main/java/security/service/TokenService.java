@@ -1,6 +1,8 @@
 package security.service;
 
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import model.Usuario;
 
 @Service
 public class TokenService {
+	
+	private final Set<String> tokenBlacklist = ConcurrentHashMap.newKeySet();
 	
 	@Value("${api.security.token.secret}") //pega do application.properties
 	private String secret;
@@ -49,4 +53,12 @@ public class TokenService {
 			throw new RuntimeException("Nao foi possivel validar token", ex);
 		}
 	}
+	
+    public void invalidarToken(String token) {
+        tokenBlacklist.add(token);
+    }
+
+    public boolean tokenIsValido(String token) {
+        return tokenBlacklist.contains(token);
+    }
 }

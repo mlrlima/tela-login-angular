@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +103,13 @@ public class UsuarioService implements Serializable {
 	    
 	    if(alvo==null)
 	    	throw new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado");
+	    
+	    Usuario usuarioLogado = logado();
+        //verifica se eh ADMIN ou o proprio usuario
+        if(usuarioLogado.getRole() != Role.ADMIN &&
+                !usuarioLogado.getId().equals(alvo.getId())) {
+                throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+        }
 
 	    return new UsuarioRelacionadoDTO(alvo.getId(), alvo.getEmail());
 	}
@@ -137,9 +145,13 @@ public class UsuarioService implements Serializable {
 			.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 			
 			usuario.setSenha(existente.getSenha());
+		}else{
+			//encriptar nova senha
+			String encryptedPassword = new BCryptPasswordEncoder().encode(usuario.getSenha());
+	        usuario.setSenha(encryptedPassword);
 		}
 		
-		vincularEmpresasExistentes(usuario);
+		//nao salva empresas pois isso ja eh feito em empresaRepository
 		Usuario salvo = usuarioRepository.save(usuario);
 		return toDTO(salvo);
 	}

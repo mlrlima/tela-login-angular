@@ -6,9 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,6 +36,19 @@ public class AuthController {
     
     @Autowired
     private TokenService tokenService;
+    
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader){
+		// Verifica se o cabecalho Authorization existe e eh Bearer token
+		if(authHeader!=null && authHeader.startsWith("Bearer ")) {
+			String token = authHeader.substring(7); // Remove "Bearer "
+            tokenService.invalidarToken(token); 
+		}
+		
+		SecurityContextHolder.clearContext();
+		
+		return ResponseEntity.ok().build(); // HTTP 200 sem corpo
+    }
 
 	@PostMapping("/login")
 	public ResponseEntity login(@RequestBody @Valid AuthDTO dados) {
