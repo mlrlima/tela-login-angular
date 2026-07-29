@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -20,10 +20,11 @@ export class AuthService {
 	  constructor(private http: HttpClient, private localStorageService: LocalStorageService) {}
 
   login(email: string, senha: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, { email, senha })
-		.pipe(
-			tap((res: any) => {
-			          this.localStorageService.set('token', res.token);
+	      return this.http.post<LoginResponse>( `${environment.apiUrl}/auth/login`,
+	        									  { email, senha },
+	        									  { withCredentials: true } // manda/recebe o cookie
+	      ).pipe(
+			tap(res => {
 					  this.localStorageService.set('id', res.id);
 			          this.localStorageService.set('nome', res.nome);
 			          this.localStorageService.set('email', res.email);
@@ -34,22 +35,13 @@ export class AuthService {
   }
   
   logout(): void{
-	const token=localStorage.getItem('token');
-	localStorage.clear();
-
-	if(token){
-	  this.http.post(`${environment.apiUrl}/auth/logout`, {}, {
-	    headers: { Authorization: `Bearer ${token}` }
-	  }).subscribe();
-	}
+	this.http.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
+	  .subscribe(() => localStorage.clear());
   }
-  
-  getToken(): string | null {
-      return this.localStorageService.get('token');
-    }
+
 
     isLoggedIn(): boolean {
-      return !!this.getToken();
+      return !!this.localStorageService.get('email');
     }
   
   novoUsuario(nome: string, email: string, senha: string): Observable<any> {

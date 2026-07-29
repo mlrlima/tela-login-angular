@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import repository.UsuarioRepository;
@@ -34,9 +35,10 @@ public class SecurityFilter extends OncePerRequestFilter{
 		if(token!=null && tokenService.tokenEstaValido(token)) {
 			var email= tokenService.validarToken(token);
 			UserDetails usuario =usuarioRepository.findByEmail(email);
-			
-			var autenticacao=new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-			SecurityContextHolder.getContext().setAuthentication(autenticacao);
+			if(usuario!=null) {
+				var autenticacao=new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+				SecurityContextHolder.getContext().setAuthentication(autenticacao);
+			}
 		}
 		
 		// passa pro proximo filtro
@@ -46,12 +48,14 @@ public class SecurityFilter extends OncePerRequestFilter{
 	}
 	
 	private String recoverToken(HttpServletRequest request) {
-		var authHeader= request.getHeader("Authorization");
+		if(request.getCookies() == null) return null;
 		
-		if(authHeader==null) return null;
-		
-		//deixar apenas o token
-		return authHeader.replace("Bearer ", "");
+		for (Cookie cookie : request.getCookies()) {
+			if ("token".equals(cookie.getName())) {
+				return cookie.getValue();
+			}
+		}
+		return null;
 	}
 	
 }
