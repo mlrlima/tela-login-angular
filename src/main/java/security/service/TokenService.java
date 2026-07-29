@@ -58,7 +58,7 @@ public class TokenService {
         tokenBlacklist.add(token);
     }
 
-    public boolean tokenIsValido(String token) {
-        return tokenBlacklist.contains(token);
+    public boolean tokenEstaValido(String token) {
+        return !tokenBlacklist.contains(token);
     }
 }

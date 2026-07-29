@@ -30,6 +30,7 @@ public class PetService implements Serializable {
 	private Usuario logado() {
 	    var auth = SecurityContextHolder.getContext().getAuthentication();
 	    if (auth == null || !auth.isAuthenticated()) return null;
+	    
 	    return (Usuario) auth.getPrincipal();
 	}
 

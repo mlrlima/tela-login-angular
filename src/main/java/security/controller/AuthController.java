@@ -10,10 +10,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import model.Empresa;
 import model.Role;
@@ -38,12 +38,13 @@ public class AuthController {
     private TokenService tokenService;
     
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader){
-		// Verifica se o cabecalho Authorization existe e eh Bearer token
-		if(authHeader!=null && authHeader.startsWith("Bearer ")) {
-			String token = authHeader.substring(7); // Remove "Bearer "
-            tokenService.invalidarToken(token); 
-		}
+    public ResponseEntity<Void> logout(HttpServletRequest request){
+    	
+    	String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7); //pegar apenas o valor do token
+            tokenService.invalidarToken(token);
+        }
 		
 		SecurityContextHolder.clearContext();
 		
