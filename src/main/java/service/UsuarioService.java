@@ -5,10 +5,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -145,7 +148,10 @@ public class UsuarioService implements Serializable {
 			.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
 			
 			usuario.setSenha(existente.getSenha());
-		}else{
+		
+		}else if(usuario.getSenha().length() < 4) {
+			throw new GlobalExceptionHandler.UnauthorizedException("A senha dever ter no mínimo 4 caracteres.");
+        }else{
 			//encriptar nova senha
 			String encryptedPassword = new BCryptPasswordEncoder().encode(usuario.getSenha());
 	        usuario.setSenha(encryptedPassword);

@@ -96,6 +96,11 @@ public class PetService implements Serializable {
 		Usuario usuarioLogado = logado();
 		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		
+		Pet original=petRepository.getById(pet.getId());
+		if(!original.getDono().equals(pet.getDono())) {
+			throw new GlobalExceptionHandler.UnauthorizedException("Não é permitido alterar o dono de um pet.");
+		}
+		
 		Pet salvo = petRepository.save(pet);
 		return toDTO(salvo);
 	}

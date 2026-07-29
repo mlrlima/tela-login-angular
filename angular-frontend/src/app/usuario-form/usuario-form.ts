@@ -100,7 +100,11 @@ export class UsuarioForm implements OnInit {
     const payload = { ...this.usuario }; //Cria uma cópia do objeto para nao editar diretamente
     if (!payload.senha) {
       delete payload.senha; // em branco = mantem a senha atual (backend ja trata isso)
-    }
+    }else if(payload.senha.length < 4){
+		this.mensagens='A senha deve ter no minimo 4 caracteres';
+		this.cdr.detectChanges();
+		return;
+	}
 
     this.usuarioService.atualizar(payload).subscribe({
       next: () => {

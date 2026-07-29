@@ -1,8 +1,10 @@
 package security.controller;
 
 import java.util.HashSet;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -73,7 +75,12 @@ public class AuthController {
     public ResponseEntity novoUsuario(@RequestBody @Valid NovoUsuarioDTO dados){
     	// se esse email ja eh cadastrado
         if(this.repository.findByEmail(dados.email()) != null) return ResponseEntity.badRequest().build();
-
+        if(dados.senha().length() < 4) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        			.body(Map.of("erro", "A senha deve ter no mínimo 4 caracteres"));
+        }
+						
+        
         //encriptar a senha
         String encryptedPassword = new BCryptPasswordEncoder().encode(dados.senha());
         
