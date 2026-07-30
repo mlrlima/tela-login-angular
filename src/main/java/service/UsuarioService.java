@@ -2,16 +2,17 @@
 package service;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,24 +52,22 @@ public class UsuarioService implements Serializable {
 	    return (Usuario) auth.getPrincipal();
 	}
 	
-    // METODO: getAllUsuarios()
-    // FUNCAO: Lista usuarios baseado na role do usuario logado
-    // REGRA: ADMIN ve todos | USER ve apenas a si mesmo
-	public List<UsuarioResponseDTO> getAllUsuarios(){
-		Usuario usuarioLogado = logado();
-		
-		List<Usuario> usuarios;
-		
-		if(usuarioLogado.getRole() == Role.ADMIN) {
-			usuarios = usuarioRepository.findAll();
-		} else { 
-			usuarios = new ArrayList<>();
-			usuarios.add(usuarioRepository.findById(usuarioLogado.getId())
-					.orElseThrow(()-> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado")));
-		}
-		
-		return usuarios.stream().map(this::toDTO)
-				.collect(Collectors.toList());
+	@Cacheable(value = "usuarios", key = "#pageable.pageNumber + '-' + #pageable.pageSize") //cache por pagina
+	public Page<UsuarioResponseDTO> getAllUsuarios(Pageable pageable){ //implementa paginacao
+	    Usuario usuarioLogado = logado();
+
+	    Page<Usuario> usuarios;
+
+	    if(usuarioLogado.getRole() == Role.ADMIN) {
+	        usuarios = usuarioRepository.findAll(pageable);
+	    } else {
+	    	//se o usuario nao for admin, retorna apenas ele mesmo
+	        Usuario usuarioComum = usuarioRepository.findById(usuarioLogado.getId())
+	                .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
+	        usuarios = new PageImpl<>(List.of(usuarioComum), pageable, 1);
+	    }
+
+	    return usuarios.map(this::toDTO);
 	}
 	
     // METODO: createUsuario()
@@ -86,10 +85,14 @@ public class UsuarioService implements Serializable {
     // METODO: getUsuarioById()
     // FUNCAO: Busca usuario por ID com verificacao de permissao
     // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
+	@Cacheable(value = "usuarioPorId", key = "#id")
+	public Usuario buscarUsuarioNoCache(Long id) {
+	    return usuarioRepository.findById(id)
+	        .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
+	}
 	public UsuarioResponseDTO getUsuarioById(Long id) {
     	Usuario usuarioLogado = logado();
-        Usuario alvo = usuarioRepository.findById(id)
-				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
+    	Usuario alvo = buscarUsuarioNoCache(id);
         
         //verifica se eh ADMIN ou o proprio usuario
         if(usuarioLogado.getRole() != Role.ADMIN &&
@@ -132,6 +135,7 @@ public class UsuarioService implements Serializable {
     // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
     //       Se senha vier em branco, mantem a senha atual
 	@Transactional
+	@CacheEvict(value = "usuarioPorId", key = "#usuario.id") //update o cache
 	public UsuarioResponseDTO updateUsuario(Usuario usuario) {
 		Usuario usuarioLogado = logado();
 		
@@ -166,6 +170,7 @@ public class UsuarioService implements Serializable {
     // FUNCAO: Remove um usuario (e seus pets)
     // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
+	@CacheEvict(value = "usuarioPorId", key = "#id") //update cache
     public void deleteUsuario(Long id) {
 		 Usuario alvo = usuarioRepository.findById(id)
 	        		.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));

@@ -1,3 +1,4 @@
+/*
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WebsocketService } from '../services/websocket.service';
@@ -25,5 +26,5 @@ export class TesteWebsocket {
 	  this.websocketService.send("hello world");
 	}
 }
-
+*/
 

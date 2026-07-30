@@ -11,6 +11,34 @@ insert into pet(nome, user_id, especie) values('JADE', 1, 'AVE');
 
 insert into usuario(email, nome, senha, role) values('admin@email.com', 'administrador', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'ADMIN');
 
+insert into usuario(email, nome, senha, role) values('teste1@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste2@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste3@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste4@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste5@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+
+insert into usuario(email, nome, senha, role) values('teste6@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste7@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste8@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste9@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste10@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+
+insert into usuario(email, nome, senha, role) values('teste11@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste12@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste13@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste14@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste15@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+
+insert into usuario(email, nome, senha, role) values('teste16@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste17@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste18@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste19@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste20@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+
+insert into usuario(email, nome, senha, role) values('teste21@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste22@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+insert into usuario(email, nome, senha, role) values('teste23@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
+
 insert into pet(nome, user_id, especie) values('Tom', 1, 'GATO');
 
 insert into empresa(nome) values('Petshop 1');

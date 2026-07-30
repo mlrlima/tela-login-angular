@@ -1,8 +1,9 @@
 package controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +23,15 @@ public class UsuarioController {
 	@Autowired // Injeta
 	private UsuarioService service;
 
-    // ENDPOINT: GET /usuario/all
-    // FUNCAO: Lista todos os usuarios (com base no papel/role)
-    // SEGURANCA: Requer autenticacao (@Secured)
-    // RETORNO: HTTP 200 com lista de usuarios
+	
 	@GetMapping("/all")
-	public ResponseEntity<List<UsuarioResponseDTO>> getAll(){
-		return ResponseEntity.ok(service.getAllUsuarios());
+	public ResponseEntity<Page<UsuarioResponseDTO>> getAllUsuarios( //com paginacao
+					        @RequestParam(defaultValue = "0") int page,
+					        @RequestParam(defaultValue = "20") int size) {
+
+	    Pageable pageable = PageRequest.of(page, size);
+	    Page<UsuarioResponseDTO> usuarios = service.getAllUsuarios(pageable);
+	    return ResponseEntity.ok(usuarios);
 	}
 	
     // ENDPOINT: GET /usuario/{id}

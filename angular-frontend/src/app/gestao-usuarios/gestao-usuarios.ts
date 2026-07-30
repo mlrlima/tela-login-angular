@@ -35,7 +35,12 @@ import { LocalStorageService } from '../services/local-storage-service';
 })
 export class GestaoUsuarios implements OnInit {
 
-  usuarios: Usuario[] = [];
+  usuarios: any[] = [];
+  paginaAtual = 0;
+  tamanhoPagina = 20;
+  totalPaginas = 0;
+  totalElementos = 0;
+  
   carregando = true;
   mensagens = '';
   usuariosFiltrados: Usuario[] = [];
@@ -50,12 +55,29 @@ export class GestaoUsuarios implements OnInit {
   ngOnInit(): void {
     this.carregar();
   }
+  
+  proximaPagina(): void {
+    if (this.paginaAtual + 1 < this.totalPaginas) {
+      this.paginaAtual++;
+      this.carregar();
+    }
+  }
+  paginaAnterior(): void {
+    if (this.paginaAtual > 0) {
+      this.paginaAtual--;
+      this.carregar();
+    }
+  }
 
   carregar(): void {
 	this.carregando = true;
-    this.usuarioService.todos().subscribe({
-      next: (usuarios) => {
-        this.usuarios = usuarios;
+    this.usuarioService.todos(this.paginaAtual, this.tamanhoPagina).subscribe({
+      next: (res) => {
+        this.usuarios = res.content;
+		
+		this.totalPaginas = res.totalPages;
+		this.totalElementos = res.totalElements;
+		
         this.filtrarUsuarios();
         this.carregando = false;
 		this.cdr.detectChanges();
@@ -97,12 +119,7 @@ export class GestaoUsuarios implements OnInit {
 			this.cdr.detectChanges();
 			return;
 		}
-		
-        this.usuarios = this.usuarios.filter(u => u.id !== id);
-		this.filtrarUsuarios();
-		
-		
-        this.cdr.detectChanges();
+		this.carregar();
       },
       error: (err) => {
         console.error('Erro ao remover usuario', err);
