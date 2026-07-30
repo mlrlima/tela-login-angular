@@ -37,7 +37,7 @@ export class GestaoUsuarios implements OnInit {
 
   usuarios: any[] = [];
   paginaAtual = 0;
-  tamanhoPagina = 20;
+  tamanhoPagina = 10;
   totalPaginas = 0;
   totalElementos = 0;
   

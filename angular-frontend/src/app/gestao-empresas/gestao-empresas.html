@@ -110,6 +110,12 @@
 
     </table>
 
+    <div class="paginacao">
+	  <button mat-button (click)="paginaAnterior()" [disabled]="paginaAtual === 0">Anterior</button>
+	  <span>Página {{ paginaAtual + 1 }} de {{ totalPaginas }} ({{ totalElementos }} empresas)</span>
+	  <button mat-button (click)="proximaPagina()" [disabled]="paginaAtual + 1 >= totalPaginas">Próxima</button>
+	</div>
+    
     <div
       *ngIf="!carregando && empresasFiltradas.length === 0"
       class="empty-state">

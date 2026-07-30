@@ -27,7 +27,12 @@ import { FormsModule } from '@angular/forms';
 })
 export class GestaoPets implements OnInit {
 
-  pets: Pet[] = [];
+	pets: any[] = [];
+	paginaAtual = 0;
+	tamanhoPagina = 10;
+	totalPaginas = 0;
+	totalElementos = 0;
+
   carregando = true;
   mensagens = '';
   termoBusca= '';
@@ -38,6 +43,19 @@ export class GestaoPets implements OnInit {
     ngOnInit(): void {
       this.carregar();
     }
+	
+	proximaPagina(): void {
+	  if (this.paginaAtual + 1 < this.totalPaginas) {
+	    this.paginaAtual++;
+	    this.carregar();
+	  }
+	}
+	paginaAnterior(): void {
+	  if (this.paginaAtual > 0) {
+	    this.paginaAtual--;
+	    this.carregar();
+	  }
+	}
 
 	buscarPets(): void {
 	  const termo = this.termoBusca.trim().toLowerCase();
@@ -56,9 +74,13 @@ export class GestaoPets implements OnInit {
 
 	carregar(): void {
 	    this.carregando = true;
-	    this.petService.listar().subscribe({
-	      next: (data) => {
-	        this.pets = data;
+	    this.petService.listar(this.paginaAtual, this.tamanhoPagina).subscribe({
+	      next: (res) => {
+	        this.pets = res.content;
+			
+			this.totalPaginas = res.totalPages;
+			this.totalElementos = res.totalElements;
+			
 			this.buscarPets();
 	        this.carregando = false;
 	        this.cdr.detectChanges();
@@ -73,13 +95,11 @@ export class GestaoPets implements OnInit {
 	
 	remover(id: number | undefined): void {
 	    if (id == null) return;
-	    if (!confirm('Confirmaçao para remover')) return;
+	    if (!confirm('Confirmaçao para remover este pet')) return;
 
 	    this.petService.remover(id).subscribe({
 	      next: () => {
-	        this.pets = this.pets.filter(p => p.id !== id);
-			this.buscarPets();
-			this.cdr.detectChanges();
+	        this.carregar();
 	      },
 	      error: (err) => {
 	        console.error('Erro ao remover pet', err);

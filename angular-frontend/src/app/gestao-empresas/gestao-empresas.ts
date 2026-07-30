@@ -34,7 +34,12 @@ import { LocalStorageService } from '../services/local-storage-service';
 })
 export class GestaoEmpresas implements OnInit{
 	
-	empresas: Empresa[] = [];
+	empresas: any[] = [];
+	paginaAtual = 0;
+	tamanhoPagina = 10;
+	totalPaginas = 0;
+	totalElementos = 0;	
+
 	carregando = true;
 	mensagens = '';
 	empresasFiltradas: Empresa[] = [];
@@ -52,16 +57,29 @@ export class GestaoEmpresas implements OnInit{
 	  this.carregar();
 	}
 	
+	proximaPagina(): void {
+	  if (this.paginaAtual + 1 < this.totalPaginas) {
+	    this.paginaAtual++;
+	    this.carregar();
+	  }
+	}
+	paginaAnterior(): void {
+	  if (this.paginaAtual > 0) {
+	    this.paginaAtual--;
+	    this.carregar();
+	  }
+	}
+	
 	carregar(): void {
 	this.carregando = true;
-	  this.empresaService.todas().subscribe({
-	    next: (empresas) => {
-		  console.log(empresas);
-	      
-		  this.empresas = empresas;
-	      this.filtrarEmpresas();
-		  console.log(this.empresasFiltradas);
+	  this.empresaService.todas(this.paginaAtual, this.tamanhoPagina).subscribe({
+	    next: (res) => {
+		  this.empresas = res.content;
 		  
+		  this.totalPaginas = res.totalPages;
+		  this.totalElementos = res.totalElements;
+		  
+	      this.filtrarEmpresas();
 	      this.carregando = false;
 		this.cdr.detectChanges();
 	    },
@@ -92,10 +110,7 @@ export class GestaoEmpresas implements OnInit{
 
 	   this.empresaService.remover(id).subscribe({
 	     next: () => {
-	       this.empresas = this.empresas.filter(e => e.id !== id);
-	 	   this.filtrarEmpresas();
-	 	
-	       this.cdr.detectChanges();
+	       this.carregar();
 	     },
 	     error: (err) => {
 	       console.error('Erro ao remover empresa', err);

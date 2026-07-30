@@ -1,8 +1,9 @@
 package controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +27,13 @@ public class EmpresaController {
 	private EmpresaService service;
 	
 	@GetMapping("/all")
-	public ResponseEntity<List<EmpresaResponseDTO>> getAll(){
-		return ResponseEntity.ok(service.getAllEmpresas());
+	public ResponseEntity<Page<EmpresaResponseDTO>> getAll(
+									@RequestParam(defaultValue = "0") int page,
+	        						@RequestParam(defaultValue = "10") int size){
+		
+		 Pageable pageable = PageRequest.of(page, size);
+		 Page<EmpresaResponseDTO> empresas = service.getAllEmpresas(pageable);
+		 return ResponseEntity.ok(empresas);
 	}
     
     @PostMapping

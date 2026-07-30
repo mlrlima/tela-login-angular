@@ -52,7 +52,14 @@ public class UsuarioService implements Serializable {
 	    return (Usuario) auth.getPrincipal();
 	}
 	
-	@Cacheable(value = "usuarios", key = "#pageable.pageNumber + '-' + #pageable.pageSize") //cache por pagina
+	
+	public boolean isAdminLogado() {
+	    Usuario usuarioLogado = logado();
+	    return usuarioLogado != null && usuarioLogado.getRole() == Role.ADMIN;
+	}
+	
+	@Cacheable(value = "usuarios", key = "#pageable.pageNumber + '-' + #pageable.pageSize",
+				condition = "#root.target.isAdminLogado()") //cache por pagina
 	public Page<UsuarioResponseDTO> getAllUsuarios(Pageable pageable){ //implementa paginacao
 	    Usuario usuarioLogado = logado();
 
@@ -74,6 +81,7 @@ public class UsuarioService implements Serializable {
     // FUNCAO: Cria um novo usuario (cadastro)
     // REGRA: Sempre define role como USER (nao permite criar ADMIN)
 	@Transactional // Garante atomicidade (commit ou rollback)
+	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
 	public UsuarioResponseDTO createUsuario(Usuario usuario) {
 		usuario.setId(null);
 		usuario.setRole(Role.USER);
@@ -85,7 +93,7 @@ public class UsuarioService implements Serializable {
     // METODO: getUsuarioById()
     // FUNCAO: Busca usuario por ID com verificacao de permissao
     // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
-	@Cacheable(value = "usuarioPorId", key = "#id")
+	//@Cacheable(value = "usuarioPorId", )
 	public Usuario buscarUsuarioNoCache(Long id) {
 	    return usuarioRepository.findById(id)
 	        .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
@@ -135,7 +143,7 @@ public class UsuarioService implements Serializable {
     // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
     //       Se senha vier em branco, mantem a senha atual
 	@Transactional
-	@CacheEvict(value = "usuarioPorId", key = "#usuario.id") //update o cache
+	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
 	public UsuarioResponseDTO updateUsuario(Usuario usuario) {
 		Usuario usuarioLogado = logado();
 		
@@ -170,7 +178,7 @@ public class UsuarioService implements Serializable {
     // FUNCAO: Remove um usuario (e seus pets)
     // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
-	@CacheEvict(value = "usuarioPorId", key = "#id") //update cache
+	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
     public void deleteUsuario(Long id) {
 		 Usuario alvo = usuarioRepository.findById(id)
 	        		.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));

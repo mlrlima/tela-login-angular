@@ -1,8 +1,10 @@
 package controller;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +24,15 @@ public class PetController {
 	@Autowired //injeta
 	private PetService service;
 
-    // ENDPOINT: GET /pet/all
-    // FUNCAO: Lista todos os pets do usuario logado
-    // RETORNO: HTTP 200 com lista de pets
+   
 	@GetMapping("/all")
-	public ResponseEntity<List<PetResponseDTO>> getAll(){
-		return ResponseEntity.ok(service.getAllPets());
+	public ResponseEntity<Page<PetResponseDTO>> getAll(
+			 						@RequestParam(defaultValue = "0") int page,
+			 						@RequestParam(defaultValue = "10") int size){
+		
+		Pageable pageable = PageRequest.of(page, size);
+	    Page<PetResponseDTO> pets = service.getAllPets(pageable);
+	    return ResponseEntity.ok(pets);
 	}
 	
 	// ENDPOINT: POST /pet

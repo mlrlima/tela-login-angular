@@ -2,9 +2,12 @@ package service;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,37 +30,45 @@ public class PetService implements Serializable {
 	@Autowired
 	private PetRepository petRepository;
 
+	//// lista de funcoes e metodos
+	//private Usuario logado();
+	//public boolean isAdminLogado();
+	
 	private Usuario logado() {
 	    var auth = SecurityContextHolder.getContext().getAuthentication();
 	    if (auth == null || !auth.isAuthenticated()) return null;
 	    
 	    return (Usuario) auth.getPrincipal();
 	}
+	
+	
+	public boolean isAdminLogado() {
+	    Usuario usuarioLogado = logado();
+	    return usuarioLogado != null && usuarioLogado.getRole() == Role.ADMIN;
+	}
 
-    // METODO: getAllPets()
-    // FUNCAO: Lista pets baseado na role do usuario logado
-    // REGRA: ADMIN ve todos | USER ve apenas seus proprios pets
-	public List<PetResponseDTO> getAllPets(){
+	@Cacheable(value = "pets", key = "#pageable.pageNumber + '-' + #pageable.pageSize",
+			condition = "#root.target.isAdminLogado()") //cache por pagina
+	public Page<PetResponseDTO> getAllPets(Pageable pageable){
 		Usuario usuarioLogado = logado();
 		
-		List<Pet> pets;
+		Page<Pet> pets;
 		
 		//se for ADMIN, retorna todos os pets
 		if(usuarioLogado.getRole() == Role.ADMIN) {
-			pets = petRepository.findAll();
+			pets = petRepository.findAll(pageable);
 		} else { //se for user, retorna apenas os dele
-			pets = petRepository.findByDono_Id(usuarioLogado.getId());
+			pets = petRepository.findByDono_Id(pageable, usuarioLogado.getId());
 		}
 		
-		return pets.stream()
-				.map(this::toDTO)
-				.collect(Collectors.toList());
+		return pets.map(this::toDTO);
 	}
 
     // METODO: createPet()
     // FUNCAO: Cria um novo pet associado ao usuario logado
     // REGRA: O dono do pet eh sempre o usuario logado
 	@Transactional
+	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public PetResponseDTO createPet(Pet pet) {
 		Usuario usuarioLogado = logado();
         pet.setDono(usuarioLogado);
@@ -92,6 +103,7 @@ public class PetService implements Serializable {
     // FUNCAO: Atualiza um pet existente
     // REGRA: ADMIN ou dono do pet podem atualizar
 	@Transactional
+	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public PetResponseDTO updatePet(Pet pet) {
 		Usuario usuarioLogado = logado();
 		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
@@ -109,6 +121,7 @@ public class PetService implements Serializable {
     // FUNCAO: Remove um pet pelo ID
     // REGRA: ADMIN ou dono do pet podem deletar
 	@Transactional
+	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public void deletePet(Long id) {
 		Pet alvo=petRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
@@ -123,8 +136,9 @@ public class PetService implements Serializable {
     // FUNCAO: Remove TODOS os pets de um usuario (usado ao deletar usuario)
     // REGRA: Chamado internamente pelo UsuarioService
 	@Transactional
+	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public void deletePetsUsuario(Usuario usuario) {
-		List<Pet> lista=petRepository.findByDono_Id(usuario.getId());
+		List<Pet> lista=petRepository.findAllByDono_Id(usuario.getId());
 		
 		// Deleta cada pet individualmente
 		for (Pet pet:lista) {

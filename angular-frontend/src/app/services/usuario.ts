@@ -23,7 +23,7 @@ export class UsuarioService {
 
   constructor(private http: HttpClient) {}
 
-  todos(page: number = 0, size: number = 20): Observable<any> { //retorna um Observable que, quando receber uma resposta do servidor, fornecerá um objeto
+  todos(page: number = 0, size: number = 10): Observable<any> { //retorna um Observable que, quando receber uma resposta do servidor, fornecerá um objeto
     return this.http.get<any>(`${environment.apiUrl}/usuario/all?page=${page}&size=${size}`);
   }
   

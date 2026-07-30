@@ -27,7 +27,7 @@ public class UsuarioController {
 	@GetMapping("/all")
 	public ResponseEntity<Page<UsuarioResponseDTO>> getAllUsuarios( //com paginacao
 					        @RequestParam(defaultValue = "0") int page,
-					        @RequestParam(defaultValue = "20") int size) {
+					        @RequestParam(defaultValue = "10") int size) {
 
 	    Pageable pageable = PageRequest.of(page, size);
 	    Page<UsuarioResponseDTO> usuarios = service.getAllUsuarios(pageable);

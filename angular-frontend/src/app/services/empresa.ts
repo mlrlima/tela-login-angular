@@ -20,8 +20,8 @@ export class EmpresaService {
 	
 	constructor(private http: HttpClient) {}
 	
-	todas(): Observable<Empresa[]> { //retorna um Observable que, quando receber uma resposta do servidor, fornecerá um objeto do tipo Usuario.
-	  return this.http.get<Empresa[]>(`${environment.apiUrl}/empresa/all`);
+	todas(page: number = 0, size: number = 10): Observable<any> { 
+	  return this.http.get<any>(`${environment.apiUrl}/empresa/all?page=${page}&size=${size}`);
 	}
 
 	porId(id: number): Observable<Empresa> {

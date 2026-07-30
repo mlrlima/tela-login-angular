@@ -7,6 +7,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -44,13 +48,14 @@ public class EmpresaService implements Serializable {
         return new EmpresaResponseDTO(empresa.getId(), empresa.getNome(), usuarios);
     }
     
-	public List<EmpresaResponseDTO> getAllEmpresas(){
-		return empresaRepository.findAll()
-				.stream().map(this::toDTO).collect(Collectors.toList());
+    @Cacheable(value = "empresas", key = "#pageable.pageNumber + '-' + #pageable.pageSize") //cache por pagina
+	public Page<EmpresaResponseDTO> getAllEmpresas(Pageable pageable){
+		return empresaRepository.findAll(pageable).map(this::toDTO);
 	}
 	
 	
 	@Transactional
+	@CacheEvict(value = "empresas", allEntries = true) //update o cache
 	public EmpresaResponseDTO createEmpresa(Empresa empresa){
 	    empresa.setId(null);
 	    vincularUsuariosExistentes(empresa);
@@ -83,6 +88,7 @@ public class EmpresaService implements Serializable {
 	
 	//apenas admin pode alterar empresas
 	@Transactional
+	@CacheEvict(value = "empresas", allEntries = true) //update o cache
 	public EmpresaResponseDTO updateEmpresa(Empresa empresa) {
 
 	    Usuario usuarioLogado = logado();
@@ -96,6 +102,7 @@ public class EmpresaService implements Serializable {
 	
 	//apenas admin pode deletar empresas
 	@Transactional
+	@CacheEvict(value = "empresas", allEntries = true) //update o cache
 	public void deleteEmpresa(Long id) {
 		Empresa alvo=empresaRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Empresa não encontrada"));
