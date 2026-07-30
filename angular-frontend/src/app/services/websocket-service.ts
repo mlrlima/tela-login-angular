@@ -1,41 +1,51 @@
-/*
-import { Service } from '@angular/core';
-import {CompatClient, Stomp} from '@stomp/stompjs';
-import {StompSubscription} from '@stomp/stompjs/src/stomp-subscription';
+import { Injectable } from '@angular/core';
+import { Client } from '@stomp/stompjs';
+import * as SockJS from 'sockjs-client';
+import { BehaviorSubject } from 'rxjs';
 
-export type ListenerCallBack = (message: String) => void;
+@Injectable({
+  providedIn: 'root'
+})
+export class WebsocketService {
+  private stompClient!: Client;
+  public message$ = new BehaviorSubject<string>('');
 
-@Injectable({ providedIn:'root'})
-export class WebsocketService implements OnDestroy {
-	
-	private connection: CompatClient | undefined = undefined;
-	
-	private subscription: StompSubscription | undefined;
-	
-	constructor() {
-	  this.connection = Stomp.client(`${environment.apiUrl}/websocket`);
-	  this.connection.connect({}, () => {});
-	}
-	
-	public send(str: String): void {
-	  if (this.connection && this.connection.connected) {
-	    this.connection.send(`/teste-dois/add_string`, {}, "hello world!!!!!!!!!!");
-	  }
-	}
-	
-	public listen(fun: ListenerCallBack): void {
-	  if (this.connection) {
-	    this.connection.connect({}, () => {
-	      this.subscription = this.connection!.subscribe(`/teste/added_string`, message => fun(JSON.parse(message.body)));
-	    }); 
-	  }
-	}
-	
-	ngOnDestroy(): void {
-	  if (this.subscription) {
-	    this.subscription.unsubscribe();
-	  }
-	}
-	
+  constructor() {
+    this.initializeWebSocketConnection();
+  }
+
+  private initializeWebSocketConnection() {
+    // Generate native path using current window context location 
+    const isSecure = window.location.protocol === 'https:';
+    const baseHttpProtocol = isSecure ? 'https://' : 'http://';
+    const serverUrl = `${baseHttpProtocol}${window.location.host}/ws`;
+
+    this.stompClient = new Client({
+      webSocketFactory: () => new SockJS(serverUrl),
+      debug: (str) => console.log(str),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    this.stompClient.onConnect = (frame) => {
+      console.log('Connected: ' + frame);
+      
+      // Subscribe to broker channel
+      this.stompClient.subscribe('/topic/messages', (message) => {
+        if (message.body) {
+          this.message$.next(message.body);
+        }
+      });
+    };
+
+    this.stompClient.activate();
+  }
+
+  public sendMessage(msg: string) {
+    this.stompClient.publish({
+      destination: '/app/send-message',
+      body: msg
+    });
+  }
 }
-*/

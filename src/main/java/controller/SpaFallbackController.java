@@ -18,8 +18,8 @@ public class SpaFallbackController {
             // - api/    (endpoints da API)
             // - assets/ (arquivos estaticos)
             // - .       (arquivos com extensao: .js, .css, .png, etc.)
-	        "/{path:^(?!api|assets|.*\\.).*$}",
-	        "/{path:^(?!api|assets|.*\\.).*$}/**" // Sub-caminhos tambem
+	        "/{path:^(?!api|assets|ws|.*\\.).*$}",
+	        "/{path:^(?!api|assets|ws|.*\\.).*$}/**" // Sub-caminhos tambem
 	    })
 	    public String forward() {
 	        return "forward:/index.html";

@@ -53,6 +53,7 @@ public class SecurityConfig {
 	                                "/{path:^(?!api|assets|.*\\.).*$}",
 	                                "/{path:^(?!api|assets|.*\\.).*$}/**"
 	                            ).permitAll()
+	                        .requestMatchers("/ws/**").permitAll() 
 	                        .anyRequest().authenticated() //para o resyo 
 	            )
 				// rateLimitingFilter -> securityFilter -> UsernamePasswordAuthenticationFilter

@@ -14,7 +14,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "config", 
         "controller", // Endpoints REST
         "security",
-        "service"
+        "service",
+        "websocket"
 })
 @EntityScan("model") // Escaneia as entidades JPA no pacote model
 @EnableJpaRepositories(basePackages = "repository") // Habilita e escaneia os repositorios JPA
