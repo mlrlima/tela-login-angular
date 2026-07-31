@@ -73,6 +73,14 @@
           <td> {{ pet.latitude ?? '-' }} , {{ pet.longitude ?? '-' }} </td>
 
           <td class="actions">
+          
+	          <button
+			    mat-icon-button
+			    color="accent"
+			    (click)="verMapa(pet)">
+			
+			    <mat-icon>place</mat-icon>
+			  </button>
 
             <button
               mat-icon-button
@@ -80,7 +88,6 @@
               [routerLink]="['/pets', pet.id]">
 
               <mat-icon>edit</mat-icon>
-
             </button>
 
             <button
@@ -89,7 +96,6 @@
               (click)="remover(pet.id)">
 
               <mat-icon>delete</mat-icon>
-
             </button>
 
           </td>

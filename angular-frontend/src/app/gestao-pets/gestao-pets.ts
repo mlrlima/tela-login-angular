@@ -9,6 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { PetMapaDialog } from '../pet-mapa-dialog/pet-mapa-dialog';
 
 @Component({
   selector: 'app-gestao-pets',
@@ -38,11 +40,24 @@ export class GestaoPets implements OnInit {
   termoBusca= '';
   petsBuscados: Pet[] = [];
 
-  constructor(private petService: PetService, private cdr: ChangeDetectorRef) {}
+  constructor(private petService: PetService,
+			private cdr: ChangeDetectorRef,
+			private dialog: MatDialog) {}
 
     ngOnInit(): void {
       this.carregar();
     }
+	
+	verMapa(pet: Pet): void {
+	    this.dialog.open(PetMapaDialog, {
+	      width: '400px',
+	      data: {
+	        nome: pet.nome,
+	        latitude: pet.latitude,
+	        longitude: pet.longitude,
+	      },
+	    });
+	  }
 	
 	proximaPagina(): void {
 	  if (this.paginaAtual + 1 < this.totalPaginas) {

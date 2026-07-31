@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>{{ data.nome }}</h2>
+
+<mat-dialog-content>
+  
+  <div *ngIf="temLocalizacao()" id="pet-mapa-dialog" style="height: 300px; width: 100%;">
+  </div>
+
+  <p *ngIf="!temLocalizacao()">
+    Esse pet ainda não tem uma localização cadastrada.
+  </p>
+  
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button mat-button (click)="dialogRef.close()">
+    <mat-icon>close</mat-icon>
+    Fechar
+  </button>
+</mat-dialog-actions>
