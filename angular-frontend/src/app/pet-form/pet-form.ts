@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PetService, Pet } from '../services/pet';
 import { MatCardModule } from '@angular/material/card';
@@ -35,6 +35,8 @@ export class PetForm implements OnInit {
   pet: Pet = {
     nome: '',
     especie: '',
+	latitude: null,
+	longitude: null,
   };
 
   modoEdicao = false;
@@ -70,14 +72,31 @@ export class PetForm implements OnInit {
     }
   }
 
-  onSubmit(): void {
+  onSubmit(form: NgForm): void {
+    if (form.invalid) {
+      this.mensagens = 'Verifique se todas as informações são válidas.';
+      return;
+    }
+
     const acao = this.modoEdicao
       ? this.petService.atualizar(this.pet)
       : this.petService.criar(this.pet);
-
+	  
     acao.subscribe({
-      next: () => {
-        this.router.navigate(['/pets']);
+      next: (petSalvo) => {
+		if (petSalvo.id!=null && this.pet.latitude!=null && this.pet.longitude!=null) {
+		        this.petService.atualizarLocalizacao(petSalvo.id, this.pet.latitude, this.pet.longitude)
+		          .subscribe({
+		            next: () => this.router.navigate(['/pets']),
+		            error: (err) => {
+		              console.error('Erro ao atualizar localizacao', err);
+		              // mesmo se a localizacao falhar, o pet ja foi salvo — segue o fluxo
+		              this.router.navigate(['/pets']);
+		            }
+		          });
+		      } else {
+		        this.router.navigate(['/pets']);
+		      }
       },
       error: (err) => {
         console.error('Erro ao salvar pet', err);

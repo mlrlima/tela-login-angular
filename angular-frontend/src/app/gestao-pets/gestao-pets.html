@@ -56,6 +56,7 @@
           <th>Nome</th>
           <th>Espécie</th>
           <th>Dono</th>
+          <th>Localização</th>
           <th style="width:170px;">Ações</th>
         </tr>
       </thead>
@@ -69,6 +70,7 @@
           <td>{{ pet.especie }}</td>
 
           <td>{{ pet.dono?.email ?? '-' }}</td>
+          <td> {{ pet.latitude ?? '-' }} , {{ pet.longitude ?? '-' }} </td>
 
           <td class="actions">
 

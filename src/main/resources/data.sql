@@ -39,7 +39,8 @@ insert into usuario(email, nome, senha, role) values('teste21@email.com', 'teste
 insert into usuario(email, nome, senha, role) values('teste22@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
 insert into usuario(email, nome, senha, role) values('teste23@email.com', 'teste', '$2a$10$uaKKmJmxlNYrdOF2PdNu4uVZdEfaBAmQ7ODxoBfRTnYIRAPf3IP0y', 'USER');
 
-insert into pet(nome, user_id, especie) values('Tom', 1, 'GATO');
+insert into pet(nome, user_id, especie, latitude, longitude) values('Tom', 1, 'GATO', -8.05, -34.90);
+insert into pet(nome, user_id, especie, latitude, longitude) values('Jerry', 2, 'ROEDOR', -7.05, -35.90);
 
 insert into empresa(nome) values('Petshop 1');
 insert into empresa(nome) values('Ração de peixe');

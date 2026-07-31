@@ -10,8 +10,8 @@
       <mat-spinner diameter="45"></mat-spinner>
     </div>
 
-    <form *ngIf="!carregando" (ngSubmit)="onSubmit()"
-    		(keydown.enter)="$event.preventDefault(); onSubmit()">
+	<form #petForm="ngForm" (ngSubmit)="onSubmit(petForm)"
+	      (keydown.enter)="$event.preventDefault(); onSubmit(petForm)">
 
       <mat-form-field appearance="outline">
 
@@ -51,6 +51,42 @@
         <mat-icon matSuffix>category</mat-icon>
 
       </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+		  <mat-label>Latitude</mat-label>
+		  <input
+		    matInput
+		    type="number"
+		    id="latitude"
+		    name="latitude"
+		    step="any"
+		    min="-90"
+		    max="90"
+		    [(ngModel)]="pet.latitude"
+		    #latitude="ngModel">
+		  <mat-icon matSuffix>explore</mat-icon>
+		  <mat-error *ngIf="latitude.invalid">
+		    Latitude deve estar entre -90 e 90
+		  </mat-error>
+		</mat-form-field>
+		
+		<mat-form-field appearance="outline">
+		  <mat-label>Longitude</mat-label>
+		  <input
+		    matInput
+		    type="number"
+		    id="longitude"
+		    name="longitude"
+		    step="any"
+		    min="-180"
+		    max="180"
+		    [(ngModel)]="pet.longitude"
+		    #longitude="ngModel">
+		  <mat-icon matSuffix>explore</mat-icon>
+		  <mat-error *ngIf="longitude.invalid">
+		    Longitude deve estar entre -180 e 180
+		  </mat-error>
+		</mat-form-field>
 
       <div
         *ngIf="mensagens"
