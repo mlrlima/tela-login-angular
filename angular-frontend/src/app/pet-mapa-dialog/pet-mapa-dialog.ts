@@ -105,8 +105,17 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
       }).addTo(this.map);
 
 	  const icone = this.qualIcon(this.data.especie);
+	  var paraPopup= this.qualImagem(this.data.especie);
 	  
-      L.marker([lat, lng], {icon: icone}).addTo(this.map).bindPopup(this.data.nome).openPopup();
+      L.marker([lat, lng], {icon: icone})
+	  .addTo(this.map)
+	  .bindPopup	  (`
+	  		    <div style="text-align:center;">
+	  		      <h3>${this.data.nome}</h3>
+	  		      <img src="${paraPopup}" style="width:150px; border-radius:8px;">
+	  		    </div>
+	  		  `)
+	  .openPopup();
 
       this.map.invalidateSize();
     }, 0);
@@ -116,6 +125,31 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
     this.map?.remove();
   }
   
+  
+  private qualImagem(especie?: string): string {
+    switch (especie) {
+      case 'CACHORRO':
+        return 'assets/CACHORRO.png';
+
+      case 'GATO':
+        return 'assets/GATO.png';
+
+      case 'PEIXE':
+        return 'assets/PEIXE.webp';
+
+      case 'ROEDOR':
+        return 'assets/ROEDOR.png';
+
+      case 'AVE':
+        return 'assets/AVE.webp';
+
+      case 'OUTRA':
+        return 'assets/OUTRA.png';
+
+      default:
+        return 'assets/default.png';
+    }
+  }
   private qualIcon(especie?: string): L.Icon {
     switch (especie) {
       case 'CACHORRO':

@@ -108,12 +108,47 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
     } else { // se nao existe, cria um novo
 	 
 		const icone = this.qualIcon(especie);
+		var paraPopup= this.qualImagem(especie);
 		
       const marcador = L.marker([lat, lng], {icon: icone}).addTo(this.map);
-      if (nome) marcador.bindPopup(nome); // quando clica aparece o nome do pet
+	  
+      if (nome) {
+		marcador.bindPopup		(`
+		    <div style="text-align:center;">
+		      <h3>${nome}</h3>
+		      <img src="${paraPopup}" style="width:250px; border-radius:8px;">
+		    </div>
+		  `); // quando clica aparece o nome e imagem
+	  }
       this.marcadores.set(id, marcador);
     }
   }
+  
+  private qualImagem(especie?: string): string {
+    switch (especie) {
+      case 'CACHORRO':
+        return 'assets/CACHORRO.png';
+
+      case 'GATO':
+        return 'assets/GATO.png';
+
+      case 'PEIXE':
+        return 'assets/PEIXE.webp';
+
+      case 'ROEDOR':
+        return 'assets/ROEDOR.png';
+
+      case 'AVE':
+        return 'assets/AVE.webp';
+
+      case 'OUTRA':
+        return 'assets/OUTRA.png';
+
+      default:
+        return 'assets/default.png';
+    }
+  }
+  
   
   private qualIcon(especie?: string): L.Icon {
     switch (especie) {
