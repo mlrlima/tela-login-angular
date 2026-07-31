@@ -43,6 +43,11 @@ public class Pet implements Serializable {
 	@Enumerated(EnumType.STRING) // Salva o nome do enum (ex: "CACHORRO") no banco
 	@Column(nullable=false)
 	private Especie especie;
+	
+	@Column
+	private Double latitude;
+	@Column
+	private Double longitude;
 
 	
     // GETTERS E SETTERS
@@ -73,6 +78,20 @@ public class Pet implements Serializable {
 	}
 	public void setEspecie(Especie especie) {
 		this.especie = especie;
+	}
+	
+	public Double getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+	
+	public Double getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
 	}
 	
     // METODOS UTILITARIOS

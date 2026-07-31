@@ -11,6 +11,7 @@ import { adminGuard } from './guards/admin-guard-guard';
 import { loginGuard } from './guards/login-guard';
 import { GestaoEmpresas } from './gestao-empresas/gestao-empresas';
 import { EmpresaForm } from './empresa-form/empresa-form';
+import { MapaPets } from './mapa-pets/mapa-pets';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -28,4 +29,6 @@ export const routes: Routes = [
 	{ path: 'empresas', component: GestaoEmpresas, canActivate: [adminGuard] },
 	{ path: 'empresas/novo', component: EmpresaForm, canActivate: [adminGuard] },
 	{ path: 'empresas/:id', component: EmpresaForm, canActivate: [adminGuard] },
+	
+	{ path: 'mapa', component: MapaPets, canActivate: [authGuard] },
 ];

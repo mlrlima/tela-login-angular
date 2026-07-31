@@ -157,8 +157,26 @@ public class PetService implements Serializable {
 				pet.getId(),
 				pet.getNome(),
 				pet.getEspecie(),
-				dono
+				dono,
+		        pet.getLatitude(), pet.getLongitude()
 		);
+	}
+	
+	@Transactional
+	public PetResponseDTO atualizarLocalizacao(Long id, Double latitude, Double longitude) {
+	    Pet alvo = petRepository.findById(id)
+	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
+
+	    Usuario usuarioLogado = logado();
+	    if (!ehDonoOuAdmin(usuarioLogado, alvo)) {
+	        throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+	    }
+
+	    alvo.setLatitude(latitude);
+	    alvo.setLongitude(longitude);
+	    
+	    Pet salvo = petRepository.save(alvo);
+	    return toDTO(salvo);
 	}
 }
 	

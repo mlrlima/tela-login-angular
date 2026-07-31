@@ -1,40 +1,43 @@
 import { Injectable } from '@angular/core';
 import { Client } from '@stomp/stompjs';
-import * as SockJS from 'sockjs-client';
+import SockJS from 'sockjs-client';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface PetLocation {
+  id: number;
+  latitude: number;
+  longitude: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class WebsocketService {
   private stompClient!: Client;
   public message$ = new BehaviorSubject<string>('');
+  public petLocation$ = new BehaviorSubject<PetLocation | null>(null);
 
   constructor() {
     this.initializeWebSocketConnection();
   }
 
   private initializeWebSocketConnection() {
-    // Generate native path using current window context location 
-    const isSecure = window.location.protocol === 'https:';
-    const baseHttpProtocol = isSecure ? 'https://' : 'http://';
-    const serverUrl = `${baseHttpProtocol}${window.location.host}/ws`;
+    const serverUrl = `${environment.apiUrl}/ws`;
 
     this.stompClient = new Client({
       webSocketFactory: () => new SockJS(serverUrl),
-      debug: (str) => console.log(str),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
     });
 
-    this.stompClient.onConnect = (frame) => {
-      console.log('Connected: ' + frame);
-      
-      // Subscribe to broker channel
+    this.stompClient.onConnect = () => {
       this.stompClient.subscribe('/topic/messages', (message) => {
+        if (message.body) this.message$.next(message.body);
+      });
+
+      this.stompClient.subscribe('/topic/pet-location', (message) => {
         if (message.body) {
-          this.message$.next(message.body);
+          this.petLocation$.next(JSON.parse(message.body) as PetLocation);
         }
       });
     };
@@ -43,9 +46,6 @@ export class WebsocketService {
   }
 
   public sendMessage(msg: string) {
-    this.stompClient.publish({
-      destination: '/app/send-message',
-      body: msg
-    });
+    this.stompClient.publish({ destination: '/app/send-message', body: msg });
   }
 }

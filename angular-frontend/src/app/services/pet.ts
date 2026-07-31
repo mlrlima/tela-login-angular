@@ -16,6 +16,9 @@ export interface Pet {
   especie: string;
   dataNascimento?: string | null; // ISO format 'YYYY-MM-DD' 
   dono?: Usuario;
+  
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -41,5 +44,9 @@ export class PetService {
 
   remover(id: number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/pet/${id}`);
+  }
+  
+  atualizarLocalizacao(id: number, latitude: number, longitude: number): Observable<Pet> {
+    return this.http.put<Pet>(`${environment.apiUrl}/pet/${id}/localizacao`, { latitude, longitude });
   }
 }

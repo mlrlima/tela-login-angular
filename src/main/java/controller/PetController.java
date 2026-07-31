@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import dto.LocalizacaoPetDTO;
 import dto.PetResponseDTO;
 import model.Pet;
 import service.PetService;
@@ -23,6 +24,22 @@ public class PetController {
 	
 	@Autowired //injeta
 	private PetService service;
+	
+	@Autowired
+	private org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+
+	
+	// ENDPOINT: PUT /pet/{id}/localizacao
+	// FUNCAO: Atualiza a posicao do pet e notifica quem esta com o mapa aberto
+	@PutMapping("/{id}/localizacao")
+	public ResponseEntity<PetResponseDTO> atualizarLocalizacao(@PathVariable Long id,
+	        			@RequestBody @jakarta.validation.Valid LocalizacaoPetDTO body) {
+
+	    PetResponseDTO atualizado = service.atualizarLocalizacao(id, body.getLatitude(), body.getLongitude());
+	    
+	    messagingTemplate.convertAndSend("/topic/pet-location", atualizado);
+	    return ResponseEntity.ok(atualizado);
+	}
 
    
 	@GetMapping("/all")
