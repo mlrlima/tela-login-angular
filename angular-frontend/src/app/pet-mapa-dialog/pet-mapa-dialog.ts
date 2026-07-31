@@ -7,9 +7,65 @@ import * as L from 'leaflet';
 
 export interface PetMapaDialogData {
   nome: string;
+  especie: string;
   latitude: number | null | undefined;
   longitude: number | null | undefined;
 }
+
+
+// Fix do ícone padrão do Leaflet, que quebra com bundlers
+const iconDefault = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconAnchor: [12, 41], // parte do icon que vai corresponder à localizaçao do marcador
+  popupAnchor: [1, -34], //ponto que o popup deve abrir em relaçao com o iconAnchor
+});
+L.Marker.prototype.options.icon = iconDefault;
+
+const iconCACHORRO = L.icon({
+  iconUrl: 'assets/CACHORRO.webp',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+const iconGATO = L.icon({
+  iconUrl: 'assets/GATO.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+const iconPEIXE = L.icon({
+  iconUrl: 'assets/PEIXE.webp',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+const iconROEDOR = L.icon({
+  iconUrl: 'assets/ROEDOR.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+const iconAVE = L.icon({
+  iconUrl: 'assets/AVE.webp',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+const iconOUTRA = L.icon({
+  iconUrl: 'assets/OUTRA.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45]
+  });
+  
+  
 
 @Component({
   selector: 'app-pet-mapa-dialog',
@@ -48,7 +104,9 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
         attribution: '&copy; OpenStreetMap contributors',
       }).addTo(this.map);
 
-      L.marker([lat, lng]).addTo(this.map).bindPopup(this.data.nome).openPopup();
+	  const icone = this.qualIcon(this.data.especie);
+	  
+      L.marker([lat, lng], {icon: icone}).addTo(this.map).bindPopup(this.data.nome).openPopup();
 
       this.map.invalidateSize();
     }, 0);
@@ -56,5 +114,30 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.map?.remove();
+  }
+  
+  private qualIcon(especie?: string): L.Icon {
+    switch (especie) {
+      case 'CACHORRO':
+        return iconCACHORRO;
+
+      case 'GATO':
+        return iconGATO;
+
+      case 'PEIXE':
+        return iconPEIXE;
+
+      case 'ROEDOR':
+        return iconROEDOR;
+
+      case 'AVE':
+        return iconAVE;
+
+      case 'OUTRA':
+        return iconOUTRA;
+
+      default:
+        return iconDefault;
+    }
   }
 }

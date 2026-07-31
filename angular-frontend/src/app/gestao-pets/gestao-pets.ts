@@ -53,6 +53,7 @@ export class GestaoPets implements OnInit {
 	      width: '400px',
 	      data: {
 	        nome: pet.nome,
+			especie: pet.especie,
 	        latitude: pet.latitude,
 	        longitude: pet.longitude,
 	      },
