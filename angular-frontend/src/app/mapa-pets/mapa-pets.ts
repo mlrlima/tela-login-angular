@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
+import 'leaflet.markercluster';
 import { Subscription } from 'rxjs';
 import { PetService, Pet } from '../services/pet';
 import { WebsocketService } from '../services/websocket-service';
@@ -65,7 +66,8 @@ const iconOUTRA = L.icon({
 })
 export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
-  private marcadores = new Map<number, L.Marker>(); // id do pet - marcador
+  //private markerClusters!: L.MarkerClusterGroup;
+  private marcadores = new Map<number, L.CircleMarker>(); // id do pet - marcador
   private sub?: Subscription;
 
   constructor(private petService: PetService, private ws: WebsocketService) {}
@@ -83,13 +85,19 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
 	//cria o mapa
 	// centro inicial = Recife
 	//zoom = 13
-    this.map = L.map('mapa-pets').setView([-8.0476, -34.877], 13);
+    this.map = L.map('mapa-pets'	, {
+	  renderer: L.canvas({ padding: 0.5 }),
+	}).setView([-8.0476, -34.877], 13);
 
 	// mapa do OpenStreetMap
 	// onde baixar os tiles do mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
     }).addTo(this.map);
+	
+	//agrupar markers
+	//this.markerClusters = L.markerClusterGroup({ chunkedLoading: true });
+	//this.map.addLayer(this.markerClusters);
 
     this.petService.listar(0, 100).subscribe((pagina) => {
       const pets: Pet[] = pagina.content ?? pagina;
@@ -110,7 +118,8 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
 		const icone = this.qualIcon(especie);
 		var paraPopup= this.qualImagem(especie);
 		
-      const marcador = L.marker([lat, lng], {icon: icone}).addTo(this.map);
+      //const marcador = L.marker([lat, lng], {icon: icone});
+	  const marcador = L.circleMarker([lat, lng], { radius: 10 }).addTo(this.map);
 	  
       if (nome) {
 		marcador.bindPopup		(`
@@ -120,6 +129,7 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
 		    </div>
 		  `); // quando clica aparece o nome e imagem
 	  }
+	  //marcador.addTo(this.markerClusters); //adiciona marcador ao cluster
       this.marcadores.set(id, marcador);
     }
   }

@@ -17,6 +17,10 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+			"allowedCommonJsDependencies": [
+			  "leaflet",
+			  "leaflet.markercluster"
+			],
             "browser": "src/main.ts",
 			"polyfills": [
 			  "zone.js",
@@ -37,7 +41,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1.05MB"
+                  "maximumError": "1.3MB"
                 },
                 {
                   "type": "anyComponentStyle",
