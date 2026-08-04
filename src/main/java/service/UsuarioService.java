@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -143,7 +144,10 @@ public class UsuarioService implements Serializable {
     // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
     //       Se senha vier em branco, mantem a senha atual
 	@Transactional
-	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
+	@Caching(evict = { //update os caches
+		    @CacheEvict(value = "empresas", allEntries = true),
+		    @CacheEvict(value = "usuarios", allEntries = true) //update o cache da empresa caso o usuario tenha mudado o email
+		})
 	public UsuarioResponseDTO updateUsuario(Usuario usuario) {
 		Usuario usuarioLogado = logado();
 		
@@ -169,7 +173,8 @@ public class UsuarioService implements Serializable {
 	        usuario.setSenha(encryptedPassword);
 		}
 		
-		//nao salva empresas pois isso ja eh feito em empresaRepository
+		vincularEmpresasExistentes(usuario);
+		
 		Usuario salvo = usuarioRepository.save(usuario);
 		return toDTO(salvo);
 	}
@@ -178,7 +183,10 @@ public class UsuarioService implements Serializable {
     // FUNCAO: Remove um usuario (e seus pets)
     // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
-	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
+	@Caching(evict = { //update os caches
+		    @CacheEvict(value = "empresas", allEntries = true),
+		    @CacheEvict(value = "usuarios", allEntries = true)
+		})
     public void deleteUsuario(Long id) {
 		 Usuario alvo = usuarioRepository.findById(id)
 	        		.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado"));
