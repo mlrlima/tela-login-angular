@@ -66,7 +66,7 @@ const iconOUTRA = L.icon({
 })
 export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
-  //private markerClusters!: L.MarkerClusterGroup;
+  private markerClusters!: L.MarkerClusterGroup;
   private marcadores = new Map<number, L.CircleMarker>(); // id do pet - marcador
   private sub?: Subscription;
 
@@ -82,12 +82,11 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() { // depois do html ja renderizado
 	
-	//cria o mapa
-	// centro inicial = Recife
-	//zoom = 13
-    this.map = L.map('mapa-pets'	, {
+	// inicializa o mapa
+    this.map = L.map('mapa-pets', { //componente do html que será o mapa
+		minZoom: 1,
 	  renderer: L.canvas({ padding: 0.5 }),
-	}).setView([-8.0476, -34.877], 13);
+	}).setView([-8.0476, -34.877], 13); // Recife, zoom = 13
 
 	// mapa do OpenStreetMap
 	// onde baixar os tiles do mapa
@@ -96,8 +95,9 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
     }).addTo(this.map);
 	
 	//agrupar markers
-	//this.markerClusters = L.markerClusterGroup({ chunkedLoading: true });
-	//this.map.addLayer(this.markerClusters);
+	// window. resolve o problema do "is not a function"
+	this.markerClusters = window.L.markerClusterGroup({ chunkedLoading: true });
+	this.map.addLayer(this.markerClusters);
 
     this.petService.listar(0, 100).subscribe((pagina) => {
       const pets: Pet[] = pagina.content ?? pagina;
@@ -129,7 +129,7 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
 		    </div>
 		  `); // quando clica aparece o nome e imagem
 	  }
-	  //marcador.addTo(this.markerClusters); //adiciona marcador ao cluster
+	  marcador.addTo(this.markerClusters); //adiciona marcador ao cluster
       this.marcadores.set(id, marcador);
     }
   }
