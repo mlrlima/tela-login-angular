@@ -18,7 +18,7 @@ export class WebsocketService {
   
   // objeto do RxJS que guarda um valor atual e avisa todos os inscritos quando esse valor muda
   public message$ = new BehaviorSubject<string>('');
-  public petLocation$ = new BehaviorSubject<PetLocation | null>(null);
+  public petLocationBatch$ = new BehaviorSubject<PetLocation[]>([]);
 
   constructor() {
     this.initializeWebSocketConnection();
@@ -42,9 +42,9 @@ export class WebsocketService {
       });
 
 	  //recebe localizacao do pet
-      this.stompClient.subscribe('/topic/pet-location', (message) => { // ouve por aqui
+      this.stompClient.subscribe('/topic/pet-location-lote', (message) => { // ouve por aqui
         if (message.body) { //transforma a message em json
-          this.petLocation$.next(JSON.parse(message.body) as PetLocation);
+          this.petLocationBatch$.next(JSON.parse(message.body) as PetLocation[]);
         }
       });
     };

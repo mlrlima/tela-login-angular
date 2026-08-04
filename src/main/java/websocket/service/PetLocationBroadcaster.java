@@ -22,7 +22,7 @@ public class PetLocationBroadcaster {
     @Scheduled(fixedRate = 500) // a cada 500ms
     public void enviarLote() {
         Map<Long, PetResponseDTO> pendentes = buffer.drenar();
-        if (pendentes.isEmpty()) return; // nada mudou, nao manda nada a toa
+        if (pendentes.isEmpty()) return; // se nada mudou, nao envia
 
         Collection<PetResponseDTO> lote = pendentes.values();
         messagingTemplate.convertAndSend("/topic/pet-location-lote", lote);

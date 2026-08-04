@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 //DESCRICAO: Classe principal do Spring Boot
 //FUNCAO: Inicializa a aplicacao e configura o contexto
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EntityScan("model") // Escaneia as entidades JPA no pacote model
 @EnableJpaRepositories(basePackages = "repository") // Habilita e escaneia os repositorios JPA
+@EnableScheduling //pra batch/lote as localizacoes pro mapa
 public class Application extends SpringBootServletInitializer {
 	// Extende SpringBootServletInitializer para permitir deploy em WAR (Tomcat externo)
 

@@ -14,6 +14,7 @@ import dto.PetResponseDTO;
 import jakarta.validation.Valid;
 import model.Pet;
 import service.PetService;
+import websocket.service.PetLocationBuffer;
 
 //CLASSE: PetController
 //DESCRICAO: Endpoints para gerenciamento de pets (CRUD)
@@ -26,20 +27,19 @@ public class PetController {
 	
 	@Autowired //injeta
 	private PetService service;
-	
-	@Autowired
-	private SimpMessagingTemplate messagingTemplate;
 
+	@Autowired
+	private PetLocationBuffer locationBuffer;
 	
 	// ENDPOINT: PUT /pet/{id}/localizacao
 	// FUNCAO: Atualiza a posicao do pet e notifica quem esta com o mapa aberto
 	@PutMapping("/{id}/localizacao")
-	public ResponseEntity<PetResponseDTO> atualizarLocalizacao(@PathVariable Long id,
-	        			@RequestBody @Valid LocalizacaoPetDTO body) {
+	public ResponseEntity<PetResponseDTO> atualizarLocalizacao(
+	        @PathVariable Long id,
+	        @RequestBody @jakarta.validation.Valid LocalizacaoPetDTO body) {
 
 	    PetResponseDTO atualizado = service.atualizarLocalizacao(id, body.getLatitude(), body.getLongitude());
-	    
-	    messagingTemplate.convertAndSend("/topic/pet-location", atualizado);
+	    locationBuffer.adicionar(atualizado);   // so acumula; quem manda de fato eh o @Scheduled
 	    return ResponseEntity.ok(atualizado);
 	}
 

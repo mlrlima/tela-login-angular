@@ -10,16 +10,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class PetLocationBuffer {
 
-    // Chave = id do pet -> garante que so a ULTIMA posicao de cada pet
-    // fica no lote, mesmo que ele tenha mandado 10 updates em 500ms
+    // Chave = id do pet -> so a ULTIMA posicao de cada pet fica no lote,
+    // mesmo que ele tenha mandado varios updates no mesmo intervalo
     private final Map<Long, PetResponseDTO> pendentes = new ConcurrentHashMap<>();
 
     public void adicionar(PetResponseDTO pet) {
         pendentes.put(pet.getId(), pet);
     }
 
-    // METODO: drenar()
-    // FUNCAO: Retorna tudo que esta pendente e limpa o buffer, de forma atomica
+
+    // Retorna tudo que esta pendente e limpa o buffer, de forma atomica
     public Map<Long, PetResponseDTO> drenar() {
         Map<Long, PetResponseDTO> copia = new ConcurrentHashMap<>(pendentes);
         pendentes.clear();

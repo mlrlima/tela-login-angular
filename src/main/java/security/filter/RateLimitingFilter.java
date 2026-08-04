@@ -58,7 +58,7 @@ public class RateLimitingFilter extends OncePerRequestFilter{
         // só aplica rate limit nas rotas da API; deixa passar direto
         // arquivos estáticos, index.html e o fallback da SPA
         
-        System.out.println(path);
+        //System.out.println(path);
         
         if(path.startsWith("/tela-login-angular/auth")
         		|| path.startsWith("/tela-login-angular/empresa")

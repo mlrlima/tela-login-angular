@@ -73,10 +73,10 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
   constructor(private petService: PetService, private ws: WebsocketService) {}
 
   ngOnInit() {
-    this.sub = this.ws.petLocation$.subscribe((loc) => { //ouve o BehaviourSubject
+    this.sub = this.ws.petLocationBatch$.subscribe((lote) => { //ouve o BehaviourSubject
 		
 		//se chegar uma localizacao nova
-      if (loc) this.atualizarMarcador(loc.id, loc.latitude, loc.longitude, loc.nome, loc.especie);
+      lote.forEach((loc) => this.atualizarMarcador(loc.id, loc.latitude, loc.longitude, loc.nome, loc.especie));
     });
   }
 
