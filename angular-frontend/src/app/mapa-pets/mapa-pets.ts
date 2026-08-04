@@ -76,7 +76,7 @@ export class MapaPets implements OnInit, AfterViewInit, OnDestroy {
     this.sub = this.ws.petLocation$.subscribe((loc) => { //ouve o BehaviourSubject
 		
 		//se chegar uma localizacao nova
-      if (loc) this.atualizarMarcador(loc.id, loc.latitude, loc.longitude);
+      if (loc) this.atualizarMarcador(loc.id, loc.latitude, loc.longitude, loc.nome, loc.especie);
     });
   }
 

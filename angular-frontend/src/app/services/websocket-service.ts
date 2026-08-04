@@ -8,6 +8,8 @@ export interface PetLocation {
   id: number;
   latitude: number;
   longitude: number;
+  nome: string;
+  especie: string;
 }
 
 @Injectable({ providedIn: 'root' }) //websocket inicia sozinho
