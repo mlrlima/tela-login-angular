@@ -129,7 +129,7 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
   private qualImagem(especie?: string): string {
     switch (especie) {
       case 'CACHORRO':
-        return 'assets/CACHORRO.png';
+        return 'assets/CACHORRO.webp';
 
       case 'GATO':
         return 'assets/GATO.png';
@@ -143,11 +143,8 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
       case 'AVE':
         return 'assets/AVE.webp';
 
-      case 'OUTRA':
-        return 'assets/OUTRA.png';
-
       default:
-        return 'assets/default.png';
+        return 'assets/OUTRA.png';
     }
   }
   private qualIcon(especie?: string): L.Icon {
@@ -167,11 +164,8 @@ export class PetMapaDialog implements AfterViewInit, OnDestroy {
       case 'AVE':
         return iconAVE;
 
-      case 'OUTRA':
-        return iconOUTRA;
-
       default:
-        return iconDefault;
+        return iconOUTRA;
     }
   }
 }
