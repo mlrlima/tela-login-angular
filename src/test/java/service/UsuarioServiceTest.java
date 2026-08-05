@@ -1,44 +1,64 @@
 package service;
-
+ 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
+ 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
-
+import java.util.Set;
+ 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+ 
 import dto.UsuarioResponseDTO;
-import jakarta.servlet.http.HttpServletRequest;
+import exception.GlobalExceptionHandler;
 import model.Empresa;
 import model.Role;
 import model.Usuario;
+import repository.EmpresaRepository;
 import repository.UsuarioRepository;
+
+// OBS: as anotacoes de cache (@Cacheable, @CacheEvict, @Caching) so funcionam
+// atraves do proxy do Spring, entao nao entram nesses testes unitarios
+// (pra testar cache de verdade seria necessario um @SpringBootTest / contexto real)
 
 @ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest{
 	
-	/*
-	
+
 	@Mock
 	private UsuarioRepository usuarioRepository;
+	@Mock
+	private EmpresaRepository empresaRepository;
  
+	@Mock
+	private PetService petService;
 	@InjectMocks
 	private UsuarioService usuarioService;
  
 	@Mock
-	private HttpServletRequest request;
-	
+	private SecurityContext securityContext;
+ 
 	@Mock
-	private PetService petService;
-	
+	private Authentication authentication;
+ 
+	private MockedStatic<SecurityContextHolder> securityContextHolderMock;
+ 
 	private Usuario admin;
 	private Usuario userComum;
  
@@ -52,163 +72,320 @@ class UsuarioServiceTest{
 		admin.setRole(Role.ADMIN);
 		admin.setEmpresas(new HashSet<Empresa>());
  
-		//cria USER comum 
+		//cria USER comum
 		userComum = new Usuario();
 		userComum.setId(2L);
 		userComum.setEmail("user@teste.com");
 		userComum.setSenha("4321");
 		userComum.setRole(Role.USER);
 		userComum.setEmpresas(new HashSet<Empresa>());
+ 
+		// mocka o SecurityContextHolder estatico pra sempre devolver o securityContext mockado
+		securityContextHolderMock = mockStatic(SecurityContextHolder.class);
+		securityContextHolderMock.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+	}
+	
+	@AfterEach
+	void tearDown() {
+		securityContextHolderMock.close();
 	}
 	
 	
-	//List<UsuarioResponseDTO> getAllUsuarios(HttpServletRequest request)
- 
+	// simula um usuario logado no contexto de seguranca
+	private void logarComo(Usuario usuario) {
+		when(securityContext.getAuthentication()).thenReturn(authentication);
+		when(authentication.isAuthenticated()).thenReturn(true);
+		when(authentication.getPrincipal()).thenReturn(usuario);
+	}
+	
+	// simula ninguem logado (sem token / nao autenticado)
+	private void semUsuarioLogado() {
+		when(securityContext.getAuthentication()).thenReturn(null);
+	}
+	
+	
+	// boolean isAdminLogado() ======================================
+	 
 	@Test
-	void admin_retorna_todos_os_usuarios() {
+	void isAdminLogado_retorna_true_para_admin() {
 		//arrange
-		
-		// admin esta logado
-		when(request.getAttribute("usuarioLogado")).thenReturn(admin);
-		//a lista retorna todos os usuarios
-		when(usuarioRepository.findAll()).thenReturn(Arrays.asList(admin, userComum));
-		
+		logarComo(admin);
+ 
+		//act & assert
+		assertTrue(usuarioService.isAdminLogado());
+	}
+	
+	@Test
+	void isAdminLogado_retorna_false_para_user_comum() {
+		//arrange
+		logarComo(userComum);
+ 
+		//act & assert
+		assertFalse(usuarioService.isAdminLogado());
+	}
+	
+	@Test
+	void isAdminLogado_retorna_false_quando_ninguem_esta_logado() {
+		//arrange
+		semUsuarioLogado();
+ 
+		//act & assert
+		assertFalse(usuarioService.isAdminLogado());
+	}
+	
+	
+	// Page<UsuarioResponseDTO> getAllUsuarios(Pageable pageable) ==============
+	
+	@Test
+	void admin_retorna_todos_os_usuarios_paginado() {
+		//arrange
+		logarComo(admin);
+		Pageable pageable = PageRequest.of(0, 10);
+		when(usuarioRepository.findAll(pageable))
+				.thenReturn(new PageImpl<>(Arrays.asList(admin, userComum), pageable, 2));
+ 
 		//act
-		
-		// resultado real
-		List<UsuarioResponseDTO> resultado = usuarioService.getAllUsuarios(request);
-		
+		Page<UsuarioResponseDTO> resultado = usuarioService.getAllUsuarios(pageable);
+ 
 		//assert
 		
-		//verifica o tamanho da lista
-		assertEquals(2, resultado.size());
-		//verifica se os dois usuarios da lista estao corretos
-		assertEquals(admin.getId(), resultado.get(0).getId());
-		assertEquals(userComum.getId(), resultado.get(1).getId());
-		//verifica se o metodo foi chamado durante a execucao
-		verify(usuarioRepository).findAll();
+		//qtd de usuarios retornados
+		assertEquals(2, resultado.getContent().size()); 
+		//verifica se cada usuario retornado esta correto
+		assertEquals(admin.getId(), resultado.getContent().get(0).getId());
+		assertEquals(userComum.getId(), resultado.getContent().get(1).getId());
+		//verifica se o metodo foi chamado
+		verify(usuarioRepository).findAll(pageable);
 	}
 	
 	@Test
-	void user_retorna_apenas_si_mesmo() {
-		//ARRANGE
-		
-		//userComum esta logado
-		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
+	void user_retorna_apenas_si_mesmo_paginado() {
+		//arrange
+		logarComo(userComum);
+		Pageable pageable = PageRequest.of(0, 10);
 		when(usuarioRepository.findById(userComum.getId())).thenReturn(Optional.of(userComum));
+ 
+		//act
+		Page<UsuarioResponseDTO> resultado = usuarioService.getAllUsuarios(pageable);
+ 
+		//assert
 		
-		//ACT
-		
-		// resultado real
-		List<UsuarioResponseDTO> resultado = usuarioService.getAllUsuarios(request);
-		
-		//ASSERT
-		
-		//verifica o tamanho da lista
-		assertEquals(1, resultado.size());
-		//verifica se o usuario retornado eh ele mesmo
-		assertEquals(userComum.getId(), resultado.get(0).getId());
-		verify(usuarioRepository).findById(userComum.getId());
-		//verifica se a funcao NAO foi chamada, pois
-		//ela so eh chamada se o logado for ADMIN
-		verify(usuarioRepository, never()).findAll();
+		//deve retornar apenas um usuario, ele mesmo
+		assertEquals(1, resultado.getContent().size());
+		assertEquals(userComum.getId(), resultado.getContent().get(0).getId());
+		//verifica se o findAll NAO foi chamado
+		verify(usuarioRepository, never()).findAll(any(Pageable.class));
+	}
+	
+	@Test
+	void getAllUsuarios_lanca_excecao_quando_usuario_logado_nao_existe_mais() {
+		//arrange
+		logarComo(userComum);
+		Pageable pageable = PageRequest.of(0, 10);
+		when(usuarioRepository.findById(userComum.getId())).thenReturn(Optional.empty());
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
+				() -> usuarioService.getAllUsuarios(pageable));
 	}
 	
 	
-	// UsuarioResponseDTO createUsuario(Usuario usuario)
+	// UsuarioResponseDTO createUsuario(Usuario usuario) ========================
 	
 	@Test
 	void salva_com_role_USER() {
 		//arrange
-		
 		Usuario novo = new Usuario();
 		novo.setId(99L); // deve ser ignorado / zerado pelo service
 		novo.setEmail("novo@teste.com");
 		novo.setSenha("senha");
 		novo.setRole(Role.ADMIN); // tentando burlar, deve virar USER
 		novo.setEmpresas(new HashSet<Empresa>());
-		
-		//inv significa Invocation (a chamada do método).
-		//Ele contém informações sobre a execução, como:
-		//quais argumentos foram passados;
-		//qual método foi chamado; etc
-		when(usuarioRepository.save(any(Usuario.class)))
-				 .thenAnswer(inv -> inv.getArgument(0)); //retorna apenas um argumento [0]
-	
+ 
+		when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+ 
 		//act
-		
 		UsuarioResponseDTO resultado = usuarioService.createUsuario(novo);
-		
+ 
 		//assert
 		
-		assertEquals(Role.USER, novo.getRole()); //verifica se a role eh USER
-		assertNull(novo.getId()); //a funcao deve NULL o id
+		//verifica se a role eh USER
+		assertEquals(Role.USER, novo.getRole()); 
+		//a funcao deve zerar o id
+		assertNull(novo.getId()); 
+		
 		assertEquals("novo@teste.com", resultado.getEmail());
+		
 		//verifica se a funcao foi chamada
 		verify(usuarioRepository).save(novo);
+		
+		// lista de empresas vazia
+		verify(empresaRepository, never()).findAllById(anySet()); 
 	}
 	
-	
-	//UsuarioResponseDTO getUsuarioById(Long id, HttpServletRequest request)
-	
 	@Test
-	void admin_retorna_qualquer_user() {
+	void createUsuario_vincula_empresas_existentes() {
 		//arrange
-		
-		when(request.getAttribute("usuarioLogado")).thenReturn(admin);
-		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
-		//pois o reporitory retorna Optional<Usuario>
+		Empresa empresaStub = new Empresa();
+		empresaStub.setId(10L); // vem do JSON so com o id
+ 
+		Empresa empresaGerenciada = new Empresa();
+		empresaGerenciada.setId(10L);
+		empresaGerenciada.setNome("Petshop Central");
+ 
+		Usuario novo = new Usuario();
+		novo.setEmail("novo@teste.com");
+		novo.setSenha("senha");
+		Set<Empresa> empresasDoJson = new HashSet<>();
+		empresasDoJson.add(empresaStub);
+		novo.setEmpresas(empresasDoJson);
+ 
+		when(empresaRepository.findAllById(anySet())).thenReturn(Arrays.asList(empresaGerenciada));
+		when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
  
 		//act
-		UsuarioResponseDTO resultado = usuarioService.getUsuarioById(2L, request);
+		usuarioService.createUsuario(novo);
+ 
+		//assert
+		
+		//verifica se a lista de empresas tem apenas 1
+		assertEquals(1, novo.getEmpresas().size());
+		// verifica se a empresa rertornada esta correta
+		assertTrue(novo.getEmpresas().contains(empresaGerenciada));
+	}
+
+	
+	// Usuario buscarUsuarioNoCache(Long id) ====================================
+	
+	@Test
+	void buscarUsuarioNoCache_retorna_usuario_quando_encontrado() {
+		//arrange
+		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
+ 
+		//act
+		Usuario resultado = usuarioService.buscarUsuarioNoCache(2L);
  
 		//assert
 		assertEquals(userComum.getId(), resultado.getId());
 	}
 	
 	@Test
-	void user_retorna_si_mesmo() {
+	void buscarUsuarioNoCache_lanca_excecao_quando_nao_encontrado() {
 		//arrange
-		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
-		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
- 
-		//act
-		UsuarioResponseDTO resultado = usuarioService.getUsuarioById(2L, request);
-		
-		//assert
-		assertEquals(userComum.getId(), resultado.getId());
-	}
-	
-	@Test
-	void user_nao_retorna_outro_usuario() {
-		//arrange
-		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
-		when(usuarioRepository.findById(1L)).thenReturn(Optional.of(admin));
-		//1L eh o admin
- 
-		//act & assert
-		assertThrows(RuntimeException.class,
-				() -> usuarioService.getUsuarioById(1L, request));
-	}
-	
-	@Test
-	void throw_exception_usuario_nao_encontrado() {
-		//arrange
-		when(request.getAttribute("usuarioLogado")).thenReturn(admin);
 		when(usuarioRepository.findById(999L)).thenReturn(Optional.empty());
  
 		//act & assert
-		assertThrows(RuntimeException.class,
-				() -> usuarioService.getUsuarioById(999L, request));
+		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
+				() -> usuarioService.buscarUsuarioNoCache(999L));
 	}
 	
-	// Usuario getUsuarioByEmailAndSenha(String email, String senha)
+	
+	// UsuarioResponseDTO getUsuarioById(Long id) ===============================
 	
 	@Test
-	void retorna_usuario(){
-		//arrangr
+	void admin_retorna_qualquer_user_por_id() {
+		//arrange
+		logarComo(admin);
+		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
+ 
+		//act
+		UsuarioResponseDTO resultado = usuarioService.getUsuarioById(2L);
+ 
+		//assert
+		assertEquals(userComum.getId(), resultado.getId());
+	}
+
+	@Test
+	void user_retorna_si_mesmo_por_id() {
+		//arrange
+		logarComo(userComum);
+		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
+ 
+		//act
+		UsuarioResponseDTO resultado = usuarioService.getUsuarioById(2L);
+ 
+		//assert
+		assertEquals(userComum.getId(), resultado.getId());
+	}
+	
+	@Test
+	void user_nao_retorna_outro_usuario_por_id() {
+		//arrange
+		logarComo(userComum);
+		when(usuarioRepository.findById(1L)).thenReturn(Optional.of(admin));
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.UnauthorizedException.class,
+				() -> usuarioService.getUsuarioById(1L));
+	}
+	
+	@Test
+	void getUsuarioById_lanca_excecao_quando_nao_encontrado() {
+		//arrange
+		when(usuarioRepository.findById(999L)).thenReturn(Optional.empty());
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
+				() -> usuarioService.getUsuarioById(999L));
+	}
+
+	// UsuarioRelacionadoDTO getUsuarioByEmail(String email) =====================
+	
+	@Test
+	void admin_busca_qualquer_usuario_por_email() {
+		//arrange
+		logarComo(admin);
+		when(usuarioRepository.findByEmail("user@teste.com")).thenReturn(userComum);
+ 
+		//act
+		var resultado = usuarioService.getUsuarioByEmail("user@teste.com");
+ 
+		//assert
+		assertEquals(userComum.getId(), resultado.getId());
+	}
+
+	@Test
+	void user_busca_a_si_mesmo_por_email() {
+		//arrange
+		logarComo(userComum);
+		when(usuarioRepository.findByEmail("user@teste.com")).thenReturn(userComum);
+ 
+		//act
+		var resultado = usuarioService.getUsuarioByEmail("user@teste.com");
+ 
+		//assert
+		assertEquals(userComum.getId(), resultado.getId());
+	}
+
+	@Test
+	void user_nao_busca_outro_usuario_por_email() {
+		//arrange
+		logarComo(userComum);
 		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(admin);
-		 
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.UnauthorizedException.class,
+				() -> usuarioService.getUsuarioByEmail("admin@teste.com"));
+	}
+	
+	@Test
+	void getUsuarioByEmail_lanca_excecao_quando_nao_encontrado() {
+		//arrange
+		when(usuarioRepository.findByEmail("naoexiste@teste.com")).thenReturn(null);
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
+				() -> usuarioService.getUsuarioByEmail("naoexiste@teste.com"));
+	}
+	
+	
+	// Usuario getUsuarioByEmailAndSenha(String email, String senha) =============
+	
+	@Test
+	void login_com_credenciais_corretas_retorna_usuario() {
+		//arrange
+		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(admin);
+ 
 		//act
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("admin@teste.com", "1234");
  
@@ -218,44 +395,49 @@ class UsuarioServiceTest{
 	}
 	
 	@Test
-	void senha_incorreta_retorna_null() {
+	void login_com_senha_errada_retorna_null() {
+		//arrange
 		when(usuarioRepository.findByEmail("admin@teste.com")).thenReturn(admin);
-		 
+ 
+		//act
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("admin@teste.com", "senhaErrada");
  
+		//assert
 		assertNull(resultado);
 	}
 	
 	@Test
-	void email_inexistente_retorna_null() {
+	void login_com_email_inexistente_retorna_null() {
+		//arrange
 		when(usuarioRepository.findByEmail("naoexiste@teste.com")).thenReturn(null);
  
+		//act
 		Usuario resultado = usuarioService.getUsuarioByEmailAndSenha("naoexiste@teste.com", "1234");
  
+		//assert
 		assertNull(resultado);
 	}
 	
 	
-	//UsuarioResponseDTO updateUsuario(Usuario usuario, HttpServletRequest request)
+	// UsuarioResponseDTO updateUsuario(Usuario usuario)==========================
 	
 	@Test
 	void senha_vazia_mantem_senha_atual() {
 		//arrange
-		when(request.getAttribute("usuarioLogado")).thenReturn(admin);
+		logarComo(admin);
  
-		// update userComum
 		Usuario alteracao = new Usuario();
 		alteracao.setId(2L);
 		alteracao.setEmail("user_editado@teste.com");
 		alteracao.setSenha(""); // senha em branco
 		alteracao.setRole(Role.USER);
 		alteracao.setEmpresas(new HashSet<Empresa>());
-		
+ 
 		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
 		when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
  
 		//act
-		usuarioService.updateUsuario(alteracao, request);
+		usuarioService.updateUsuario(alteracao);
  
 		//assert
 		assertEquals(userComum.getSenha(), alteracao.getSenha());
@@ -263,47 +445,108 @@ class UsuarioServiceTest{
 	}
 	
 	@Test
-	void user_nao_update_outro_usuario() {
+	void senha_nova_muito_curta_lanca_excecao() {
 		//arrange
-		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
+		logarComo(admin);
+ 
+		Usuario alteracao = new Usuario();
+		alteracao.setId(2L);
+		alteracao.setSenha("123"); // menos de 4 caracteres
+		alteracao.setEmpresas(new HashSet<Empresa>());
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.UnauthorizedException.class,
+				() -> usuarioService.updateUsuario(alteracao));
+ 
+		verify(usuarioRepository, never()).save(any());
+	}
+
+	@Test
+	void senha_nova_valida_eh_criptografada_com_bcrypt() {
+		//arrange
+		logarComo(admin);
+ 
+		Usuario alteracao = new Usuario();
+		alteracao.setId(2L);
+		alteracao.setSenha("novaSenha123");
+		alteracao.setEmpresas(new HashSet<Empresa>());
+ 
+		when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+ 
+		//act
+		usuarioService.updateUsuario(alteracao);
+ 
+		//assert
+		
+		// nao pode ficar em texto puro
+		assertNotEquals("novaSenha123", alteracao.getSenha());
+		// verifica se a senha criptografada eh a mesma
+		assertTrue(new BCryptPasswordEncoder().matches("novaSenha123", alteracao.getSenha()));
+		// nao precisa buscar senha antiga
+		verify(usuarioRepository, never()).findById(any()); 
+	}
+	
+	@Test
+	void user_nao_atualiza_outro_usuario() {
+		//arrange
+		logarComo(userComum);
  
 		Usuario alteracao = new Usuario();
 		alteracao.setId(1L); // tentando editar o admin
-		alteracao.setSenha("qualquer");
+		alteracao.setSenha("qualquer123");
  
 		//act & assert
-		
-		assertThrows(RuntimeException.class,
-				() -> usuarioService.updateUsuario(alteracao, request));
+		assertThrows(GlobalExceptionHandler.UnauthorizedException.class,
+				() -> usuarioService.updateUsuario(alteracao));
  
 		verify(usuarioRepository, never()).save(any());
 	}
 	
 	
-	//void deleteUsuario(Long id, HttpServletRequest request)
+	// void deleteUsuario(Long id) ===============================================
 	
 	@Test
 	void admin_deleta_qualquer_usuario() {
-		when(request.getAttribute("usuarioLogado")).thenReturn(admin);
+		//arrange
 		when(usuarioRepository.findById(2L)).thenReturn(Optional.of(userComum));
+		logarComo(admin);
  
-		usuarioService.deleteUsuario(2L, request);
+		//act
+		usuarioService.deleteUsuario(2L);
  
+		//assert
+		
+		//verifica se a funcao de deletar pets do usuario foi chamada
 		verify(petService).deletePetsUsuario(userComum);
 		verify(usuarioRepository).delete(userComum);
 	}
-	
+
 	@Test
 	void user_nao_deleta_outro_usuario() {
-		when(request.getAttribute("usuarioLogado")).thenReturn(userComum);
+		//arrange
 		when(usuarioRepository.findById(1L)).thenReturn(Optional.of(admin));
+		logarComo(userComum);
  
-		assertThrows(RuntimeException.class,
-				() -> usuarioService.deleteUsuario(1L, request));
+		//act & assert
+		assertThrows(GlobalExceptionHandler.UnauthorizedException.class,
+				() -> usuarioService.deleteUsuario(1L));
  
 		verify(petService, never()).deletePetsUsuario(any());
 		verify(usuarioRepository, never()).delete(any());
 	}
+
+	@Test
+	void deleteUsuario_lanca_excecao_quando_nao_encontrado() {
+		//arrange
+		when(usuarioRepository.findById(999L)).thenReturn(Optional.empty());
+ 
+		//act & assert
+		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
+				() -> usuarioService.deleteUsuario(999L));
+ 
+		verify(usuarioRepository, never()).delete(any());
+	}
+
+
 	
-	*/
 }
