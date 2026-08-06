@@ -51,8 +51,4 @@ export class WebsocketService {
 
     this.stompClient.activate();
   }
-
-  public sendMessage(msg: string) {
-    this.stompClient.publish({ destination: '/app/send-message', body: msg });
-  }
 }

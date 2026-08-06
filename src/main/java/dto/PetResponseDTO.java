@@ -1,5 +1,7 @@
 package dto;
 
+import java.time.LocalDate;
+
 import model.Especie;
 
 public class PetResponseDTO {
@@ -10,6 +12,9 @@ public class PetResponseDTO {
     
     private Double latitude;
     private Double longitude;
+    
+    private LocalDate dataNascimento;
+    private int peso; //em gramas
 
     public PetResponseDTO(Long id, String nome, Especie especie, DonoDTO dono,
     					 	Double latitude, Double longitude) {
@@ -28,4 +33,7 @@ public class PetResponseDTO {
     
     public Double getLatitude() { return latitude; }
     public Double getLongitude() { return longitude; }
+    
+    public LocalDate getDataNascimento() { return dataNascimento; }
+    public int getPeso(){return peso;}
 }

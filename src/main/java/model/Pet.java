@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -15,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 
 @Entity // Indica que esta classe eh uma entidade JPA
@@ -48,6 +50,13 @@ public class Pet implements Serializable {
 	private Double latitude;
 	@Column
 	private Double longitude;
+	
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
+    
+   // @PositiveOrZero // 0 ou mais
+   // @Column
+   // private int peso =0; //em gramas 
 
 	
     // GETTERS E SETTERS
@@ -93,6 +102,22 @@ public class Pet implements Serializable {
 	public void setLongitude(Double longitude) {
 		this.longitude = longitude;
 	}
+	
+	public LocalDate getDataNascimento() {
+		return dataNascimento;
+	}
+	public void setDataNascimento(LocalDate dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+	
+	/*
+	public int getPeso() {
+		return peso;
+	}
+	public void setPeso(int peso) {
+		this.peso = peso;
+	}
+	*/
 	
     // METODOS UTILITARIOS
 	

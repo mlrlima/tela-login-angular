@@ -7,21 +7,21 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
-@EnableWebSocketMessageBroker
+@EnableWebSocketMessageBroker //Spring cria:
+// servidor WebSocket, broker, suporte ao STOMP
 public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
+    public void configureMessageBroker(MessageBrokerRegistry config) { //recebe mensagens e envia para quem estiver inscrito
         // Enforce a simple memory-based message broker for clients to subscribe to
-        config.enableSimpleBroker("/topic");
-        // Prefix for messages bound for methods annotated with @MessageMapping
-        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/topic"); //envia para os clientes
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // The endpoint clients connect to initially
         registry.addEndpoint("/ws").withSockJS();
+        //SockJS é uma biblioteca que simula WebSocket quando o navegador ou a rede não suportam WebSocket nativamente.
     }
 	
 }
