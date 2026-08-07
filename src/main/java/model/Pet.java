@@ -51,12 +51,12 @@ public class Pet implements Serializable {
 	@Column
 	private Double longitude;
 	
-    @Column(name = "data_nascimento")
+    @Column(name = "data_nascimento", nullable=true)
     private LocalDate dataNascimento;
     
-   // @PositiveOrZero // 0 ou mais
-   // @Column
-   // private int peso =0; //em gramas 
+   @PositiveOrZero // 0 ou mais
+   @Column(nullable = true, columnDefinition = "int default 0")
+   private int peso =0; //em gramas 
 
 	
     // GETTERS E SETTERS
@@ -110,14 +110,12 @@ public class Pet implements Serializable {
 		this.dataNascimento = dataNascimento;
 	}
 	
-	/*
 	public int getPeso() {
 		return peso;
 	}
 	public void setPeso(int peso) {
 		this.peso = peso;
 	}
-	*/
 	
     // METODOS UTILITARIOS
 	

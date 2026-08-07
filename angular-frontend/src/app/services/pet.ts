@@ -14,11 +14,13 @@ export interface Pet {
   id?: number;
   nome: string;
   especie: string;
-  dataNascimento?: string | null; // ISO format 'YYYY-MM-DD' 
   dono?: Usuario;
   
   latitude?: number | null;
   longitude?: number | null;
+  
+  dataNascimento?: string; // vem como string ISO (LocalDate) do backend
+  peso?: number; // em gramas
 }
 
 @Injectable({ providedIn: 'root' })

@@ -53,6 +53,36 @@
       </mat-form-field>
       
       <mat-form-field appearance="outline">
+		  <mat-label>Data de Nascimento</mat-label>
+		  <input
+		    matInput
+		    id="dataNascimento"
+		    name="dataNascimento"
+		    [matDatepicker]="picker"
+		    [(ngModel)]="dataNascimentoDate"
+		    [max]="hoje">
+		  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+		  <mat-datepicker #picker></mat-datepicker>
+		</mat-form-field>
+		
+		<mat-form-field appearance="outline">
+		  <mat-label>Peso (gramas)</mat-label>
+		  <input
+		    matInput
+		    type="number"
+		    id="peso"
+		    name="peso"
+		    min="0"
+		    step="1"
+		    [(ngModel)]="pet.peso"
+		    #peso="ngModel">
+		  <mat-icon matSuffix>scale</mat-icon>
+		  <mat-error *ngIf="peso.invalid">
+		    Peso deve ser 0 ou maior
+		  </mat-error>
+		</mat-form-field>
+      
+      <mat-form-field appearance="outline">
 		  <mat-label>Latitude</mat-label>
 		  <input
 		    matInput

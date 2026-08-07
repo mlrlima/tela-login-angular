@@ -54,9 +54,7 @@
       <thead>
         <tr>
           <th>Nome</th>
-          <th>Espécie</th>
           <th>Dono</th>
-          <th>Localização</th>
           <th style="width:170px;">Ações</th>
         </tr>
       </thead>
@@ -66,13 +64,38 @@
         <tr *ngFor="let pet of petsBuscados">
 
           <td>{{ pet.nome }}</td>
-
-          <td>{{ pet.especie }}</td>
-
           <td>{{ pet.dono?.email ?? '-' }}</td>
-          <td> {{ pet.latitude ?? '-' }} , {{ pet.longitude ?? '-' }} </td>
 
           <td class="actions">
+          
+		<button
+		  mat-icon-button
+		  color="accent"
+		  [matMenuTriggerFor]="menuInformacoes"
+		  matTooltip="Informações"
+		  (click)="$event.stopPropagation()">
+		  <mat-icon>description</mat-icon>
+		</button>
+		
+		<mat-menu #menuInformacoes="matMenu">
+		  <div class="menu-header">Informações</div>
+		
+		  <div class="menu-item" (click)="$event.stopPropagation()">
+		    <span>Espécie: {{ pet.especie || '-' }}</span>
+		  </div>
+		
+		  <div class="menu-item" (click)="$event.stopPropagation()">
+		    <span>Data de nascimento: {{ pet.dataNascimento ? (pet.dataNascimento | date:'dd/MM/yyyy') : '-' }}</span>
+		  </div>
+		
+		  <div class="menu-item" (click)="$event.stopPropagation()">
+		    <span>Peso: {{ pet.peso ?? 0 }} gramas</span>
+		  </div>
+		
+		  <div class="menu-item" (click)="$event.stopPropagation()">
+		    <span>Localização no mapa: {{ pet.latitude || '-' }}, {{ pet.longitude || '-' }}</span>
+		  </div>
+		</mat-menu>
           
 	          <button
 			    mat-icon-button

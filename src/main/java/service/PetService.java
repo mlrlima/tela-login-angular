@@ -74,6 +74,7 @@ public class PetService implements Serializable {
         pet.setDono(usuarioLogado);
 		
 		pet.setId(null);
+		
 		Pet salvo = petRepository.save(pet);
 		return toDTO(salvo);
 	}
@@ -158,7 +159,9 @@ public class PetService implements Serializable {
 				pet.getNome(),
 				pet.getEspecie(),
 				dono,
-		        pet.getLatitude(), pet.getLongitude()
+		        pet.getLatitude(), pet.getLongitude(),
+		        pet.getDataNascimento(),
+		        pet.getPeso()
 		);
 	}
 	

@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { PetMapaDialog } from '../pet-mapa-dialog/pet-mapa-dialog';
 
 @Component({
@@ -23,6 +24,7 @@ import { PetMapaDialog } from '../pet-mapa-dialog/pet-mapa-dialog';
 			MatProgressSpinnerModule,
 			MatFormFieldModule,
 			MatInputModule,
+			MatMenuModule,
 			FormsModule],
   templateUrl: './gestao-pets.html',
   styleUrl: './gestao-pets.css',
@@ -83,7 +85,6 @@ export class GestaoPets implements OnInit {
 
 	  this.petsBuscados = this.pets.filter(pet =>
 	    pet.nome?.toLowerCase().includes(termo) ||
-	    pet.especie?.toLowerCase().includes(termo) ||
 	    pet.dono?.email?.toLowerCase().includes(termo)
 	  );
 	}

@@ -10,21 +10,24 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-pet-form',
   standalone: true,
   imports: [CommonModule,
-			FormsModule,
-			RouterLink,
-		MatCardModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatSelectModule,
-		MatButtonModule,
-		MatIconModule,
-		MatProgressSpinnerModule,
-		FormsModule],
+		    FormsModule,
+		    RouterLink,
+		    MatCardModule,
+		    MatFormFieldModule,
+		    MatInputModule,
+		    MatSelectModule,
+		    MatButtonModule,
+		    MatIconModule,
+		    MatProgressSpinnerModule,
+		    MatDatepickerModule,
+		    MatNativeDateModule],
   templateUrl: './pet-form.html',
   styleUrl: './pet-form.css',
 })
@@ -37,7 +40,10 @@ export class PetForm implements OnInit {
     especie: '',
 	latitude: null,
 	longitude: null,
+	peso: 0,
   };
+  dataNascimentoDate: Date | null=null;
+  hoje = new Date();
 
   modoEdicao = false;
   carregando = false;
@@ -59,6 +65,12 @@ export class PetForm implements OnInit {
       this.petService.porId(Number(idParam)).subscribe({
         next: (data) => {
           this.pet = data;
+		  
+		  // converte string ISO -> Date para o datepicker
+		  if (data.dataNascimento) {
+		    this.dataNascimentoDate = new Date(data.dataNascimento + 'T00:00:00');
+		  }
+		  
           this.carregando = false;
           this.cdr.detectChanges();
         },
@@ -77,6 +89,16 @@ export class PetForm implements OnInit {
       this.mensagens = 'Verifique se todas as informações são válidas.';
       return;
     }
+	
+	// converte Date -> string ISO (yyyy-MM-dd) antes de enviar
+	if (this.dataNascimentoDate) {
+	  const ano = this.dataNascimentoDate.getFullYear();
+	  const mes = String(this.dataNascimentoDate.getMonth() + 1).padStart(2, '0');
+	  const dia = String(this.dataNascimentoDate.getDate()).padStart(2, '0');
+	  this.pet.dataNascimento = `${ano}-${mes}-${dia}`;
+	} else {
+	  this.pet.dataNascimento = undefined;
+	}
 
     const acao = this.modoEdicao
       ? this.petService.atualizar(this.pet)

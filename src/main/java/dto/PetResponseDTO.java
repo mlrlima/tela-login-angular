@@ -17,13 +17,18 @@ public class PetResponseDTO {
     private int peso; //em gramas
 
     public PetResponseDTO(Long id, String nome, Especie especie, DonoDTO dono,
-    					 	Double latitude, Double longitude) {
+    					 	Double latitude, Double longitude,
+    					 	LocalDate dataNascimento, int peso) {
         this.id = id;
         this.nome = nome;
         this.especie = especie;
         this.dono = dono;
+        
         this.latitude = latitude;
         this.longitude = longitude;
+        
+        this.dataNascimento=dataNascimento;
+        this.peso=peso;
     }
 
     public Long getId() { return id; }
