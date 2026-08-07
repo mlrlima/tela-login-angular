@@ -6,12 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import dto.LocalizacaoPetDTO;
 import dto.PetResponseDTO;
-import jakarta.validation.Valid;
 import model.Pet;
 import service.PetService;
 import websocket.service.PetLocationBuffer;
@@ -41,6 +39,11 @@ public class PetController {
 	    PetResponseDTO atualizado = service.atualizarLocalizacao(id, body.getLatitude(), body.getLongitude());
 	    locationBuffer.adicionar(atualizado);   // so acumula; quem manda de fato eh o @Scheduled
 	    return ResponseEntity.ok(atualizado);
+	}
+	
+	@GetMapping("/{id}/intervalo")
+	public ResponseEntity<Integer> getIntervaloMover(@PathVariable Long id){
+		return ResponseEntity.ok(service.getIntervaloMover(id));
 	}
 
    

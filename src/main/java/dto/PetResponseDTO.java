@@ -12,12 +12,13 @@ public class PetResponseDTO {
     
     private Double latitude;
     private Double longitude;
+    private int intervaloMover; //em segundos
     
     private LocalDate dataNascimento;
     private int peso; //em gramas
 
     public PetResponseDTO(Long id, String nome, Especie especie, DonoDTO dono,
-    					 	Double latitude, Double longitude,
+    					 	Double latitude, Double longitude, int intervaloMover,
     					 	LocalDate dataNascimento, int peso) {
         this.id = id;
         this.nome = nome;
@@ -26,6 +27,7 @@ public class PetResponseDTO {
         
         this.latitude = latitude;
         this.longitude = longitude;
+        this.intervaloMover=intervaloMover;
         
         this.dataNascimento=dataNascimento;
         this.peso=peso;
@@ -38,6 +40,7 @@ public class PetResponseDTO {
     
     public Double getLatitude() { return latitude; }
     public Double getLongitude() { return longitude; }
+    public int getIntervaloMover() {return intervaloMover;}
     
     public LocalDate getDataNascimento() { return dataNascimento; }
     public int getPeso(){return peso;}

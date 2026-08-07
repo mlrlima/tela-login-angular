@@ -95,6 +95,10 @@
 		  <div class="menu-item" (click)="$event.stopPropagation()">
 		    <span>Localização no mapa: {{ pet.latitude || '-' }}, {{ pet.longitude || '-' }}</span>
 		  </div>
+		  
+		  <div class="menu-item" (click)="$event.stopPropagation()">
+		    <span>Intervalo para mudança de localização: {{ pet.intervaloMover || '-' }} segundos</span>
+		  </div>
 		</mat-menu>
           
 	          <button

@@ -40,6 +40,7 @@ export class PetForm implements OnInit {
     especie: '',
 	latitude: null,
 	longitude: null,
+	intervaloMover: 5,
 	peso: 0,
   };
   dataNascimentoDate: Date | null=null;

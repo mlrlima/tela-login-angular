@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import dto.DonoDTO;
 import dto.PetResponseDTO;
@@ -47,6 +48,17 @@ public class PetService implements Serializable {
 	    return usuarioLogado != null && usuarioLogado.getRole() == Role.ADMIN;
 	}
 
+	// retorna a quantidade de tempo em segundos que o script vai mover o pet pelo mapa
+	public int getIntervaloMover(@PathVariable Long id) {
+		Pet alvo=petRepository.findById(id)
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
+		
+		Usuario usuarioLogado = logado();
+		if(ehDonoOuAdmin(usuarioLogado, alvo)) return alvo.getIntervaloMover();
+		
+		throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+	}
+	
 	@Cacheable(value = "pets", key = "#pageable.pageNumber + '-' + #pageable.pageSize",
 			condition = "#root.target.isAdminLogado()") //cache por pagina
 	public Page<PetResponseDTO> getAllPets(Pageable pageable){
@@ -160,6 +172,7 @@ public class PetService implements Serializable {
 				pet.getEspecie(),
 				dono,
 		        pet.getLatitude(), pet.getLongitude(),
+		        pet.getIntervaloMover(),
 		        pet.getDataNascimento(),
 		        pet.getPeso()
 		);

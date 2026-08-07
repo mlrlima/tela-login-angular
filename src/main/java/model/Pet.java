@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
 
@@ -50,6 +51,11 @@ public class Pet implements Serializable {
 	private Double latitude;
 	@Column
 	private Double longitude;
+	
+	//intervalo em que o pet irá se mover no mapa, em segundos
+	@Positive
+	@Column(name="intervalo_mover", nullable = true, columnDefinition = "int default 5")
+	private int intervaloMover; //em segundos
 	
     @Column(name = "data_nascimento", nullable=true)
     private LocalDate dataNascimento;
@@ -103,6 +109,14 @@ public class Pet implements Serializable {
 		this.longitude = longitude;
 	}
 	
+	public int getIntervaloMover() {
+		return intervaloMover;
+	}
+	public void setIntervaloMover(int intervaloMover) {
+		this.intervaloMover = intervaloMover;
+	}
+	
+	
 	public LocalDate getDataNascimento() {
 		return dataNascimento;
 	}
@@ -138,5 +152,5 @@ public class Pet implements Serializable {
 	public String toString() {
 		return "Pet [id=" + id + "]";
 	}
-	
+
 }

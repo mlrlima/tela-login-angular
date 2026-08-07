@@ -18,6 +18,7 @@ export interface Pet {
   
   latitude?: number | null;
   longitude?: number | null;
+  intervaloMover?: number;
   
   dataNascimento?: string; // vem como string ISO (LocalDate) do backend
   peso?: number; // em gramas
