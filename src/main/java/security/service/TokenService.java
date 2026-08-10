@@ -17,6 +17,8 @@ import model.Usuario;
 @Service
 public class TokenService {
 	
+	// para tokens que foram invalidados
+	//ConcurrentHashMap para atender várias requisições simultaneamente.
 	private final Set<String> tokenBlacklist = ConcurrentHashMap.newKeySet();
 	
 	@Value("${api.security.token.secret}") //pega do application.properties
@@ -28,7 +30,7 @@ public class TokenService {
 			
 			Date data=new Date();
 			String token =JWT.create()
-					.withIssuer("tela-login-angular")
+					.withIssuer("tela-login-angular") // quem emitiu o token
 					.withSubject(usuario.getEmail())
 					.withIssuedAt(data)
 					.withExpiresAt(new Date(data.getTime()+ (60000*30))) //30 minutos
@@ -45,7 +47,7 @@ public class TokenService {
 			Algorithm algorithm =Algorithm.HMAC256(secret);
 			return JWT.require(algorithm)
 					.withIssuer("tela-login-angular")
-					.build()
+					.build() //Cria o objeto que será usado para validar.
 					.verify(token)
 					.getSubject();
 					

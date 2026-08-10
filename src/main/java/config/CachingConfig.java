@@ -13,8 +13,10 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CachingConfig {
 
-    @Bean
+    @Bean //Cria esse objeto no contexto do Spring
+    	//para que outras partes da aplicação possam utilizá-lo.
     public CacheManager cacheManager() {
+    	// manager de varios caches
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         cacheManager.setCaches(Arrays.asList(
         		new ConcurrentMapCache("usuarios"),

@@ -51,6 +51,10 @@ public class EmpresaService implements Serializable {
     
     @Cacheable(value = "empresas", key = "#pageable.pageNumber + '-' + #pageable.pageSize") //cache por pagina
 	public Page<EmpresaResponseDTO> getAllEmpresas(Pageable pageable){
+    	//apenas ADMIN pode listar todas as empresas
+    	Usuario usuarioLogado =logado();
+	    if(usuarioLogado.getRole()!=Role.ADMIN) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+    	
 		return empresaRepository.findAll(pageable).map(this::toDTO);
 	}
 	
@@ -61,6 +65,10 @@ public class EmpresaService implements Serializable {
 		    @CacheEvict(value = "usuarios", allEntries = true)
 		})
 	public EmpresaResponseDTO createEmpresa(Empresa empresa){
+		//apenas ADMIN pode criar empresas
+    	Usuario usuarioLogado =logado();
+	    if(usuarioLogado.getRole()!=Role.ADMIN) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+		
 	    empresa.setId(null);
 	    vincularUsuariosExistentes(empresa);
 	    Empresa salva = empresaRepository.save(empresa);
@@ -142,8 +150,8 @@ public class EmpresaService implements Serializable {
 				.map(Usuario::getId)
 				.collect(Collectors.toSet());
 
+		//verificar se os usuarios existem
 		List<Usuario> usuariosGerenciados = usuarioRepository.findAllById(ids);
-
 		if (usuariosGerenciados.size() != ids.size()) {
 			throw new GlobalExceptionHandler.ResourceNotFoundException("Um ou mais usuários informados não foram encontrados");
 		}

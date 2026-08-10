@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 
-//CLASSE: GlobalExceptionHandler
-//DESCRICAO: Tratamento global de excecoes para toda a aplicacao
-//FUNCAO: Captura excecoes lancadas pelos controllers e retorna
-//      respostas padronizadas (evita vazar stack traces)
+//Tratamento global de excecoes para toda a aplicacao
+//Captura excecoes lancadas pelos controllers e retorna
+// respostas padronizadas (evita vazar stack traces)
 
 @ControllerAdvice // Intercepta excecoes de TODOS os controllers
 public class GlobalExceptionHandler {

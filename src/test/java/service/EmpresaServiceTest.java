@@ -106,6 +106,8 @@ class EmpresaServiceTest {
 		empresa2.setNome("Petshop Norte");
 		empresa2.setUsuarios(new HashSet<Usuario>());
 
+		logarComo(admin);
+		
 		Pageable pageable = PageRequest.of(0, 10);
 		when(empresaRepository.findAll(pageable))
 				.thenReturn(new PageImpl<>(Arrays.asList(empresa, empresa2), pageable, 2));
@@ -130,6 +132,7 @@ class EmpresaServiceTest {
 		nova.setNome("Petshop Novo");
 		nova.setUsuarios(new HashSet<Usuario>());
 
+		logarComo(admin);
 		when(empresaRepository.save(any(Empresa.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		//act
@@ -152,6 +155,8 @@ class EmpresaServiceTest {
 		Set<Usuario> usuariosDoJson = new HashSet<>();
 		usuariosDoJson.add(usuarioStub);
 		nova.setUsuarios(usuariosDoJson);
+		
+		logarComo(admin);
 
 		when(usuarioRepository.findAllById(anySet())).thenReturn(Arrays.asList(userComum));
 		when(empresaRepository.save(any(Empresa.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -171,6 +176,7 @@ class EmpresaServiceTest {
 		nova.setNome("Petshop Sem Usuarios");
 		nova.setUsuarios(new HashSet<Usuario>());
 
+		logarComo(admin);
 		when(empresaRepository.save(any(Empresa.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		//act
@@ -193,6 +199,8 @@ class EmpresaServiceTest {
 		Set<Usuario> usuariosDoJson = new HashSet<>();
 		usuariosDoJson.add(usuarioStub);
 		nova.setUsuarios(usuariosDoJson);
+		
+		logarComo(admin);
 
 		// repository nao encontra nenhum dos ids informados
 		when(usuarioRepository.findAllById(anySet())).thenReturn(Arrays.asList());

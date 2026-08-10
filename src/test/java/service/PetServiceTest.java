@@ -241,7 +241,7 @@ class PetServiceTest {
 	void dono_atualiza_seu_proprio_pet() {
 		//arrange
 		logarComo(userComum);
-		when(petRepository.getById(100L)).thenReturn(petDoUserComum);
+		when(petRepository.findById(100L)).thenReturn(Optional.of(petDoUserComum));
 		when(petRepository.save(any(Pet.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		Pet alteracao = new Pet();
@@ -262,7 +262,7 @@ class PetServiceTest {
 	void admin_atualiza_pet_de_qualquer_usuario() {
 		//arrange
 		logarComo(admin);
-		when(petRepository.getById(100L)).thenReturn(petDoUserComum);
+		when(petRepository.findById(100L)).thenReturn(Optional.of(petDoUserComum));
 		when(petRepository.save(any(Pet.class))).thenAnswer(inv -> inv.getArgument(0));
 
 		Pet alteracao = new Pet();
@@ -305,7 +305,7 @@ class PetServiceTest {
 		originalNoBanco.setId(100L);
 		originalNoBanco.setNome("Rex");
 		originalNoBanco.setDono(outroUser);
-		when(petRepository.getById(100L)).thenReturn(originalNoBanco);
+		when(petRepository.findById(100L)).thenReturn(Optional.of(originalNoBanco));
  
 		// mas o payload alega que o dono eh o proprio userComum,
 		// so pra passar na checagem inicial de ehDonoOuAdmin

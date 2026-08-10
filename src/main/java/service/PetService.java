@@ -21,19 +21,12 @@ import model.Role;
 import model.Usuario;
 import repository.PetRepository;
 
-//CLASSE: PetService
-//DESCRICAO: Camada de servico para gerenciamento de pets
-//FUNCAO: Regras de negocio, validacoes e controle de permissao
 @Service
 public class PetService implements Serializable {
 	private static final long serialVersionUID=1L;
 
 	@Autowired
 	private PetRepository petRepository;
-
-	//// lista de funcoes e metodos
-	//private Usuario logado();
-	//public boolean isAdminLogado();
 	
 	private Usuario logado() {
 	    var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -76,14 +69,12 @@ public class PetService implements Serializable {
 		return pets.map(this::toDTO);
 	}
 
-    // METODO: createPet()
-    // FUNCAO: Cria um novo pet associado ao usuario logado
-    // REGRA: O dono do pet eh sempre o usuario logado
 	@Transactional
 	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public PetResponseDTO createPet(Pet pet) {
 		Usuario usuarioLogado = logado();
-        pet.setDono(usuarioLogado);
+        pet.setDono(usuarioLogado); // o dono do pet sempre será automaticamente o usuario que criou ele
+        // nao é possivel alterar o dono de um pet
 		
 		pet.setId(null);
 		
@@ -91,17 +82,11 @@ public class PetService implements Serializable {
 		return toDTO(salvo);
 	}
 	
-    // METODO: ehDonoOuAdmin()
-    // FUNCAO: Verifica se o usuario eh dono do pet ou ADMIN
-    // RETORNO: true se tiver permissao, false caso contrario
     private boolean ehDonoOuAdmin(Usuario logado, Pet pet) {
         return logado.getRole() == Role.ADMIN ||
                pet.getDono().getId().equals(logado.getId());
     }
 
-    // METODO: getPetById()
-    // FUNCAO: Busca pet por ID com verificacao de permissao
-    // REGRA: ADMIN ou dono do pet podem acessar
 	public PetResponseDTO getPetById(Long id) {
 		Pet alvo=petRepository.findById(id)
 				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
@@ -112,16 +97,15 @@ public class PetService implements Serializable {
 		throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 	}
 
-    // METODO: updatePet()
-    // FUNCAO: Atualiza um pet existente
-    // REGRA: ADMIN ou dono do pet podem atualizar
 	@Transactional
 	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public PetResponseDTO updatePet(Pet pet) {
 		Usuario usuarioLogado = logado();
 		if(!ehDonoOuAdmin(usuarioLogado, pet)) throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		
-		Pet original=petRepository.getById(pet.getId());
+		Pet original=petRepository.findById(pet.getId())
+				.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));
+		
 		if(!original.getDono().equals(pet.getDono())) {
 			throw new GlobalExceptionHandler.UnauthorizedException("Não é permitido alterar o dono de um pet.");
 		}
@@ -130,9 +114,6 @@ public class PetService implements Serializable {
 		return toDTO(salvo);
 	}
 	
-    // METODO: deletePet()
-    // FUNCAO: Remove um pet pelo ID
-    // REGRA: ADMIN ou dono do pet podem deletar
 	@Transactional
 	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public void deletePet(Long id) {
@@ -145,9 +126,8 @@ public class PetService implements Serializable {
 		petRepository.delete(alvo);
 	}
 	
-    // METODO: deletePetsUsuario()
     // FUNCAO: Remove TODOS os pets de um usuario (usado ao deletar usuario)
-    // REGRA: Chamado internamente pelo UsuarioService
+    // Chamado internamente pelo UsuarioService
 	@Transactional
 	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public void deletePetsUsuario(Usuario usuario) {
@@ -179,6 +159,7 @@ public class PetService implements Serializable {
 	}
 	
 	@Transactional
+	@CacheEvict(value = "pets", allEntries = true) //update o cache
 	public PetResponseDTO atualizarLocalizacao(Long id, Double latitude, Double longitude) {
 	    Pet alvo = petRepository.findById(id)
 	            .orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Pet não encontrado"));

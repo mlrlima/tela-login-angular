@@ -21,7 +21,7 @@ public class PetLocationBroadcaster {
 
     @Scheduled(fixedRate = 500) // a cada 500ms
     public void enviarLote() {
-        Map<Long, PetResponseDTO> pendentes = buffer.drenar();
+        Map<Long, PetResponseDTO> pendentes = buffer.drenar(); //pega as atualizacoes guardadas no buffer
         if (pendentes.isEmpty()) return; // se nada mudou, nao envia
 
         Collection<PetResponseDTO> lote = pendentes.values();

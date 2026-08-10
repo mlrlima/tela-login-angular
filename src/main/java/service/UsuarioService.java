@@ -29,9 +29,6 @@ import model.Usuario;
 import repository.EmpresaRepository;
 import repository.UsuarioRepository;
 
-//CLASSE: UsuarioService
-//DESCRICAO: Camada de servico para gerenciamento de usuarios
-//FUNCAO: Regras de negocio, validacoes e controle de permissao
 
 @Service //servico gerenciado pelo Spring
 public class UsuarioService implements Serializable {
@@ -47,7 +44,7 @@ public class UsuarioService implements Serializable {
 	private PetService petService;
 	
 	
-	private Usuario logado() {
+	private Usuario logado() { // verifica se o usuario logado tem autorizacao e retorna ele
 	    var auth = SecurityContextHolder.getContext().getAuthentication();
 	    if (auth == null || !auth.isAuthenticated()) return null;
 	    return (Usuario) auth.getPrincipal();
@@ -78,22 +75,17 @@ public class UsuarioService implements Serializable {
 	    return usuarios.map(this::toDTO);
 	}
 	
-    // METODO: createUsuario()
-    // FUNCAO: Cria um novo usuario (cadastro)
-    // REGRA: Sempre define role como USER (nao permite criar ADMIN)
-	@Transactional // Garante atomicidade (commit ou rollback)
+	@Transactional
 	@CacheEvict(value = "usuarios", allEntries = true) //update o cache
 	public UsuarioResponseDTO createUsuario(Usuario usuario) {
 		usuario.setId(null);
-		usuario.setRole(Role.USER);
+		usuario.setRole(Role.USER); //sempre cria com a role USER
 		vincularEmpresasExistentes(usuario);
 		Usuario salvo = usuarioRepository.save(usuario);
 		return toDTO(salvo);
 	}
 	
-    // METODO: getUsuarioById()
-    // FUNCAO: Busca usuario por ID com verificacao de permissao
-    // REGRA: ADMIN pode ver qualquer um | USER so pode ver a si mesmo
+
 	//@Cacheable(value = "usuarioPorId", )
 	public Usuario buscarUsuarioNoCache(Long id) {
 	    return usuarioRepository.findById(id)
@@ -129,8 +121,6 @@ public class UsuarioService implements Serializable {
 	    return new UsuarioRelacionadoDTO(alvo.getId(), alvo.getEmail());
 	}
 	
-	// METODO: getUsuarioByEmailAndSenha()
-    // FUNCAO: Autenticacao - busca usuario por email e senha
 	public Usuario getUsuarioByEmailAndSenha(String email, String senha){
 		Usuario usuario=usuarioRepository.findByEmail(email);
 		
@@ -138,11 +128,7 @@ public class UsuarioService implements Serializable {
 		
 		return usuario;
 	}
-	
-    // METODO: updateUsuario()
-    // FUNCAO: Atualiza um usuario existente
-    // REGRA: ADMIN pode atualizar qualquer um | USER so pode atualizar a si mesmo
-    //       Se senha vier em branco, mantem a senha atual
+
 	@Transactional
 	@Caching(evict = { //update os caches
 		    @CacheEvict(value = "empresas", allEntries = true),
@@ -179,9 +165,6 @@ public class UsuarioService implements Serializable {
 		return toDTO(salvo);
 	}
 	
-    // METODO: deleteUsuario()
-    // FUNCAO: Remove um usuario (e seus pets)
-    // REGRA: ADMIN pode deletar qualquer um | USER so pode deletar a si mesmo
 	@Transactional
 	@Caching(evict = { //update os caches
 		    @CacheEvict(value = "empresas", allEntries = true),

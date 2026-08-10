@@ -22,7 +22,7 @@ public class PetLocationBuffer {
     // Retorna tudo que esta pendente e limpa o buffer, de forma atomica
     public Map<Long, PetResponseDTO> drenar() {
         Map<Long, PetResponseDTO> copia = new ConcurrentHashMap<>(pendentes);
-        pendentes.clear();
+        pendentes.clear(); //limpa o buffer antes de retornar
         return copia;
     }
 }

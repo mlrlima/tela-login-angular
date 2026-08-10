@@ -28,8 +28,6 @@ public class Application extends SpringBootServletInitializer {
         //System.out.println(">>> [Application] Construtor chamado - instanciando aplicação...");
     }
 
-    
-    // METODO: configure()
     // FUNCAO: Configura a aplicacao para deploy em WAR (Tomcat externo)
     // CHAMADO QUANDO: A aplicacao eh implantada em um container externo
     @Override
@@ -38,8 +36,6 @@ public class Application extends SpringBootServletInitializer {
         return application.sources(Application.class);
     }
 
-    
-    // METODO: main()
     // FUNCAO: Ponto de entrada da aplicacao (execucao via JAR)
     // CHAMADO QUANDO: A aplicacao roda com 'java -jar' ou 'mvn spring-boot:run'
     public static void main(String[] args) {

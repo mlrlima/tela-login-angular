@@ -23,10 +23,12 @@ public class RateLimitingFilter extends OncePerRequestFilter{
 
 	private Bucket getBucket(String clientId) {
     	
-    	// 10 tokens por minuto
+    	// 100 tokens por minuto, para cada IP
     	Bandwidth limite = Bandwidth.classic(100, Refill.intervally(100, Duration.ofMinutes(1)));
     	
-        return buckets.computeIfAbsent(clientId, k -> 
+    	//cria um bucket para cada ip (clientId)
+    	// O k representa a chave que está sendo procurada, clientId
+        return buckets.computeIfAbsent(clientId, k -> // se ainda nao existe o bucket para aquele ip, cria um novo 
             Bucket.builder()
                   .addLimit(limite)
                   .build()

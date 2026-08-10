@@ -18,10 +18,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Usuario = entidade gerenciada
     // Long = tipo da chave primaria (@Id)
 
-    // METODO: findByEmail()
-    // FUNCAO: Busca um usuario pelo email (campo UNIQUE)
-    // RETORNO: Optional<Usuario> - pode conter o usuario ou estar vazio
-    // ============================================================
     // O Spring Data JPA interpreta o nome do metodo e gera a query automaticamente:
     // SELECT * FROM usuario WHERE email = ?
     // 
@@ -31,7 +27,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 	
 	
 	
-	
+    // FUNCAO: Busca um usuario pelo email (campo UNIQUE)
 	Usuario findByEmail(String email);
 	//para o Security
 }

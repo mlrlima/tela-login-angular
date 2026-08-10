@@ -12,9 +12,6 @@ import dto.UsuarioResponseDTO;
 import model.Usuario;
 import service.UsuarioService;
 
-//CLASSE: UsuarioController
-//DESCRICAO: Endpoints para gerenciamento de usuarios (CRUD)
-//ROTA BASE: /usuario
 
 @RestController
 @RequestMapping("/usuario") // Define a rota base para todos os endpoints
@@ -34,13 +31,9 @@ public class UsuarioController {
 	    return ResponseEntity.ok(usuarios);
 	}
 	
-    // ENDPOINT: GET /usuario/{id}
-    // FUNCAO: Busca um usuario pelo ID
-    // SEGURANCA: Requer autenticacao (@Secured)
-    // RETORNO: HTTP 200 com os dados do usuario
 	@GetMapping("/{id}")
 	public ResponseEntity<UsuarioResponseDTO> getById(@PathVariable Long id) {
-    	return ResponseEntity.ok(service.getUsuarioById(id));
+    	return ResponseEntity.ok(service.getUsuarioById(id)); //HTTP 200 com os dados do usuario
 	}
     
     @GetMapping
@@ -48,24 +41,15 @@ public class UsuarioController {
         return service.getUsuarioByEmail(email);
     }
 	
-    
-    // ENDPOINT: PUT /usuario
-    // FUNCAO: Atualiza um usuario existente
-    // SEGURANCA: Requer autenticacao (@Secured)
-    // RETORNO: HTTP 200 com o usuario atualizado
 	@PutMapping
 	public ResponseEntity<UsuarioResponseDTO> update(@RequestBody Usuario usuario) {
-    	return ResponseEntity.ok(service.updateUsuario(usuario));  
+    	return ResponseEntity.ok(service.updateUsuario(usuario)); // HTTP 200 com o usuario atualizado
 	}
-	
-    // ENDPOINT: DELETE /usuario/{id}
-    // FUNCAO: Remove um usuario pelo ID
-    // SEGURANCA: Requer autenticacao (@Secured)
-    // RETORNO: HTTP 204 (No Content)
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
     	service.deleteUsuario(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); //HTTP 204 (No Content)
     }
 	
 }

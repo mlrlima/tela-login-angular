@@ -45,6 +45,7 @@ public class Usuario implements Serializable, UserDetails{ //para o Security
 	private String email;
 
 	@NotBlank
+	//obs: aqui eh guardado a senha criptografada
 	@Size(min = 4, message = "A senha deve ter no minimo 4 caracteres")
 	@Column(nullable = false)
 	private String senha;
@@ -109,7 +110,7 @@ public class Usuario implements Serializable, UserDetails{ //para o Security
 	
     // METODOS UTILITARIOS
 	
-	@Override //pra substituir por essa funcao a que ja existe
+	@Override //pra substituir a funcao q ja existe por essa
 	public String toString() {
 		return "Usuario [id=" + id + "]";
 	}

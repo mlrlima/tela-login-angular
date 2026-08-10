@@ -13,15 +13,16 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) { //recebe mensagens e envia para quem estiver inscrito
-        // Enforce a simple memory-based message broker for clients to subscribe to
+        // broker em memoria (RAM do servidor) para os clientes se inscreverem
         config.enableSimpleBroker("/topic"); //envia para os clientes
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // The endpoint clients connect to initially
+        // O endpoint que os clientes conectam inicialmente
         registry.addEndpoint("/ws").withSockJS();
         //SockJS é uma biblioteca que simula WebSocket quando o navegador ou a rede não suportam WebSocket nativamente.
+        // web server <-> web browser
     }
 	
 }
