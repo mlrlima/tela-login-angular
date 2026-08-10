@@ -15,6 +15,7 @@ import { MapaPets } from './mapa-pets/mapa-pets';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
+	// pathMatch: 'full' -> considera o path inteiro exatamente.
 	
 	{ path: 'login', component: Login, canActivate: [loginGuard] },
     { path: 'criar-usuario', component: CriarUsuario, canActivate: [loginGuard] },

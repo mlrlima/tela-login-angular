@@ -15,10 +15,13 @@ export interface PetLocation {
 @Injectable({ providedIn: 'root' }) //websocket inicia sozinho
 export class WebsocketService {
   private stompClient!: Client;
+  // ! significa que o valor é garantido de existir em runtime (nao null)
   
   // objeto do RxJS que guarda um valor atual e avisa todos os inscritos quando esse valor muda
   public message$ = new BehaviorSubject<string>('');
   public petLocationBatch$ = new BehaviorSubject<PetLocation[]>([]);
+  // $ no final do nome -> elemento visual que indica que
+  // a variavel é um Observable "$tream" assincrono 
 
   constructor() {
     this.initializeWebSocketConnection();
