@@ -1,8 +1,8 @@
 """
 Script de teste: simula a movimentação de vários pets.
 
-Cada pet possui seu próprio intervalo de movimentação,
-obtido através do backend:
+Cada pet percorre uma ROTA FIXA de coordenadas (em ordem, ciclicamente),
+com intervalo de movimentação próprio, obtido através do backend:
 
     GET /pet/{id}/intervalo
 
@@ -20,9 +20,8 @@ Como usar:
     (Ctrl+C para parar)
 """
 
-import random
-import time
 import sys
+import time
 
 import requests
 
@@ -39,20 +38,23 @@ LISTAR_PATH = "/pet/all"
 
 LOCALIZACAO_PATH = "/pet/{id}/localizacao"
 
-# NOVO endpoint
 INTERVALO_PATH = "/pet/{id}/intervalo"
 
 EMAIL = "admin@email.com"
 SENHA = "admin"
 
 
-# Centro de referência para o passeio dos pets
-CENTRO_LAT = -8.0476
-CENTRO_LON = -34.8770
-
-RAIO_MAX_GRAUS = 0.01
-
-PASSO_MAX_GRAUS = 0.0008
+# Rota fixa que os pets percorrem, em ordem, ciclicamente (sem coordenadas
+# aleatórias — apenas estes pontos).
+ROTA = [
+    (-8.0387, -34.9642),
+    (-8.0350, -34.9614),
+    (-8.0336, -34.9598),
+    (-8.0342, -34.9586),
+    (-8.0301, -34.9576),
+    (-8.0323, -34.9539),
+    (-8.0311, -34.9514),
+]
 
 QTD_PETS_A_SIMULAR = 4
 
@@ -203,40 +205,15 @@ def atualizar_localizacao(
 
 
 # =========================================================================
-# GERAR PRÓXIMA POSIÇÃO
+# PRÓXIMA POSIÇÃO NA ROTA FIXA
 # =========================================================================
 
-def proxima_posicao(
-    lat: float,
-    lon: float
-) -> tuple[float, float]:
+def proxima_posicao_rota(indice_atual: int) -> tuple[tuple[float, float], int]:
+    """Retorna a coordenada do próximo ponto da ROTA e o novo índice,
+    avançando ciclicamente (volta ao início ao chegar no fim)."""
 
-    nova_lat = lat + random.uniform(
-        -PASSO_MAX_GRAUS,
-        PASSO_MAX_GRAUS
-    )
-
-    nova_lon = lon + random.uniform(
-        -PASSO_MAX_GRAUS,
-        PASSO_MAX_GRAUS
-    )
-
-    # Se sair do raio permitido,
-    # coloca novamente dentro da área.
-
-    if abs(nova_lat - CENTRO_LAT) > RAIO_MAX_GRAUS:
-        nova_lat = CENTRO_LAT + random.uniform(
-            -RAIO_MAX_GRAUS,
-            RAIO_MAX_GRAUS
-        )
-
-    if abs(nova_lon - CENTRO_LON) > RAIO_MAX_GRAUS:
-        nova_lon = CENTRO_LON + random.uniform(
-            -RAIO_MAX_GRAUS,
-            RAIO_MAX_GRAUS
-        )
-
-    return nova_lat, nova_lon
+    proximo_indice = (indice_atual + 1) % len(ROTA)
+    return ROTA[proximo_indice], proximo_indice
 
 
 # =========================================================================
@@ -263,20 +240,18 @@ def main() -> None:
     )
 
     # -------------------------------------------------------------
-    # POSIÇÃO INICIAL DE CADA PET
+    # POSIÇÃO INICIAL DE CADA PET NA ROTA
+    # (espalha cada pet em um ponto diferente da rota, pra ficar
+    # mais fácil visualizar todos se mexendo ao mesmo tempo)
     # -------------------------------------------------------------
 
+    indice_rota = {
+        pet["id"]: i % len(ROTA)
+        for i, pet in enumerate(pets)
+    }
+
     posicoes = {
-        pet["id"]: (
-            CENTRO_LAT + random.uniform(
-                -RAIO_MAX_GRAUS,
-                RAIO_MAX_GRAUS
-            ),
-            CENTRO_LON + random.uniform(
-                -RAIO_MAX_GRAUS,
-                RAIO_MAX_GRAUS
-            )
-        )
+        pet["id"]: ROTA[indice_rota[pet["id"]]]
         for pet in pets
     }
 
@@ -332,7 +307,8 @@ def main() -> None:
 
         print(
             f"{pet['nome']:15s} -> "
-            f"intervalo: {intervalos[pet['id']]}s"
+            f"intervalo: {intervalos[pet['id']]}s "
+            f"(inicia no ponto {indice_rota[pet['id']]} da rota)"
         )
 
     print("\nCtrl+C para parar.\n")
@@ -356,17 +332,12 @@ def main() -> None:
 
                 if agora >= proximo_movimento[pet_id]:
 
-                    lat, lon = posicoes[pet_id]
-
-                    nova_lat, nova_lon = proxima_posicao(
-                        lat,
-                        lon
+                    (nova_lat, nova_lon), novo_indice = proxima_posicao_rota(
+                        indice_rota[pet_id]
                     )
 
-                    posicoes[pet_id] = (
-                        nova_lat,
-                        nova_lon
-                    )
+                    indice_rota[pet_id] = novo_indice
+                    posicoes[pet_id] = (nova_lat, nova_lon)
 
                     try:
 
@@ -380,6 +351,7 @@ def main() -> None:
                         print(
                             f"[movimento] "
                             f"{pet['nome']:15s} -> "
+                            f"ponto {novo_indice} "
                             f"({nova_lat:.6f}, "
                             f"{nova_lon:.6f}) "
                             f"[intervalo: "
