@@ -188,6 +188,30 @@ class UsuarioServiceTest{
 		assertThrows(GlobalExceptionHandler.ResourceNotFoundException.class,
 				() -> usuarioService.getAllUsuarios(pageable));
 	}
+
+	@Test
+	void admin_gera_pdf_com_todos_os_usuarios() {
+		logarComo(admin);
+		when(usuarioRepository.findAll()).thenReturn(Arrays.asList(admin, userComum));
+
+		byte[] pdf = usuarioService.gerarPdfUsuarios();
+
+		assertTrue(new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1).startsWith("%PDF"));
+		verify(usuarioRepository).findAll();
+		verify(usuarioRepository, never()).findById(anyLong());
+	}
+
+	@Test
+	void user_gera_pdf_apenas_de_si_mesmo() {
+		logarComo(userComum);
+		when(usuarioRepository.findById(userComum.getId())).thenReturn(Optional.of(userComum));
+
+		byte[] pdf = usuarioService.gerarPdfUsuarios();
+
+		assertTrue(new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1).startsWith("%PDF"));
+		verify(usuarioRepository).findById(userComum.getId());
+		verify(usuarioRepository, never()).findAll();
+	}
 	
 	
 	// UsuarioResponseDTO createUsuario(Usuario usuario) ========================

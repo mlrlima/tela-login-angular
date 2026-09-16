@@ -1,11 +1,24 @@
 
 package service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -73,6 +86,64 @@ public class UsuarioService implements Serializable {
 	    }
 
 	    return usuarios.map(this::toDTO);
+	}
+
+	public byte[] gerarPdfUsuarios() {
+		Usuario usuarioLogado = logado();
+		if (usuarioLogado == null) {
+			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+		}
+
+		List<Usuario> usuarios = usuarioLogado.getRole() == Role.ADMIN
+				? usuarioRepository.findAll()
+				: List.of(usuarioRepository.findById(usuarioLogado.getId())
+						.orElseThrow(() -> new GlobalExceptionHandler.ResourceNotFoundException("Usuário não encontrado")));
+
+		Document document = new Document();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			PdfWriter.getInstance(document, output);
+			document.open();
+			document.add(new Paragraph("Relatório de Usuários", new Font(Font.HELVETICA, 16, Font.BOLD)));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+			document.add(new Paragraph("PDF gerado em: " + LocalDateTime.now().format(formatter)));
+			document.add(new Paragraph(" "));
+
+			PdfPTable tabela = new PdfPTable(new float[] { 1, 3, 4, 2, 5 });
+			tabela.setWidthPercentage(100);
+			adicionarCabecalhoUsuario(tabela, "ID");
+			adicionarCabecalhoUsuario(tabela, "Nome");
+			adicionarCabecalhoUsuario(tabela, "E-mail");
+			adicionarCabecalhoUsuario(tabela, "Perfil");
+			adicionarCabecalhoUsuario(tabela, "Empresas relacionadas");
+
+			usuarios.stream()
+					.sorted(Comparator.comparing(Usuario::getNome, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+					.forEach(usuario -> {
+						tabela.addCell(String.valueOf(usuario.getId()));
+						tabela.addCell(usuario.getNome());
+						tabela.addCell(usuario.getEmail());
+						tabela.addCell(usuario.getRole().name());
+						String empresas = usuario.getEmpresas().stream()
+								.map(Empresa::getNome)
+								.sorted(String.CASE_INSENSITIVE_ORDER)
+								.collect(Collectors.joining(", "));
+						tabela.addCell(empresas.isEmpty() ? "Nenhuma empresa vinculada" : empresas);
+					});
+
+			document.add(tabela);
+		} catch (DocumentException exception) {
+			throw new IllegalStateException("Não foi possível gerar o PDF de usuários", exception);
+		} finally {
+			document.close();
+		}
+		return output.toByteArray();
+	}
+
+	private void adicionarCabecalhoUsuario(PdfPTable tabela, String texto) {
+		PdfPCell celula = new PdfPCell(new Phrase(texto, new Font(Font.HELVETICA, 10, Font.BOLD)));
+		celula.setBackgroundColor(new java.awt.Color(230, 230, 230));
+		tabela.addCell(celula);
 	}
 	
 	@Transactional

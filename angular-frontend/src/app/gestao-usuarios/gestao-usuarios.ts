@@ -104,6 +104,23 @@ export class GestaoUsuarios implements OnInit {
        usuario.role?.toLowerCase().includes(termo)
      );
    }
+
+  baixarPdf(): void {
+    this.usuarioService.baixarPdf().subscribe({
+      next: (arquivo) => {
+        const url = URL.createObjectURL(arquivo);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'usuarios.pdf';
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.mensagens = 'Nao foi possivel gerar o PDF de usuarios.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
   
   remover(id: number | undefined): void {
     if (id == null) return;

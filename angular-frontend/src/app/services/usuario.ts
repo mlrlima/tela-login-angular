@@ -42,4 +42,8 @@ export class UsuarioService {
   remover(id: number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/usuario/${id}`);
   }
+
+  baixarPdf(): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/usuario/pdf`, { responseType: 'blob' });
+  }
 }
