@@ -72,6 +72,7 @@ public class EmpresaService implements Serializable {
 	}
 
 	public byte[] gerarPdfEmpresas() {
+		//apenas ADMIN pode acessar as empresas
 		validarAdmin();
 
 		Document document = new Document();
@@ -95,12 +96,14 @@ public class EmpresaService implements Serializable {
 			adicionarCabecalho(tabela, "Usuários relacionados");
 
 			empresaRepository.findAll().stream()
+				//ordena pelo nome da empresa
 				.sorted(Comparator.comparing(Empresa::getNome, String.CASE_INSENSITIVE_ORDER))
 				.forEach(empresa -> {
 					tabela.addCell(String.valueOf(empresa.getId()));
 					tabela.addCell(empresa.getNome());
 					String usuarios = empresa.getUsuarios().stream()
 							.map(Usuario::getEmail)
+							//ordena usuarios de cada empresa pelo email
 							.sorted(String.CASE_INSENSITIVE_ORDER)
 							.collect(Collectors.joining(", "));
 					tabela.addCell(usuarios.isEmpty() ? "Nenhum usuário vinculado" : usuarios);
@@ -109,7 +112,7 @@ public class EmpresaService implements Serializable {
 			document.add(tabela);
 		} catch (DocumentException exception) {
 			throw new IllegalStateException("Nao foi possivel gerar o PDF de empresas", exception);
-		} finally {
+		} finally { //executa sempre, independente se foi try ou catch
 			document.close();
 		}
 		return output.toByteArray();

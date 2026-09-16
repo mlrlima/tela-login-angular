@@ -82,27 +82,38 @@ public class PetService implements Serializable {
 		return pets.map(this::toDTO);
 	}
 
+	//retorna o PDF como uma sequencia de bytes
+	//manda esses bytes diretamente para o navegador
 	public byte[] gerarPdfPets() {
 		Usuario usuarioLogado = logado();
 		if (usuarioLogado == null) {
 			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
 		}
 
+		//se for ADMIN lista todos, se for USER lista apenas os dele
 		List<Pet> pets = usuarioLogado.getRole() == Role.ADMIN
 				? petRepository.findAll()
 				: petRepository.findAllByDono_Id(usuarioLogado.getId());
 
 		Document document = new Document();
+		//lugar na memoria onde os bytes do PDF serao armazenados
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
+			//Liga o PDF ao OutputStream
+			//document -> PdfWriter -> output -> bytes do PDF
 			PdfWriter.getInstance(document, output);
 			document.open();
+			
 			document.add(new Paragraph("Relatório de Pets", new Font(Font.HELVETICA, 16, Font.BOLD)));
+			
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 			document.add(new Paragraph("PDF gerado em: " + LocalDateTime.now().format(formatter)));
+			
 			document.add(new Paragraph(" "));
 
+			// cria a tabela, indicando o tamanho relativo de cada coluna
 			PdfPTable tabela = new PdfPTable(new float[] { 1, 3, 3, 3, 3, 2, 3, 2 });
+			//Ocupa 100% da largura disponivel
 			tabela.setWidthPercentage(100);
 			adicionarCabecalhoPet(tabela, "ID");
 			adicionarCabecalhoPet(tabela, "Nome");
@@ -113,7 +124,9 @@ public class PetService implements Serializable {
 			adicionarCabecalhoPet(tabela, "Localização");
 			adicionarCabecalhoPet(tabela, "Intervalo em segundos");
 
+			// .stream() permite fazer operaçoes funcionais sobre a lista. processa um por um
 			pets.stream()
+					// oedena pelo nome do pet
 					.sorted(Comparator.comparing(Pet::getNome, String.CASE_INSENSITIVE_ORDER))
 					.forEach(pet -> {
 						tabela.addCell(String.valueOf(pet.getId()));
@@ -131,7 +144,7 @@ public class PetService implements Serializable {
 			document.add(tabela);
 		} catch (DocumentException exception) {
 			throw new IllegalStateException("Não foi possível gerar o PDF de pets", exception);
-		} finally {
+		} finally { //executa sempre, independente se foi try ou catch
 			document.close();
 		}
 		return output.toByteArray();
