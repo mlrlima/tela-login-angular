@@ -43,5 +43,9 @@ export class EmpresaService {
 	remover(id: number): Observable<void> {
 	  return this.http.delete<void>(`${environment.apiUrl}/empresa/${id}`);
 	}
+
+	baixarPdf(): Observable<Blob> {
+	  return this.http.get(`${environment.apiUrl}/empresa/pdf`, { responseType: 'blob' });
+	}
 	
 }

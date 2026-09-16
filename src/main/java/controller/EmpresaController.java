@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +36,15 @@ public class EmpresaController {
 		 Pageable pageable = PageRequest.of(page, size);
 		 Page<EmpresaResponseDTO> empresas = service.getAllEmpresas(pageable);
 		 return ResponseEntity.ok(empresas);
+	}
+
+	@GetMapping("/pdf")
+	public ResponseEntity<byte[]> gerarPdf() {
+		byte[] pdf = service.gerarPdfEmpresas();
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=empresas.pdf")
+				.contentType(MediaType.APPLICATION_PDF)
+				.body(pdf);
 	}
     
     @PostMapping

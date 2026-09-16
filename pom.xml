@@ -134,8 +134,14 @@
 	<dependency>
 	    <groupId>org.springframework.boot</groupId>
 	    <artifactId>spring-boot-starter-cache</artifactId>
-	    <version>3.5.7</version>
 	</dependency>
+
+  <!-- geracao dos relatorios PDF -->
+  <dependency>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>1.3.39</version>
+  </dependency>
     
   </dependencies>
 

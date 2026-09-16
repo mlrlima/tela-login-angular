@@ -103,6 +103,23 @@ export class GestaoEmpresas implements OnInit{
 	     empresa.nome?.toLowerCase().includes(termo) 
 	   );
 	 }
+
+	baixarPdf(): void {
+		this.empresaService.baixarPdf().subscribe({
+			next: (arquivo) => {
+				const url = URL.createObjectURL(arquivo);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = 'empresas.pdf';
+				link.click();
+				URL.revokeObjectURL(url);
+			},
+			error: () => {
+				this.mensagens = 'Nao foi possivel gerar o PDF de empresas.';
+				this.cdr.detectChanges();
+			}
+		});
+	}
 	 
 	 remover(id: number | undefined): void {
 	   if (id == null) return;
