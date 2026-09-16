@@ -1,7 +1,20 @@
 package service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -67,6 +80,67 @@ public class PetService implements Serializable {
 		}
 		
 		return pets.map(this::toDTO);
+	}
+
+	public byte[] gerarPdfPets() {
+		Usuario usuarioLogado = logado();
+		if (usuarioLogado == null) {
+			throw new GlobalExceptionHandler.UnauthorizedException("Sem permissão");
+		}
+
+		List<Pet> pets = usuarioLogado.getRole() == Role.ADMIN
+				? petRepository.findAll()
+				: petRepository.findAllByDono_Id(usuarioLogado.getId());
+
+		Document document = new Document();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			PdfWriter.getInstance(document, output);
+			document.open();
+			document.add(new Paragraph("Relatório de Pets", new Font(Font.HELVETICA, 16, Font.BOLD)));
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+			document.add(new Paragraph("PDF gerado em: " + LocalDateTime.now().format(formatter)));
+			document.add(new Paragraph(" "));
+
+			PdfPTable tabela = new PdfPTable(new float[] { 1, 3, 3, 3, 3, 2, 3, 2 });
+			tabela.setWidthPercentage(100);
+			adicionarCabecalhoPet(tabela, "ID");
+			adicionarCabecalhoPet(tabela, "Nome");
+			adicionarCabecalhoPet(tabela, "Espécie");
+			adicionarCabecalhoPet(tabela, "Dono");
+			adicionarCabecalhoPet(tabela, "Nascimento");
+			adicionarCabecalhoPet(tabela, "Peso em gramas");
+			adicionarCabecalhoPet(tabela, "Localização");
+			adicionarCabecalhoPet(tabela, "Intervalo em segundos");
+
+			pets.stream()
+					.sorted(Comparator.comparing(Pet::getNome, String.CASE_INSENSITIVE_ORDER))
+					.forEach(pet -> {
+						tabela.addCell(String.valueOf(pet.getId()));
+						tabela.addCell(pet.getNome());
+						tabela.addCell(pet.getEspecie().name());
+						tabela.addCell(pet.getDono().getEmail());
+						tabela.addCell(pet.getDataNascimento() == null ? "-" : pet.getDataNascimento().toString());
+						tabela.addCell(String.valueOf(pet.getPeso()));
+						tabela.addCell(pet.getLatitude() == null || pet.getLongitude() == null
+								? "-"
+								: pet.getLatitude() + ", " + pet.getLongitude());
+						tabela.addCell(String.valueOf(pet.getIntervaloMover()));
+					});
+
+			document.add(tabela);
+		} catch (DocumentException exception) {
+			throw new IllegalStateException("Não foi possível gerar o PDF de pets", exception);
+		} finally {
+			document.close();
+		}
+		return output.toByteArray();
+	}
+
+	private void adicionarCabecalhoPet(PdfPTable tabela, String texto) {
+		PdfPCell celula = new PdfPCell(new Phrase(texto, new Font(Font.HELVETICA, 10, Font.BOLD)));
+		celula.setBackgroundColor(new java.awt.Color(230, 230, 230));
+		tabela.addCell(celula);
 	}
 
 	@Transactional

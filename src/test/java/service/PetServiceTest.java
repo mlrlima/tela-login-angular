@@ -162,6 +162,36 @@ class PetServiceTest {
 		verify(petRepository, never()).findAll(any(Pageable.class));
 	}
 
+	@Test
+	void admin_gera_pdf_com_todos_os_pets() {
+		Pet petDeOutroUsuario = new Pet();
+		petDeOutroUsuario.setId(101L);
+		petDeOutroUsuario.setNome("Mingau");
+		petDeOutroUsuario.setEspecie(Especie.GATO);
+		petDeOutroUsuario.setDono(outroUser);
+
+		logarComo(admin);
+		when(petRepository.findAll()).thenReturn(Arrays.asList(petDoUserComum, petDeOutroUsuario));
+
+		byte[] pdf = petService.gerarPdfPets();
+
+		assertTrue(new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1).startsWith("%PDF"));
+		verify(petRepository).findAll();
+		verify(petRepository, never()).findAllByDono_Id(anyLong());
+	}
+
+	@Test
+	void user_gera_pdf_apenas_com_seus_pets() {
+		logarComo(userComum);
+		when(petRepository.findAllByDono_Id(userComum.getId())).thenReturn(Arrays.asList(petDoUserComum));
+
+		byte[] pdf = petService.gerarPdfPets();
+
+		assertTrue(new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1).startsWith("%PDF"));
+		verify(petRepository).findAllByDono_Id(userComum.getId());
+		verify(petRepository, never()).findAll();
+	}
+
 	// PetResponseDTO createPet(Pet pet) ====================================================
 
 	@Test

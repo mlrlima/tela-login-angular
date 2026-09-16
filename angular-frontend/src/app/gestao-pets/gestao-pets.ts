@@ -89,6 +89,23 @@ export class GestaoPets implements OnInit {
 	  );
 	}
 
+	baixarPdf(): void {
+		this.petService.baixarPdf().subscribe({
+			next: (arquivo) => {
+				const url = URL.createObjectURL(arquivo);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = 'pets.pdf';
+				link.click();
+				URL.revokeObjectURL(url);
+			},
+			error: () => {
+				this.mensagens = 'Nao foi possivel gerar o PDF de pets.';
+				this.cdr.detectChanges();
+			}
+		});
+	}
+
 	carregar(): void {
 	    this.carregando = true;
 	    this.petService.listar(this.paginaAtual, this.tamanhoPagina).subscribe({

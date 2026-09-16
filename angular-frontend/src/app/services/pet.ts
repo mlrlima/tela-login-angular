@@ -52,4 +52,8 @@ export class PetService {
   atualizarLocalizacao(id: number, latitude: number, longitude: number): Observable<Pet> {
     return this.http.put<Pet>(`${environment.apiUrl}/pet/${id}/localizacao`, { latitude, longitude });
   }
+
+  baixarPdf(): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/pet/pdf`, { responseType: 'blob' });
+  }
 }
