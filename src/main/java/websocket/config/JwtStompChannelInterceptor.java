@@ -54,9 +54,25 @@ public class JwtStompChannelInterceptor implements ChannelInterceptor {
 
             // coloca o usuário autenticado na mensagem STOMP, para saber quem enviou
             accessor.setUser(new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities()));
+            return message;
+        }
+
+        //se for subscribe ou send, precisa ser um usuario autenticado
+        if (accessor.getCommand() == StompCommand.SUBSCRIBE || accessor.getCommand() == StompCommand.SEND) {
+            String destination = accessor.getDestination();
+            if (destination != null && isProtectedDestination(destination)) {
+                if (accessor.getUser() == null) {
+                    throw new AccessDeniedException("Usuario nao autenticado para assinar ou enviar no destino protegido");
+                }
+            }
         }
 
         return message;
+    }
+
+    private boolean isProtectedDestination(String destination) {
+        return "/topic/pet-location-lote".equals(destination)
+                || destination.startsWith("/topic/pet-location-lote/");
     }
 
     private String resolveToken(StompHeaderAccessor accessor) {
