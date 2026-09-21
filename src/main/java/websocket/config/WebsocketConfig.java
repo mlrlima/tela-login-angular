@@ -22,7 +22,11 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) { //recebe mensagens e envia para quem estiver inscrito
         // broker em memoria (RAM do servidor) para os clientes se inscreverem
-        config.enableSimpleBroker("/topic"); //envia para os clientes
+        // canal publico para broadcasts gerais: /topic
+        // canal privado para mensagens do usuario autenticado: /user
+        config.enableSimpleBroker("/topic", "/queue");
+        config.setUserDestinationPrefix("/user");
+        config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
