@@ -29,10 +29,14 @@ public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // O endpoint que os clientes conectam inicialmente
         registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns( // CORS, apenas permite acessos especificos 
+                		"https://localhost:4200", "http://localhost:4200" /*, "https://*.seu-dominio.com"*/
+                		)
                 .addInterceptors(jwtHandshakeInterceptor)
                 .withSockJS();
         //SockJS é uma biblioteca que simula WebSocket quando o navegador ou a rede não suportam WebSocket nativamente.
         // web server <-> web browser
+        // Em producao, manter apenas origens autorizadas e usar HTTPS.
     }
 
     @Override

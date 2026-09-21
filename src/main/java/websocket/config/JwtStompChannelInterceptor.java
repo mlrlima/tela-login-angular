@@ -57,12 +57,16 @@ public class JwtStompChannelInterceptor implements ChannelInterceptor {
             return message;
         }
 
-        //se for subscribe ou send, precisa ser um usuario autenticado
+        //se for subscribe ou send, precisa ser um usuario autenticado e com papel permitido
         if (accessor.getCommand() == StompCommand.SUBSCRIBE || accessor.getCommand() == StompCommand.SEND) {
             String destination = accessor.getDestination();
             if (destination != null && isProtectedDestination(destination)) {
                 if (accessor.getUser() == null) {
                     throw new AccessDeniedException("Usuario nao autenticado para assinar ou enviar no destino protegido");
+                }
+
+                if (!hasAuthorizedRole(accessor.getUser())) {
+                    throw new AccessDeniedException("Usuario sem papel autorizado para o destino protegido");
                 }
             }
         }
@@ -73,6 +77,21 @@ public class JwtStompChannelInterceptor implements ChannelInterceptor {
     private boolean isProtectedDestination(String destination) {
         return "/topic/pet-location-lote".equals(destination)
                 || destination.startsWith("/topic/pet-location-lote/");
+    }
+
+    // apenas permite usuarios com role
+    private boolean hasAuthorizedRole(java.security.Principal principal) {
+        if (principal == null) {
+            return false;
+        }
+
+        if (principal instanceof org.springframework.security.core.Authentication authentication) {
+            return authentication.getAuthorities().stream()
+                    .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority())
+                            || "ROLE_USER".equals(authority.getAuthority()));
+        }
+
+        return false;
     }
 
     private String resolveToken(StompHeaderAccessor accessor) {
