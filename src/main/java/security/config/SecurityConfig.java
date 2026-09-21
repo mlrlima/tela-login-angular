@@ -53,7 +53,7 @@ public class SecurityConfig {
 	                                "/{path:^(?!api|assets|.*\\.).*$}",
 	                                "/{path:^(?!api|assets|.*\\.).*$}/**"
 	                            ).permitAll()
-	                        .requestMatchers("/ws/**").permitAll() 
+                        .requestMatchers("/ws/**").authenticated() // WebSocket exige autenticacao no handshake
 	                        .anyRequest().authenticated() //para o resyo 
 	            )
 				// rateLimitingFilter -> securityFilter -> UsernamePasswordAuthenticationFilter

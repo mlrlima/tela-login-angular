@@ -42,6 +42,7 @@ public class EmpresaController {
 	public ResponseEntity<byte[]> gerarPdf() {
 		byte[] pdf = service.gerarPdfEmpresas();
 		return ResponseEntity.ok()
+				//arquivo para download
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=empresas.pdf")
 				.contentType(MediaType.APPLICATION_PDF)
 				.body(pdf);
